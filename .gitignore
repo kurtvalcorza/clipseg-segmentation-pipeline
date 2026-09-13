@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+outputs/
+.DS_Store
+
+# Model weights are pulled locally; only small config/tokenizer files are committable
+weights/**/*.safetensors
+weights/**/*.ckpt
+weights/**/*.bin
+weights/**/*.pt
+weights/**/*.pth
+weights/**/*.onnx
+weights/**/.cache/

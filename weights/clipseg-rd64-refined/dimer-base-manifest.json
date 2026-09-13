@@ -1,0 +1,50 @@
+{
+  "format": "dimer_hf_snapshot",
+  "formatVersion": 1,
+  "modelKey": "clipseg-rd64-refined",
+  "modelId": "CIDAS/clipseg-rd64-refined",
+  "revision": "999e0328d9e10b484360c477313983f9afdd7050",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 596,
+      "sha256": "c1e26ac022542015a04d804460bdc1159d753c4349b628e086f127475d2fcf25"
+    },
+    {
+      "path": "config.json",
+      "bytes": 4732,
+      "sha256": "c023375966d31b3b1392764f7bd91df47098ce19f62f11b0263d8eedcf708bcd"
+    },
+    {
+      "path": "merges.txt",
+      "bytes": 524619,
+      "sha256": "9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a"
+    },
+    {
+      "path": "model.safetensors",
+      "bytes": 603049496,
+      "sha256": "d00ca85d6b859f9d07b7cfb8ef26fe9771cb275b34c9368f2ecf603139307f55"
+    },
+    {
+      "path": "preprocessor_config.json",
+      "bytes": 380,
+      "sha256": "4fb09ebcfd7651205ca8299b993c30088e5535ef350a72d46c5c4580eeac0440"
+    },
+    {
+      "path": "special_tokens_map.json",
+      "bytes": 472,
+      "sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac"
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 974,
+      "sha256": "4c75d57fd9bd0be8478ad2d6f8b9cebdd4a45338eb108547329c2b6333476ca6"
+    },
+    {
+      "path": "vocab.json",
+      "bytes": 1059962,
+      "sha256": "e089ad92ba36837a0d31433e555c8f45fe601ab5c221d4f607ded32d9f7a4349"
+    }
+  ],
+  "totalBytes": 604641231
+}
