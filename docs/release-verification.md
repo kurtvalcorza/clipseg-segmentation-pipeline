@@ -116,7 +116,7 @@ they are measurements for the stated runtime, not general estimates.
 
 | Date (UTC) | Commit / notebook blob | Executor | Path exercised | Wall | Outcome |
 |---|---|---|---|---|---|
-__LOCAL_ROW__
+| 2026-09-14 | notebook blob `45dfcd9ef31e` (commit `6f8bb03`, generated at `230938f`; `NOTEBOOK_SOURCE.repository_revision` = `230938f…`) | Local Windows-venv harness (`run_nb_local.py`: nbclient 0.11.0, fresh `python3` kernel, `CUDA_VISIBLE_DEVICES=-1`, `DIMER_NOTEBOOK_CI_PREINSTALLED=1`), Python 3.12.10, torch 2.14.0+cu130, transformers 4.57.6 | Default synthetic path, all 8 code cells: pinned install skipped (pre-installed), `stage_missing_files` fetched all 8 manifest entries (603 MB) from the Hub cache at the pinned revision into the scratch `weights/`, `verify_snapshot` PASS (8 files), no further download in the log, one `segment` call over six phrases in 0.95 s → areas 0.324 / 0.082 / 0.151 / 0.053 for the four shapes and 0.000 for `a cat` and `the sky`, `evaluation_report` `sample-sanity` (`mask_iou` 0.958 / 0.964 / 0.960 / 0.908, `miou` 0.947 — identical to the smoke run), scene digest `7d695224…`, 11 outputs written (JSON ×3, overlay PNG, six mask PNGs, one `.npz`) | 65.4 s | PASS — pre-flight only; not promotion evidence |
 
 ### Manual clean-runtime evidence
 
