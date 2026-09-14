@@ -65,3 +65,7 @@ weights/clipseg-rd64-refined/
 ## Licensing
 
 This repository's code is Apache-2.0 (see `LICENSE`). The upstream weights carry the Hub's Apache-2.0 tag; see `docs/WEIGHTS.md` for the recorded discrepancy with the original code repository's statement, and `MODEL_CARD.md`.
+
+## AI Assistance Disclosure
+
+This tutorial and its accompanying documentation were developed with generative AI assistance for code development and technical writing under maintainer direction. The maintainer remains responsible for reviewing the implementation, validating results, and making release decisions. AI assistance does not constitute independent verification, provider endorsement, or release approval.
