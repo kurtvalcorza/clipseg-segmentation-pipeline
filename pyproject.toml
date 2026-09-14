@@ -1,0 +1,36 @@
+[project]
+name = "clipseg-segmentation-pipeline"
+version = "0.1.0"
+description = "DIMER inference pipeline for CLIPSeg rd64-refined text-prompted image segmentation"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { file = "LICENSE" }
+authors = [{ name = "Kurt Valcorza" }]
+dependencies = [
+  "torch==2.14.0",
+  "torchvision==0.29.0",
+  "torchaudio==2.11.0",
+  "transformers==4.57.6",
+  "safetensors==0.8.0",
+  "numpy==2.5.3",
+  "pillow==11.3.0",
+  "huggingface-hub==0.36.2",
+]
+[project.optional-dependencies]
+dev = ["pytest==8.4.2", "ruff==0.16.6"]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["src/clipseg_segmentation_pipeline"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
