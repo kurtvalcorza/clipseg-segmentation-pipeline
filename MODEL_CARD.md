@@ -2,6 +2,7 @@
 license: apache-2.0
 model_card_spec: "1.1"
 pipeline_tag: image-segmentation
+task: "Segmentation - Text-Prompted"
 base_model: CIDAS/clipseg-rd64-refined
 date_published: "2022-11-01"
 date_published_source: "Hugging Face Hub repository creation date of the exact hosted checkpoint (`createdAt` 2022-11-01T14:25:57Z, https://huggingface.co/api/models/CIDAS/clipseg-rd64-refined — the Transformers-format release); the CLIPSeg paper is arXiv:2112.10003 (2021-12) and the pinned revision is the Hub's `main` as of 2026-09-14"
