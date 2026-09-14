@@ -7,7 +7,7 @@ date_published: "2022-11-01"
 date_published_source: "Hugging Face Hub repository creation date of the exact hosted checkpoint (`createdAt` 2022-11-01T14:25:57Z, https://huggingface.co/api/models/CIDAS/clipseg-rd64-refined — the Transformers-format release); the CLIPSeg paper is arXiv:2112.10003 (2021-12) and the pinned revision is the Hub's `main` as of 2026-09-14"
 ---
 
-# CLIPSeg rd64-refined (DIMER package v0.1.0) — Text-Prompted Image Segmentation (Inference)
+# CLIPSeg rd64-refined — Text-Prompted Image Segmentation (Inference)
 
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-CIDAS%2Fclipseg--rd64--refined-ffcc4d?style=flat)](https://huggingface.co/CIDAS/clipseg-rd64-refined)
 [![Upstream GitHub](https://img.shields.io/badge/Upstream%20GitHub-timojl%2Fclipseg-181717?style=flat&logo=github&logoColor=white)](https://github.com/timojl/clipseg)
