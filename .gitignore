@@ -15,3 +15,6 @@ weights/**/*.pt
 weights/**/*.pth
 weights/**/*.onnx
 weights/**/.cache/
+
+# Digest-pinned FoodSeg103 row-group cache (fetched over range requests at run time; never vendored)
+weights/foodseg103/

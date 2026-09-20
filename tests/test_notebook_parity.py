@@ -3,6 +3,7 @@
 The notebook carries `src/<package>/pipeline.py` verbatim; these tests fail whenever the carried
 cell, the inline manifest, or the inline pins diverge from the repository at HEAD.
 """
+# ruff: noqa: E501  -- assertion messages and paths are kept on one line; repos pin line-length 100 or 110
 
 from __future__ import annotations
 
@@ -28,7 +29,8 @@ def _load(name: str):
 build = _load("build_notebook")
 TEMPLATE = _load("notebook_template").TEMPLATE
 NOTEBOOK = ROOT / "tutorials" / TEMPLATE["notebook_name"]
-MODULE = ROOT / "src" / TEMPLATE["package"] / "pipeline.py"
+PKG_DIR = ROOT / TEMPLATE.get("package_dir", f"src/{TEMPLATE['package']}")
+MODULE = PKG_DIR / TEMPLATE.get("entry_module", "pipeline.py")
 MANIFEST = ROOT / "weights" / TEMPLATE["weights_key"] / "dimer-base-manifest.json"
 
 
@@ -48,29 +50,42 @@ def _source(cell: dict) -> str:
     return "".join(src) if isinstance(src, list) else src
 
 
-def test_par1_embedded_module_equals_repository_module(notebook: dict) -> None:
+def test_par1_embedded_modules_equal_repository_modules(notebook: dict) -> None:
+    """One tagged cell per carried module, in dependency order, each equal to its module after rewrites."""
     tagged = [
         c for c in _cells(notebook, "code") if c.get("metadata", {}).get("dimer", {}).get("embedded_module")
     ]
-    assert len(tagged) == 1, "exactly one cell must be tagged metadata.dimer.embedded_module"
-    cell = tagged[0]
-    assert cell["metadata"]["dimer"]["embedded_module"] == f"src/{TEMPLATE['package']}/pipeline.py"
-    expected = build.apply_rewrites(MODULE.read_text(encoding="utf-8"), REWRITES)
-    drifted = "embedded module drifted from src/; regenerate the notebook"
-    assert _source(cell).rstrip("\n") + "\n" == expected, drifted
+    recorded = notebook["metadata"]["dimer"]["generated_from"]["revision"]
+    ctx = build.load_context(ROOT, TEMPLATE, recorded)
+    assert [c["metadata"]["dimer"]["embedded_module"] for c in tagged] == ctx["module_rels"]
+    for cell, module in zip(tagged, ctx["modules"], strict=True):
+        rel = f"{ctx['pkg_rel']}/{module}"
+        assert cell["metadata"]["dimer"]["module_sha256"] == ctx["per_module_sha256"][rel]
+        drifted = f"embedded module cell for {rel} drifted from the package; regenerate the notebook"
+        assert _source(cell).rstrip("\n") + "\n" == ctx["embedded"][module], drifted
 
 
 REWRITES = TEMPLATE.get("rewrites", build.REWRITES)  # a template may declare its own rules (generator /2)
 
 
 def test_par1_rewrite_rules_are_the_only_difference() -> None:
-    module = MODULE.read_text(encoding="utf-8")
-    rewritten = build.apply_rewrites(module, REWRITES)
-    diff = [(a, b) for a, b in zip(module.splitlines(), rewritten.splitlines(), strict=True) if a != b]
-    assert len(diff) == len(REWRITES)
-    for original, replaced in diff:
-        assert "__file__" in original, original
-        assert "__file__" not in replaced and "standalone rewrite" in replaced, replaced
+    """Every line the generator changed in a carried module is a documented rewrite: the template's
+    `__file__` rules (each exactly once across modules), a removed package-relative import, or a
+    disabled `__main__` guard. Compared with difflib because a multi-line import collapses to one
+    marker line."""
+    import difflib
+
+    ctx = build.load_context(ROOT, TEMPLATE)
+    rule_hits = 0
+    for module, original in ctx["texts"].items():
+        a, b = original.splitlines(), ctx["embedded"][module].splitlines()
+        for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(a=a, b=b, autojunk=False).get_opcodes():
+            if tag == "equal":
+                continue
+            replaced = b[j1:j2]
+            assert replaced and all("standalone rewrite" in line for line in replaced), (module, a[i1:i2], replaced)
+            rule_hits += sum("__file__" in line for line in a[i1:i2])
+    assert rule_hits == len(REWRITES)
 
 
 def test_par2_inline_manifest_and_pins_match_repository(notebook: dict) -> None:
@@ -82,11 +97,13 @@ def test_par2_inline_manifest_and_pins_match_repository(notebook: dict) -> None:
     pins_block = re.search(r"^PINS = \[(.*?)^\]", code, re.M | re.S)
     assert pins_block, "install cell must carry PINS = [...]"
     inline_pins = re.findall(r"'([^']+)'", pins_block.group(1))
-    assert inline_pins == build._pins(ROOT)
+    assert inline_pins == build._pins(ROOT, TEMPLATE)
     meta = notebook["metadata"]["dimer"]
     assert meta["standalone"] is True
     assert meta["notebook_spec"] == build.NOTEBOOK_SPEC
-    assert meta["generated_from"]["module"] == f"src/{TEMPLATE['package']}/pipeline.py"
+    pkg_dir = TEMPLATE.get("package_dir", f"src/{TEMPLATE['package']}")
+    entry = TEMPLATE.get("entry_module", "pipeline.py")
+    assert meta["generated_from"]["module"] == f"{pkg_dir}/{entry}"
     assert meta["generated_from"]["module_sha256"] == build.load_context(ROOT, TEMPLATE)["module_sha256"]
 
 
@@ -104,4 +121,5 @@ def test_st1_primary_path_has_no_repository_dependency(notebook: dict) -> None:
     assert "git" not in re.findall(r"subprocess\.run\(\[([^\]]*)\]", code).__str__()
     assert f"import {TEMPLATE['package']}" not in code
     assert f"from {TEMPLATE['package']}" not in code
-    assert "github.com" not in code
+    # own-repository clone/install (ST1); SHA-pinned upstream git dependencies are allowed
+    assert "github.com/kurtvalcorza" not in code
