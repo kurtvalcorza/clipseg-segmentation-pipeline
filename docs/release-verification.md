@@ -109,18 +109,18 @@ Before changing the registry status from `Candidate` to `Release-grade`:
      probe); the six phrases segmented with every structural check `True`, `outputs/…_scene_frozen.json` and `.png`
      written and the `evaluation_report` verdict `sample-sanity` (the inference-only card recorded `miou` 0.947 on
      the four drawn shapes — an observation, not an assertion);
-   - Section 6: the empty-mask baseline (mean IoU 0.0 exactly), the full-mask baseline (≈ @P:FULL_MIOU@) and the
-     frozen model's test rates (≈ @P:FROZEN_MIOU@ mean IoU / @P:FROZEN_DICE@ Dice in the Tesla T4 build record —
-     @P:FROZEN_READ@) with four records' scores printed under their phrases;
+   - Section 6: the empty-mask baseline (mean IoU 0.0 exactly), the full-mask baseline (≈ 0.283) and the
+     frozen model's test rates (≈ 0.637 mean IoU / 0.715 Dice in the Tesla T4 build record —
+     the frozen decoder already finds most dishes — 63 of the 140 held-out records score above 0.8 IoU — but misses 24 almost entirely (IoU under 0.2), typically ingredient names it does not ground at all (`pie`, `lamb`, `garlic`, `shellfish` at 0.0), with precision 0.835 well above recall 0.736: it under-segments) with four records' scores printed under their phrases;
    - Section 7: `pipe.adapt` printing epoch 0 as the frozen model, 1,127,009 trainable of 150,747,746 parameters,
-     and an eight-epoch history with the validation mean IoU rising (build record: @P:VAL_CURVE@, `best_epoch`
-     @P:BEST_EPOCH@);
+     and an eight-epoch history with the validation mean IoU rising (build record: 0.603 → 0.822 / 0.840 / 0.851 / 0.855 / 0.849 / 0.854 / 0.851 / 0.853, `best_epoch`
+     4);
    - Section 8: `pipe.evaluate` on the validation and test splits with the four-way comparison, the predicted area
      and `outputs/…_evaluation_report.json` written (the cell asserts the adapted test mean IoU is at least the
-     frozen one and above the full-mask baseline — @P:ADAPTED_MIOU@ against @P:FROZEN_MIOU@ in the build record,
-     Dice @P:FROZEN_DICE@ → @P:ADAPTED_DICE@);
+     frozen one and above the full-mask baseline — 0.842 against 0.637 in the build record,
+     Dice 0.715 → 0.904);
    - Section 9: six example panels under `outputs/…_examples/`; the drawn scene re-segmented by the adapted model
-     with `outputs/…_scene_adapted.json` and `.png` (build record: @P:DRAWING_AFTER@ — a recorded observation, not an
+     with `outputs/…_scene_adapted.json` and `.png` (build record: before adaptation `green grass` 0.96, `a red circle` 0.96, `a blue square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.95); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000; after adaptation `green grass` 0.97, `a red circle` 0.97, `a blue square` 0.96, `a yellow triangle` 0.93 (mean IoU 0.96); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000 — a recorded observation, not an
      assertion); `pipe.save_artifact` writing `outputs/…_adapter/{adapter.safetensors,manifest.json}` (the decoder,
      about 4.5 MB) and `ClipSegSegmentationPipeline.from_artifact` reloading it with 8/8 identical masks on eight
      test records (the cell asserts it); `outputs/…_result.json` written with `NOTEBOOK_SOURCE`, the model identity
@@ -152,7 +152,7 @@ stated runtime, not general estimates.
 
 | Date (UTC) | Commit / notebook blob | Executor | Path exercised | Wall | Outcome |
 |---|---|---|---|---|---|
-| 2026-09-20 | package API at `@P:PROBE_SHA@` (pre-flight, not the notebook blob) | Kaggle Tesla T4 script kernel (`kurtvalcorza/dimer-probe-clipseg-e2e` v1; `torch 2.14.0+cu130`, `transformers 4.57.6`, Python 3.12, `cuda:0`, float32), branch cloned, pins installed, snapshot staged from the Hub | `tests/test_model_backed.py` (@P:MB_RESULT@) and the recipe probe: the eight pinned row groups read over range requests (800 records, digest match), empty and full baselines, frozen model on the 140 test records, `adapt(epochs=8, lr=3e-4, batch_size=8)` with validation-mIoU selection, adapted evaluation, artifact round trip | @P:PROBE_WALL@ | @P:PROBE_OUTCOME@ |
+| 2026-09-21 | package API at `d7b8652` (pre-flight, not the notebook blob) | Kaggle Tesla T4 script kernel (`kurtvalcorza/dimer-probe-clipseg-e2e` v3 — v1 was never run and v2 died after its green pytest on an import-path slip in the probe script, not in the row; `torch 2.14.0+cu130`, `transformers 4.57.6`, Python 3.12, `cuda:0`, float32), branch cloned, pins installed, snapshot staged from the Hub | `tests/test_model_backed.py` (7 passed, 19 warnings in 43.48s) and the recipe probe: the eight pinned row groups read over range requests (800 records, digest match), empty and full baselines, frozen model on the 140 test records, `adapt(epochs=8, lr=3e-4, batch_size=8)` with validation-mIoU selection, adapted evaluation, artifact round trip | 398 s | **PASS** — 7 passed, 19 warnings in 43.48s; the notebook's 8 code cells re-executed through the package API in 130 s with peak CUDA memory 1.61 GB; the metrics it produced are the ones the notebook run above recorded (same seed, same split, same recipe) |
 | 2026-09-20 | package API at the working tree of `feat/e2e-segmentation-adaptation` (pre-flight, not the notebook blob) | Windows venv `dimer-next16` (`torch 2.14.0+cu130`, `transformers 4.57.6`, Python 3.12.10, `cpu`, float32), `CUDA_VISIBLE_DEVICES=-1`, `HF_HUB_OFFLINE=1`, row groups cached | the CPU recipe sweep on the default split (600 / 60 / 140): frozen 0.637 mean IoU (Dice 0.715, precision 0.835, recall 0.736; empty 0.000, full 0.283); 8 epochs, batch 8, validation mean IoU per epoch (epoch 0 = frozen 0.603) → test mean IoU / Dice at the kept epoch: lr 3e-5 → 0.777 … 0.820 (epoch 7 kept) → 0.804 / 0.875; lr 1e-4 → 0.813 … 0.844, still rising at epoch 8 (kept) → 0.831 / 0.896; **lr 3e-4 → 0.822, 0.840, 0.851, 0.855 (epoch 4 kept), then 0.848–0.854 plateau → 0.842 / 0.904**; lr 1e-3 → 0.848, 0.834, 0.850, 0.856, 0.858 (epoch 5 kept), 0.855, 0.849, 0.856 → 0.850 / 0.910. 3e-4 and 1e-3 are within noise of each other; 3e-4 plateaus by epoch 4 without the epoch-2 dip and is the default. Decoder-on-cache parity max abs 7.0e-4 (fp16 cache); artifact 4,514,484 bytes; reload parity 8/8 | ~19 min (tower cache 129–157 s per arm, adapt 307–369 s per arm incl. the eight validation passes, frozen test 35.8 s; the box was shared with another CPU job) | PASS — pre-flight only; fixed the recipe at lr 3e-4 × 8; not promotion evidence |
 | 2026-09-14 | `69dc7ee` / `2fd1160bfd0d` (`TASK-INFERENCE`, superseded) | Kaggle CPU (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v1) | Default sample path, `Run all` from a fresh interpreter, no repository checkout | 224.8 s | PASSED — 8/8 code cells, 18 files, 605 MB staged; not evidence for the `E2E` blob |
 
@@ -167,10 +167,10 @@ API (table above).
 Facts a reviewer should weigh: the sample is food photographs with the largest ingredient's mask, a phrase vocabulary
 (`bread`, `chicken duck`, `steak`, …) and a boundary convention the PhraseCut-trained decoder never saw, but the CLIP
 towers know the words, which is why the frozen model already lands well above the full-mask baseline
-(@P:FROZEN_READ@) and why the gain is a boundary refinement of one decoder on one convention, not a repair of a domain
+(the frozen decoder already finds most dishes — 63 of the 140 held-out records score above 0.8 IoU — but misses 24 almost entirely (IoU under 0.2), typically ingredient names it does not ground at all (`pie`, `lamb`, `garlic`, `shellfish` at 0.0), with precision 0.835 well above recall 0.736: it under-segments) and why the gain is a boundary refinement of one decoder on one convention, not a repair of a domain
 gap; every rate is at one threshold (`MASK_THRESHOLD`) over one reference mask per record and the notebook says so; the
 60-record validation split selects the epoch; the towers are frozen, so what the image encoder cannot resolve at
 352 × 352 stays unsegmented; the decoder that was tuned serves every phrase, and the drawn scene re-segmented after
 adaptation is the only evidence about what happened outside the vocabulary. The forward pass is deterministic on a
 fixed device and dtype, but the training of the decoder is not bit-reproducible across GPUs, and 140 records make a
-few hundredths of mean IoU the expected spread between two runs, not a finding. @P:SIBLING_COMPARISON@
+few hundredths of mean IoU the expected spread between two runs, not a finding. The Tesla T4 run reproduced the CPU sweep exactly (0.842 / 0.904 at epoch 4, plateau 0.849–0.855 after). The row has no sibling on this corpus — CLIPSeg is the fleet's only text-prompted segmenter — so the comparison is the frozen decoder against the tuned one on the same 140 records: the gain is almost all recall (0.736 → 0.927 at precision 0.835 → 0.881), the records under 0.2 IoU fall from 24 to 1 and those above 0.8 rise from 63 to 111, one record (`garlic`) stays at 0.0, and the drawn scene outside the vocabulary moved by a hundredth (0.947 → 0.958 mean IoU, the two absent phrases still empty): a decoder of 1.1 M parameters learned FoodSeg103's annotation convention, not new visual concepts.

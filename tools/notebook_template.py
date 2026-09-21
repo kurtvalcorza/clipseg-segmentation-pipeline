@@ -64,8 +64,8 @@ TEMPLATE = {
         "held-out records and the drawn scene with the adapted model, exports the adapter as safetensors with a manifest, "
         "and reloads that artifact into a fresh pipeline to verify mask parity. The default path needs no repository clone, "
         "no DIMER worker or service, no credential, no upload dialog and no configuration edit (NOTEBOOK_SPEC 2.0 §5). On a "
-        "Tesla T4 the default path took about @P:T4_TOTAL_MIN@ minutes of cell time (eight epochs @P:T4_ADAPT_S@ s, frozen "
-        "scoring of 140 records @P:T4_FROZEN_S@ s); a CUDA runtime is used automatically when present, and the path is "
+        "Tesla T4 the default path took about 2 minutes of cell time (eight epochs 59 s, frozen "
+        "scoring of 140 records 7 s); a CUDA runtime is used automatically when present, and the path is "
         "practical on CPU too (the build venv cached the 660 training and validation records in about "
         "two to three minutes and trained the decoder in seconds per epoch)."
     ),
@@ -88,8 +88,8 @@ TEMPLATE = {
         "The records are food photographs from FoodSeg103, each paired with the name of the ingredient that covers the most "
         "pixels (`bread`, `chicken duck`, `steak`, `pie`, …) and that ingredient's pixel mask — a phrase vocabulary and a "
         "boundary convention far from the PhraseCut phrases the decoder was trained on, and on them the frozen model "
-        "already finds the right region roughly: a mean IoU of **@P:FROZEN_MIOU@** on the 140 held-out records in the "
-        "build record (the full-mask baseline scores @P:FULL_MIOU@). So the honest question is narrow: does a bounded "
+        "already finds the right region roughly: a mean IoU of **0.637** on the 140 held-out records in the "
+        "build record (the full-mask baseline scores 0.283). So the honest question is narrow: does a bounded "
         "fine-tuning of the 1,127,009-parameter decoder on 600 records — the CLIP towers frozen, exactly as the upstream "
         "authors trained it — move the held-out **mean IoU**, **Dice**, **pixel precision** and **pixel recall** on an "
         "image-disjoint test split past the frozen model and two **non-adapted baselines**, and what does it do to the "
@@ -119,7 +119,7 @@ TEMPLATE = {
         "that ingredient masks stand in for your images. The repository exposes none of these."
     ),
     "prerequisites": [
-        "- **Runtime:** a fresh supported runtime (Google Colab or Kaggle, Python 3.12; CPU or CUDA). The default path uses CUDA automatically when present. The CLIP towers run `EVAL_BATCH_SIZE` records per forward and the build record measured @P:T4_FROZEN_S@ s to score 140 records and @P:T4_ADAPT_S@ s for the eight epochs (caching the tower activations for 600 + 60 records took @P:T4_CACHE_S@ s) on a Tesla T4, about @P:T4_TOTAL_MIN@ minutes of cell time for the whole path including the pinned install and the downloads. The pinned `torch==2.14.0` install and the 603 MB checkpoint are the large downloads of the run; the row groups are about 43 MB. The activation cache holds about 1.3 GB of half-precision tensors on the host for 600 records.",
+        "- **Runtime:** a fresh supported runtime (Google Colab or Kaggle, Python 3.12; CPU or CUDA). The default path uses CUDA automatically when present. The CLIP towers run `EVAL_BATCH_SIZE` records per forward and the build record measured 7 s to score 140 records and 59 s for the eight epochs (caching the tower activations for 600 + 60 records took 30 s) on a Tesla T4, about 2 minutes of cell time for the whole path including the pinned install and the downloads. The pinned `torch==2.14.0` install and the 603 MB checkpoint are the large downloads of the run; the row groups are about 43 MB. The activation cache holds about 1.3 GB of half-precision tensors on the host for 600 records.",
         "- **Knowledge:** basic Python, NumPy and PIL; what a per-pixel sigmoid is and why thresholding it is a decision the caller owns; what intersection-over-union and Dice measure and why 140 records from one draw give no dispersion; why a self-drawn scene is a plumbing check while a held-out split of one labelled set is a measurement of that set only.",
         "- **Data contract:** records are `{id, image, prompt, mask}` — `image` a PIL image (or a file decodable by Pillow) with sides within 16..4,096 px, `prompt` one phrase of at most 64 characters (normalised like a query), `mask` a boolean height × width array or a mask image whose non-zero pixels are the mask, with at least one true pixel. Ids match `[A-Za-z0-9_.:-]{1,64}` and are unique; a dataset needs 8..5,000 records; splitting de-duplicates by decoded pixels so no image lands in two splits. BYOD accepts one zip (or directory) of images and mask images plus a `masks.csv` in the layout named above.",
         "- **Validation is structural, not semantic:** every image and mask is decoded and every phrase checked, but nothing checks that a mask outlines what its phrase names — a mislabelled set is fine-tuned on without complaint.",
@@ -290,8 +290,8 @@ TEMPLATE = {
                 "photograph\" buys without looking. The **frozen model** is scored by `pipe.evaluate`, which segments every "
                 "record's phrase on its image in batches of `EVAL_BATCH_SIZE`, thresholds the sigmoid at `THRESHOLD` and "
                 "scores the mask. Expect the frozen model **well above both baselines** — it is a phrase-conditioned "
-                "segmenter and these are nameable things: the build record measured **@P:FROZEN_MIOU@** mean IoU on the 140 "
-                "held-out records (@P:FROZEN_READ@); read four records' scores under their phrases."
+                "segmenter and these are nameable things: the build record measured **0.637** mean IoU on the 140 "
+                "held-out records (the frozen decoder already finds most dishes — 63 of the 140 held-out records score above 0.8 IoU — but misses 24 almost entirely (IoU under 0.2), typically ingredient names it does not ground at all (`pie`, `lamb`, `garlic`, `shellfish` at 0.0), with precision 0.835 well above recall 0.736: it under-segments); read four records' scores under their phrases."
             ),
             "code": (
                 "METRICS = ('miou', 'iou_micro', 'dice', 'pixel_precision', 'pixel_recall')\n\n"
@@ -322,8 +322,8 @@ TEMPLATE = {
                 "at 1.0, seeded shuffling, no scheduler, no augmentation. Epoch 0 records the frozen model's validation "
                 "rates; every epoch is scored on the 60 validation records at `THRESHOLD`, and the epoch with the **highest "
                 "validation mean IoU** (the earliest on ties) is kept.\n\n"
-                "Watch the validation mean IoU rise from @P:VAL_MIOU_0@ to @P:VAL_MIOU_BEST@ (epoch @P:BEST_EPOCH@ in the build "
-                "record) while the loss drops from about @P:LOSS_1@ to @P:LOSS_LAST@: @P:ADAPTED_READ@."
+                "Watch the validation mean IoU rise from 0.603 to 0.855 (epoch 4 in the build "
+                "record) while the loss drops from about 0.183 to 0.060: the adapted decoder's masks overlap the references by 0.84 mean IoU (frozen 0.64), predicting 0.29 of the image area against 0.25 frozen and the references' 0.28."
             ),
             "code": (
                 "EPOCHS = 8  # @param {{type:\"integer\"}}\n"
@@ -348,8 +348,8 @@ TEMPLATE = {
                 "The test records were never used for training or epoch selection, and no image appears in two splits. The "
                 "adapted model is scored exactly as the frozen model was in Section 6 and the four systems are put side by "
                 "side. Read it in this order: **mean IoU** first (the measure the epoch was selected on — the build record "
-                "measured @P:FROZEN_MIOU@ → **@P:ADAPTED_MIOU@**), then **Dice** (@P:FROZEN_DICE@ → @P:ADAPTED_DICE@), then "
-                "pixel **precision** and **recall** together (@P:FROZEN_PR@ → @P:ADAPTED_PR@ — a gain in one at the cost of the "
+                "measured 0.637 → **0.842**), then **Dice** (0.715 → 0.904), then "
+                "pixel **precision** and **recall** together (0.835 / 0.736 → 0.881 / 0.927 — a gain in one at the cost of the "
                 "other is a moved threshold, not a better segmenter), then the predicted area against the reference area. "
                 "The cell asserts the adapted mean IoU is at least the frozen one and above the full-mask baseline. One "
                 "hundred and forty records from one seeded split give **no dispersion estimate**; the deltas are "
@@ -395,7 +395,7 @@ TEMPLATE = {
                 "mask, the frozen mask and the adapted mask side by side, the phrase and both IoUs beneath) so the numbers "
                 "can be checked by eye. The drawn scene from Section 5 is then segmented again by the adapted model — the "
                 "decoder that was tuned serves every phrase, so this is a small look at what the adaptation did *outside* "
-                "its phrase vocabulary and its corpus: the build record measured @P:DRAWING_AFTER@ — one drawing of evidence, "
+                "its phrase vocabulary and its corpus: the build record measured before adaptation `green grass` 0.96, `a red circle` 0.96, `a blue square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.95); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000; after adaptation `green grass` 0.97, `a red circle` 0.97, `a blue square` 0.96, `a yellow triangle` 0.93 (mean IoU 0.96); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000 — one drawing of evidence, "
                 "not a measurement.\n\n"
                 "`pipe.save_artifact` writes the trained tensors — the decoder, about 4.5 MB in float32 — as "
                 "`adapter.safetensors`, with a `manifest.json` recording the artifact format, the base model id and revision, "
@@ -468,19 +468,19 @@ TEMPLATE = {
     "closing": (
         "## Interpretation and limits\n\n"
         "A phrase-conditioned segmenter trained on PhraseCut already finds the largest ingredient in a food photograph "
-        "roughly when asked by name: the frozen model scores a mean IoU of @P:FROZEN_MIOU@ on the FoodSeg103 records. A "
-        "bounded fine-tuning of its decoder on 600 records moves that to @P:ADAPTED_MIOU@ mean IoU and @P:ADAPTED_DICE@ Dice "
+        "roughly when asked by name: the frozen model scores a mean IoU of 0.637 on the FoodSeg103 records. A "
+        "bounded fine-tuning of its decoder on 600 records moves that to 0.842 mean IoU and 0.904 Dice "
         "in the build record, with a 4.5 MB adapter that reloads mask-for-mask. That is the claim: the adaptation contract "
         "works end to end on a text-prompted segmenter with a real labelled set, and the numbers it produces are read as "
         "mean and micro IoU, Dice, precision and recall at one stated threshold, against two non-adapted baselines and the "
-        "frozen model, with the predicted area beside them rather than in isolation. @P:SIBLING_COMPARISON@\n\n"
+        "frozen model, with the predicted area beside them rather than in isolation. The Tesla T4 run reproduced the CPU sweep exactly (0.842 / 0.904 at epoch 4, plateau 0.849–0.855 after). The row has no sibling on this corpus — CLIPSeg is the fleet's only text-prompted segmenter — so the comparison is the frozen decoder against the tuned one on the same 140 records: the gain is almost all recall (0.736 → 0.927 at precision 0.835 → 0.881), the records under 0.2 IoU fall from 24 to 1 and those above 0.8 rise from 63 to 111, one record (`garlic`) stays at 0.0, and the drawn scene outside the vocabulary moved by a hundredth (0.947 → 0.958 mean IoU, the two absent phrases still empty): a decoder of 1.1 M parameters learned FoodSeg103's annotation convention, not new visual concepts.\n\n"
         "The test split is 140 records from one seeded draw of one 800-record sample, the validation split that picks the "
         "epoch is 60, and every rate is at the one threshold `MASK_THRESHOLD` — not a benchmark, not a threshold sweep, not "
         "a measure of phrases the sample never asks (one phrase per image, the largest ingredient only). So a result here "
         "says the contract works on food photographs' largest ingredients, not that the adapted model handles other "
         "phrases, other image families or your masks. The decoder that was tuned serves every phrase: the drawn scene "
         "re-segmented in Section 9 is one drawing of evidence about what the tuning did outside its vocabulary "
-        "(@P:DRAWING_AFTER@), not a measurement, and a deployment that segments other phrases must measure them after "
+        "(before adaptation `green grass` 0.96, `a red circle` 0.96, `a blue square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.95); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000; after adaptation `green grass` 0.97, `a red circle` 0.97, `a blue square` 0.96, `a yellow triangle` 0.93 (mean IoU 0.96); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000), not a measurement, and a deployment that segments other phrases must measure them after "
         "adapting. The towers were not adapted: what the image encoder cannot see stays unsegmented, and **the "
         "probabilities remain an uncalibrated sigmoid**.\n\n"
         "Three things to carry to real data. **Baselines first:** the empty and full-mask rates on *your* masks, and the "
