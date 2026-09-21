@@ -70,7 +70,7 @@ weights/clipseg-rd64-refined/
 
 ## Release status
 
-**Candidate.** Static/unit checks — including the standalone generator parity checks (`tools/build_notebook.py --check`, `tests/test_notebook_parity.py`) — do not constitute clean-runtime notebook evidence. The earlier `TASK-INFERENCE` notebook's Kaggle CPU run (2026-09-14) is retained as history and is not evidence for the `E2E` blob; the supported-runtime run of the exact release revision is recorded in `docs/release-verification.md` when it exists.
+**Release-grade** — the `E2E` notebook blob `100adc4f` (committed at `2c999ae`) executed top-to-bottom in a clean Kaggle Tesla T4 runtime on 2026-09-21 (11/11 ok (1 restart after install cell), 435.4 s); the record is in `docs/release-verification.md` and `STATUS.md`. Static and unit checks — including the standalone generator parity checks — are necessary but were never the evidence; the hosted run is. A later change to the carried modules or the notebook returns the status to Candidate until re-verified.
 
 ## Documentation
 
