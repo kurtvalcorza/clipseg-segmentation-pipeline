@@ -96,6 +96,9 @@ def template_contract() -> dict[str, str]:
         "rewrites": "OPTIONAL list of [regex, replacement] applied to the embedded modules, each matching exactly once (default DEFAULT_REWRITES)",
         "extra_weights": "OPTIONAL list of {key, var, dir, identity: [ID_CONST, REV_CONST], stage, verify} for additional pinned snapshots",
         "model_load": "OPTIONAL replacement for the default `<pipeline_class>.from_pretrained(weights_dir=WEIGHTS_DIR)` expression",
+        "package_dir": "OPTIONAL repository-relative directory of the package (default 'src/<package>'; e.g. 'mitra_pipeline' for a root-level package)",
+        "pins_file": "OPTIONAL repository-relative requirements file that REPLACES pyproject dependencies as the inline PINS: one `name==ver` or `name @ git+url@sha` per line; `--index-url URL`, `--extra-index-url URL`, `--find-links URL` lines are honoured (passed to pip in order); comments/blank lines ignored",
+        "model_host": "OPTIONAL {name, reference_url, revision_label} for a non-Hub checkpoint host (default: Hugging Face Hub, https://huggingface.co/<MODEL_ID>, 'revision'); the package's own stage_missing_files downloader must fetch from it",
     }
 
 
@@ -178,9 +181,16 @@ def _strip_relative_imports(text: str, module: str) -> str:
 
     text = _REL_IMPORT_MULTI.sub(_check_names, text)
     text = _REL_IMPORT_LINE.sub(_check_names, text)
+    # A carried module's `if __name__ == "__main__":` block would EXECUTE in the kernel (the cell runs
+    # as __main__); disable it in place so the module's CLI entry point never fires in a notebook.
+    text = _MAIN_GUARD.sub(
+        lambda m: f"{m.group(1)}if False:  # standalone rewrite (build_notebook.py): `{m.group(0).strip()}` disabled — the cell runs as __main__",
+        text,
+    )
     return text
 
 
+_MAIN_GUARD = re.compile(r"""^([ \t]*)if __name__ == ["']__main__["']:[ \t]*$""", re.M)
 REWRITES = DEFAULT_REWRITES  # /1-compatible name used by parity tests
 
 
@@ -207,16 +217,50 @@ def apply_rewrites(
     return {name: _strip_relative_imports(text, name).rstrip("\n") + "\n" for name, text in out.items()}
 
 
-def _pins(repo: Path) -> list[str]:
+def _pins(repo: Path, template: dict[str, Any] | None = None) -> list[str]:
+    pins_file = (template or {}).get("pins_file")
+    if pins_file:
+        out: list[str] = []
+        for raw in (repo / pins_file).read_text(encoding="utf-8").splitlines():
+            line = raw.split("#", 1)[0].strip()
+            if not line:
+                continue
+            if line.startswith(("--index-url", "--extra-index-url", "--find-links")):
+                opt, _, url = line.partition(" ")
+                if not url.strip():
+                    raise SystemExit(f"{pins_file}: {opt} needs a URL")
+                out += [opt, url.strip()]
+            elif "==" in line or re.search(r"@ git\+\S+@[0-9a-f]{40}$", line):
+                out.append(line)
+            else:
+                raise SystemExit(f"{pins_file}: unpinned runtime dependency (ENV2): {line}")
+        return out
     text = (repo / "pyproject.toml").read_text(encoding="utf-8")
     block = re.search(r"^dependencies\s*=\s*\[(.*?)^\]", text, re.M | re.S)
     if not block:
         raise SystemExit("pyproject.toml: dependencies block not found")
     pins = re.findall(r'"([^"]+)"', block.group(1))
-    bad = [p for p in pins if "==" not in p]
+    # A dependency may instead be pinned to an immutable upstream commit under [tool.uv.sources]
+    # (`name = { git = "...", rev = "<40-hex>" }`); it is carried as the PEP 508 direct reference
+    # `name @ git+<url>@<sha>` so the notebook installs exactly that commit (ENV2/MOD14).
+    sources = {}
+    src_block = re.search(r"^\[tool\.uv\.sources\]\s*$(.*?)(?=^\[|\Z)", text, re.M | re.S)
+    if src_block:
+        for m in re.finditer(r'^([\w\-\.]+)\s*=\s*\{\s*git\s*=\s*"([^"]+)"\s*,\s*rev\s*=\s*"([0-9a-f]{40})"', src_block.group(1), re.M):
+            sources[m.group(1)] = f"{m.group(1)} @ git+{m.group(2)}@{m.group(3)}"
+    resolved = []
+    bad = []
+    for p in pins:
+        name = re.split(r"[\s=<>!~\[;@]", p, maxsplit=1)[0]
+        if "==" in p or re.search(r"@ git\+\S+@[0-9a-f]{40}$", p):
+            resolved.append(p)
+        elif name in sources:
+            resolved.append(sources[name])
+        else:
+            bad.append(p)
     if bad:
         raise SystemExit(f"unpinned runtime dependency (ENV2): {bad}")
-    return pins
+    return resolved
 
 
 def _head_revision(repo: Path) -> str:
@@ -252,7 +296,8 @@ def _read_manifest(repo: Path, key: str) -> dict[str, Any]:
 
 def load_context(repo: Path, template: dict[str, Any], revision: str | None = None) -> dict[str, Any]:
     pkg = template["package"]
-    pkg_dir = repo / "src" / pkg
+    pkg_rel = template.get("package_dir", f"src/{pkg}")
+    pkg_dir = repo / pkg_rel
     modules = list(template.get("modules", ["pipeline.py"]))
     entry = template.get("entry_module", "pipeline.py")
     if entry not in modules:
@@ -287,20 +332,22 @@ def load_context(repo: Path, template: dict[str, Any], revision: str | None = No
             raise SystemExit(f"extra manifest {spec['key']} identity != module constants")
         extra.append({**spec, "manifest": em})
     rewrites = template.get("rewrites", DEFAULT_REWRITES)
-    rel = [f"src/{pkg}/{m}" for m in order]
+    rel = [f"{pkg_rel}/{m}" for m in order]
     return {
         "pkg": pkg,
+        "pkg_rel": pkg_rel,
         "modules": order,
         "module_rels": rel,
-        "entry_rel": f"src/{pkg}/{entry}",
+        "entry_rel": f"{pkg_rel}/{entry}",
         "texts": texts,
         "embedded": apply_rewrites(texts, rewrites),
         "module_sha256": hashlib.sha256("".join(texts[m] for m in order).encode("utf-8")).hexdigest(),
-        "per_module_sha256": {f"src/{pkg}/{m}": hashlib.sha256(texts[m].encode("utf-8")).hexdigest() for m in order},
+        "per_module_sha256": {f"{pkg_rel}/{m}": hashlib.sha256(texts[m].encode("utf-8")).hexdigest() for m in order},
         "module_revision": revision or _head_revision(repo),
         "manifest": manifest,
         "extra_weights": extra,
-        "pins": _pins(repo),
+        "pins": _pins(repo, template),
+        "host": {"name": "the Hugging Face Hub", "reference_url": f"https://huggingface.co/{ident['MODEL_ID']}", "revision_label": "revision", **template.get("model_host", {})},
         "n_rewrites": len(rewrites),
         "ident_expr": ident_expr,
         **ident,
@@ -368,7 +415,7 @@ def render(repo: Path, template: dict[str, Any], revision: str | None = None) ->
     carried = (
         f"the repository's pipeline module (`{ctx['entry_rel']}` at revision `{ctx['module_revision'][:12]}`) verbatim in Section 2"
         if n_mod == 1
-        else f"the repository's package ({n_mod} modules under `src/{ctx['pkg']}/`, at revision `{ctx['module_revision'][:12]}`) verbatim in Section 2"
+        else f"the repository's package ({n_mod} modules under `{ctx['pkg_rel']}/`, at revision `{ctx['module_revision'][:12]}`) verbatim in Section 2"
     )
     header = (
         f"# {template['title']}\n\n{badges}\n\n"
@@ -378,7 +425,7 @@ def render(repo: Path, template: dict[str, Any], revision: str | None = None) ->
         f"**Capability:** {template['capability']}\n\n"
         f"**This notebook is standalone.** It carries {carried}, the pinned model identity and the per-file SHA-256 manifest in Section 3, "
         f"and the exact runtime pins in Section 1, so it keeps working after export even if the repository changes or disappears. Its only "
-        f"external dependencies are the pinned PyPI distributions and the Hugging Face Hub at the immutable revision `{ctx['MODEL_REVISION']}` "
+        f"external dependencies are the pinned Python distributions and {ctx['host']['name']} at the immutable {ctx['host']['revision_label']} `{ctx['MODEL_REVISION']}` "
         f"(~{total_mb:.0f} MB, digest-verified before loading). It was generated by `tools/build_notebook.py` ({GENERATOR_VERSION}); edit the "
         f"repository and regenerate rather than editing cells.\n\n"
         f"**Run all:** {run_all}\n\n"
@@ -390,7 +437,7 @@ def render(repo: Path, template: dict[str, Any], revision: str | None = None) ->
     add(_md(header))
 
     prereq = list(template["prerequisites"]) + [
-        f"- **External access:** the Hugging Face Hub only, to fetch the pinned `{ctx['MODEL_ID']}` snapshot (~{total_mb:.0f} MB in total) "
+        f"- **External access:** {ctx['host']['name']} only, to fetch the pinned `{ctx['MODEL_ID']}` snapshot (~{total_mb:.0f} MB in total) "
         f"at revision `{ctx['MODEL_REVISION'][:12]}…`. No GitHub access and no credentials are required; nothing is installed from this repository."
     ]
     add(_md("## Prerequisites\n\n" + "\n".join(prereq)))
@@ -401,7 +448,7 @@ def render(repo: Path, template: dict[str, Any], revision: str | None = None) ->
     add(
         _md(
             "## 1. Install the pinned runtime\n\n"
-            "The dependency set is pinned exactly (the same `==` pins as the repository's `pyproject.toml` at the generating revision) and "
+            "The dependency set is pinned exactly (the same pins as the repository's " + (template.get('pins_file') or 'pyproject.toml') + " at the generating revision; any `--index-url`/`--find-links` lines are passed to pip as written) and "
             "installed directly — there is no repository clone and no package install. If a pin replaces a distribution this runtime has already "
             "imported, the cell stops with a restart instruction rather than continuing with mixed versions. Look for a dictionary reporting the "
             "notebook's source revision, Python, " + ", ".join(f"`{m}`" for m in imports) + " versions, and whether CUDA is available."
@@ -428,9 +475,9 @@ def render(repo: Path, template: dict[str, Any], revision: str | None = None) ->
     )
 
     for i, m in enumerate(ctx["modules"]):
-        rel = f"src/{ctx['pkg']}/{m}"
+        rel = f"{ctx['pkg_rel']}/{m}"
         if i == 0:
-            title = f"## 2. Pipeline code (carried verbatim from `src/{ctx['pkg']}/` @ `{ctx['module_revision'][:12]}`)"
+            title = f"## 2. Pipeline code (carried verbatim from `{ctx['pkg_rel']}/` @ `{ctx['module_revision'][:12]}`)"
             intro = (
                 f"\n\nThe next {n_mod} cell(s) **are** the repository's package, module by module in dependency order: the pinned identity constants, "
                 "snapshot verification (`verify_snapshot`), staged download (`stage_missing_files`), the named operational ceilings, the public "
@@ -457,7 +504,7 @@ def render(repo: Path, template: dict[str, Any], revision: str | None = None) ->
             "## 3. Pin, stage and verify the model\n\n"
             f"The model identity is carried twice — `MODEL_ID`/`MODEL_REVISION` in the module above and the `{n_files}`-file manifest below (paths, "
             "byte sizes, SHA-256) — and the cell first asserts they agree. It writes the manifest into the working-directory snapshot, then "
-            f"`stage_missing_files(..., allow_download=True)` fetches exactly the entries that are absent from the Hugging Face Hub **at revision "
+            f"`stage_missing_files(..., allow_download=True)` fetches exactly the entries that are absent from {ctx['host']['name']} **at {ctx['host']['revision_label']} "
             f"`{ctx['MODEL_REVISION'][:12]}…`** (never `main`), `verify_snapshot` re-hashes every file and raises on the first size or digest mismatch, "
             f"and only then does `{load_expr}` load the verified files. There is no fallback to a different download and no remote model code is "
             f"executed.{extra_note} The effective identity, device and weight source are printed before any inference."

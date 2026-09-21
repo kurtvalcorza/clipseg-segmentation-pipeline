@@ -1,7 +1,7 @@
 [project]
 name = "clipseg-segmentation-pipeline"
 version = "0.1.0"
-description = "DIMER inference pipeline for CLIPSeg rd64-refined text-prompted image segmentation"
+description = "DIMER pipeline for CLIPSeg rd64-refined: text-prompted segmentation and bounded fine-tuning of the decoder on labelled masks"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = { file = "LICENSE" }
@@ -15,6 +15,7 @@ dependencies = [
   "numpy==2.5.3",
   "pillow==11.3.0",
   "huggingface-hub==0.36.2",
+  "pyarrow==25.0.1",
 ]
 [project.optional-dependencies]
 dev = ["pytest==8.4.2", "ruff==0.16.6"]
