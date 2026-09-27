@@ -13,7 +13,7 @@ CI runs `tools/validate_release_assets.py`, which checks:
 
 - notebook JSON parses; every code cell compiles as plain Python (no `%`/`!` magics); no persisted outputs or
   execution counts; no unresolved placeholder markers; every code cell is preceded by an explanatory markdown cell;
-- exactly one tutorial notebook, named in `tutorials/README.md` with its `E2E` profile, the notebook-spec version
+- exactly one generated tutorial notebook (the WORKSHOP notebook is declared and checked separately; see the workshop section below), named in `tutorials/README.md` with its `E2E` profile, the notebook-spec version
   and the standalone carrier; `metadata.dimer` declares that profile, spec `2.0`, a §3.3 pedagogical mode,
   `standalone: true` and `generated_from` (repository, revision, module SHA-256, generator);
 - the standalone carrier (ST1–ST8, PAR1–PAR4): no clone, repository install or repository import on the primary
@@ -172,3 +172,20 @@ gap; every rate is at one threshold (`MASK_THRESHOLD`) over one reference mask p
 adaptation is the only evidence about what happened outside the vocabulary. The forward pass is deterministic on a
 fixed device and dtype, but the training of the decoder is not bit-reproducible across GPUs, and 140 records make a
 few hundredths of mean IoU the expected spread between two runs, not a finding. The Tesla T4 run reproduced the CPU sweep exactly (0.842 / 0.904 at epoch 4, plateau 0.849–0.855 after). The row has no sibling on this corpus — CLIPSeg is the fleet's only text-prompted segmenter — so the comparison is the frozen decoder against the tuned one on the same 140 records: the gain is almost all recall (0.736 → 0.927 at precision 0.835 → 0.881), the records under 0.2 IoU fall from 24 to 1 and those above 0.8 rise from 63 to 111, one record (`garlic`) stays at 0.0, and the drawn scene outside the vocabulary moved by a hundredth (0.947 → 0.958 mean IoU, the two absent phrases still empty): a decoder of 1.1 M parameters learned FoodSeg103's annotation convention, not new visual concepts.
+
+## Image-segmentation workshop notebook
+
+`tutorials/DIMER_MultiModel_Image_Segmentation_Workshop.ipynb` (`E2E` / `WORKSHOP`, DIMER Notebook Specification 2.2) is a **Candidate**. It is recorded separately from the release-grade `clipseg_segmentation_colab.ipynb`, whose status it does not change. It carries the CLIPSeg package modules, the SAM (`kurtvalcorza/sam-vit-segmentation-pipeline@ed74a93`) and SAM 2 (`kurtvalcorza/sam2-segmentation-pipeline@df023e1`) reference modules, their manifests and licences, a runner, a frozen sample manifest and a hash-pinned dependency lock. These are installed into an isolated `uv` Python 3.12.12 environment. Its design is `docs/image-segmentation-workshop-spec.md`.
+
+| Check | Automatic (every pull request) | Manual (before promotion) |
+|---|---|---|
+| Metadata, opening declaration, no persisted outputs, every code cell plain Python | `tools/validate_release_assets.py` | — |
+| Each carried file matches `CARRIED_HASHES`; carried `clipseg_reference/` and CLIPSeg manifest equal the package; `source.json` agrees with the metadata; `vendor_provenance.json` digests equal the carried SAM / SAM 2 files | `tools/validate_release_assets.py`, `tests/test_workshop_notebook.py` | — |
+| Default `Run all` on a fresh Colab T4 runtime without a restart, with total time, peak GPU memory and disk recorded | — | required; not yet recorded |
+| Optional bring-your-own-data and unlabelled-image branches | — | not yet exercised |
+
+| Date (UTC) | Notebook source | Executor | Path exercised | Wall | Outcome |
+|---|---|---|---|---|---|
+| 2026-09-27 | This branch (carried `workshop.py` sha256 `51129c5383dc…`) | Builder pre-flight in a Linux container, CPU only (4 cores). The exact hash-pinned lock was installed with `uv` 0.12.15 into managed Python 3.12.12 (torch 2.14.0+cu130, transformers 4.57.6). The runner's CUDA-only lines (the GPU-required `device()`, synchronize, device name, peak memory) were patched in a copy for CPU | `prepare` (120 train / 40 validation / 40 test / 12 activity), `clipseg` (4 epochs, 120 optimizer steps), `reload` (new process), `sam`, `sam2` (including the box-expansion activity), `report`. The notebook's display, metric-demo and report cells were then run against those outputs; the optional branches were left at their defaults (off) | prepare 49 s, clipseg 120 s, reload 38 s, sam 784 s, sam2 242 s, report 5 s (CPU float32) | **PASS**. CLIPSeg validation mIoU went from 0.618 (frozen) to 0.792 (epoch 4, selected). On test, mean target IoU went from 0.617 (frozen) to 0.820 (reloaded); the empty baseline is 0. Reload parity passed on all 92 records (max probability difference 0.0). SAM point / box: 0.506 / 0.759. SAM 2 point / box: 0.529 / 0.742. In the SAM 2 box-expansion activity, 3 improved / 9 worsened at +10% and 1 / 11 at +25%: boxes expanded to the image edges make SAM 2 select the inverse region (plate and background), which is model behaviour the activity is designed to expose. `segmentation_results.zip` was exported. **Not a supported runtime and not promotion evidence**: CPU float32 differs from the T4 path, so Colab figures may differ |
+
+`vendor_provenance.json` previously recorded SHA-256 digests computed on CRLF checkouts for `sam_reference.py`, the SAM manifest and both LICENSE files. Those digests matched no carried file. They now record the LF digests, which equal the files at the pinned SAM and SAM 2 revisions. The notebook stays **Candidate** until a fresh Colab T4 `Run all` of the exact committed blob is recorded here.

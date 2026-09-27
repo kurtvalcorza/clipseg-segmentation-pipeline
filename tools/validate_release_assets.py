@@ -143,6 +143,24 @@ INSTALL_CELL_MARKER = "subprocess.run([sys.executable, '-m', 'pip', 'install', '
 # ---------------------------------------------------------------------------
 
 NOTEBOOK_SPEC = "2.0"
+# WORKSHOP-mode notebooks (DIMER Notebook Specification 2.2). They carry their own reference source, dependency
+# lock and runner and execute in an isolated environment, so they are checked for carried-source integrity and
+# for byte parity of the carried CLIPSeg modules and manifest with the package (line endings normalized for the
+# manifest, which the repository commits with CRLF under `weights/** -text`).
+WORKSHOP_SPEC = "2.2"
+WORKSHOP_NOTEBOOKS = {
+    "DIMER_MultiModel_Image_Segmentation_Workshop.ipynb": {
+        "profile": "E2E",
+        "spec_doc": "docs/image-segmentation-workshop-spec.md",
+        "parity": {
+            "clipseg_reference/__init__.py": "src/clipseg_segmentation_pipeline/__init__.py",
+            "clipseg_reference/metrics.py": "src/clipseg_segmentation_pipeline/metrics.py",
+            "clipseg_reference/pipeline.py": "src/clipseg_segmentation_pipeline/pipeline.py",
+            "clipseg_reference/samples.py": "src/clipseg_segmentation_pipeline/samples.py",
+            "weights/clipseg/dimer-base-manifest.json": "weights/clipseg-rd64-refined/dimer-base-manifest.json",
+        },
+    },
+}
 ALLOWED_PROFILES = {"E2E", "ARTIFACT-INFERENCE", "TASK-INFERENCE", "MULTI-CAPABILITY", "SMOKE"}
 STATUS_TOKENS = ("Candidate", "Release-grade")
 PLACEHOLDER = re.compile(r"\b(TODO|TBD|FIXME)\b|Insert text here|Tooltip:", re.I)
@@ -428,7 +446,12 @@ def validate_release_status() -> None:
     _check("## Release status" in readme, "README.md must have a '## Release status' section")
     section = readme.split("## Release status", 1)[1]
     _check(section.lstrip().startswith(f"**{token}"), f"README.md release status must open with **{token}**")
-    registry = _read(ROOT / "tutorials" / "README.md").replace("**", "")
+    # WORKSHOP notebook rows carry their own status, checked by validate_workshop_notebooks().
+    registry = "\n".join(
+        line
+        for line in _read(ROOT / "tutorials" / "README.md").replace("**", "").splitlines()
+        if not any(f"`{name}`" in line for name in WORKSHOP_NOTEBOOKS)
+    )
     _check(f"| {token}" in registry, f"tutorials/README.md must record the {token} status")
     other = [t for t in STATUS_TOKENS if t != token]
     for name, text in (("README.md", section.replace("**", "")), ("tutorials/README.md", registry)):
@@ -654,7 +677,7 @@ def _validate_notebook_content(
 
 def validate_notebooks() -> None:
     tutorials = ROOT / "tutorials"
-    notebooks = sorted(tutorials.glob("*.ipynb"))
+    notebooks = sorted(p for p in tutorials.glob("*.ipynb") if p.name not in WORKSHOP_NOTEBOOKS)
     _check(len(notebooks) == 1, f"exactly one tutorial notebook is expected, found {len(notebooks)}")
     path = notebooks[0]
     _check(path.name == NOTEBOOK_NAME, f"tutorial notebook must be named {NOTEBOOK_NAME}, found {path.name}")
@@ -676,13 +699,94 @@ def validate_notebooks() -> None:
     _check("standalone" in registry.lower(), "tutorials/README.md must record that the notebook is standalone")
 
 
+def _carried_literals(path: Path, notebook: dict) -> tuple[dict[str, str], dict[str, str]]:
+    """Return the notebook's CARRIED_FILES and CARRIED_HASHES literals."""
+    for cell in notebook["cells"]:
+        if cell["cell_type"] != "code":
+            continue
+        body = ast.parse(_cell_source(cell)).body
+        values = {
+            node.targets[0].id: node.value
+            for node in body
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+        }
+        if "CARRIED_FILES" in values:
+            _check("CARRIED_HASHES" in values, f"{path.name}: CARRIED_FILES must be paired with CARRIED_HASHES")
+            return ast.literal_eval(values["CARRIED_FILES"]), ast.literal_eval(values["CARRIED_HASHES"])
+    raise ValidationError(f"{path.name}: no CARRIED_FILES cell")
+
+
+def validate_workshop_notebooks() -> None:
+    registry = _read(ROOT / "tutorials" / "README.md")
+    for name, spec in WORKSHOP_NOTEBOOKS.items():
+        path = ROOT / "tutorials" / name
+        _check(path.is_file(), f"workshop notebook missing: tutorials/{name}")
+        _check((ROOT / spec["spec_doc"]).is_file(), f"{name}: design specification {spec['spec_doc']} missing")
+        notebook = json.loads(_read(path))
+        meta = notebook.get("metadata", {}).get("dimer", {})
+        expected = {
+            "notebook_spec": WORKSHOP_SPEC,
+            "notebook_profile": spec["profile"],
+            "notebook_mode": "WORKSHOP",
+            "standalone": True,
+            "release_status": "Candidate",
+        }
+        for key, value in expected.items():
+            _check(meta.get(key) == value, f"{name}: metadata.dimer.{key} must be {value!r}, found {meta.get(key)!r}")
+        generated = meta.get("generated_from", {})
+        _check(generated.get("repository") == f"kurtvalcorza/{REPO_NAME}", f"{name}: generated_from must name this repository")
+        opening = _cell_source(notebook["cells"][0])
+        for needle in (f"`{spec['profile']}`", "`WORKSHOP`", f"`{WORKSHOP_SPEC}`"):
+            _check(needle in opening, f"{name}: opening cell must declare {needle}")
+        for index, cell in enumerate(notebook["cells"]):
+            if cell["cell_type"] != "code":
+                continue
+            _check(not cell.get("outputs") and cell.get("execution_count") is None, f"{name}: cell {index} persists outputs or an execution count")
+            source = _cell_source(cell)
+            try:
+                ast.parse(source)
+            except SyntaxError as exc:
+                raise ValidationError(f"{name}: code cell {index} is not plain Python: {exc}") from exc
+            _check("git clone" not in source and "pip install -e" not in source, f"{name}: cell {index} clones or self-installs the repository")
+        files, hashes = _carried_literals(path, notebook)
+        _check(set(files) == set(hashes), f"{name}: CARRIED_FILES and CARRIED_HASHES name different files")
+        for carried, text in files.items():
+            actual = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            _check(actual == hashes[carried], f"{name}: carried {carried} does not match its CARRIED_HASHES digest")
+        for carried, source in spec["parity"].items():
+            committed = (ROOT / source).read_bytes().decode("utf-8").replace("\r\n", "\n")
+            _check(files.get(carried) == committed, f"{name}: carried {carried} differs from {source}")
+        recorded = json.loads(files["source.json"])
+        _check(recorded.get("files") == generated.get("files"), f"{name}: carried source.json and metadata generated_from disagree")
+        for carried, digest in recorded["files"].items():
+            _check(hashes.get(carried) == digest, f"{name}: source.json digest for {carried} is stale")
+        # The vendored SAM / SAM 2 record must describe the files actually carried.
+        vendor = json.loads(files["vendor_provenance.json"])
+        carried_as = {
+            "sam_reference.py": "sam_reference.py",
+            "sam_manifest.json": "weights/sam/dimer-base-manifest.json",
+            "sam_LICENSE": "licenses/sam.txt",
+            "sam2_reference.py": "sam2_reference.py",
+            "sam2_manifest.json": "weights/sam2/dimer-base-manifest.json",
+            "sam2_LICENSE": "licenses/sam2.txt",
+        }
+        for model in vendor.values():
+            for entry, record in model["files"].items():
+                _check(record["sha256"] == hashes.get(carried_as[entry]), f"{name}: vendor_provenance.json digest for {entry} does not match the carried file")
+        row = next((line for line in registry.splitlines() if f"`{name}`" in line), None)
+        _check(row is not None, f"{name} missing from tutorials/README.md")
+        for needle in (f"`{spec['profile']}`", "`WORKSHOP`", "Candidate"):
+            _check(needle in row, f"tutorials/README.md row for {name} must record {needle}")
+
+
 def validate_all() -> list[str]:
     validate_model_card()
     validate_identity_consistency()
     validate_weight_facts()
     validate_release_status()
     validate_notebooks()
-    return ["model-card", "identity-consistency", "weight-facts", "release-status", "notebook+parity"]
+    validate_workshop_notebooks()
+    return ["model-card", "identity-consistency", "weight-facts", "release-status", "notebook+parity", "workshop-notebooks"]
 
 
 def main() -> int:
