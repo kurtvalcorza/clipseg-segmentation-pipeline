@@ -3,7 +3,7 @@
 `tutorials/clipseg_segmentation_colab.ipynb` (`E2E`, **standalone** carrier) is a **release candidate** until the
 exact notebook revision has executed top-to-bottom in a clean supported runtime. Unit tests, JSON validation, code-cell
 compilation, the generator parity checks and `tools/validate_release_assets.py` are necessary checks but are **not**
-runtime evidence under DIMER Notebook Specification 2.0 (REL8). This file is the durable release-gate record for the
+runtime evidence under DIMER Notebook Specification 2.2 (REL8). This file is the durable release-gate record for the
 notebook. The earlier `TASK-INFERENCE` notebook's Kaggle CPU run (2026-09-14, retained below) is history for a
 superseded blob, not evidence for this one.
 
@@ -14,14 +14,16 @@ CI runs `tools/validate_release_assets.py`, which checks:
 - notebook JSON parses; every code cell compiles as plain Python (no `%`/`!` magics); no persisted outputs or
   execution counts; no unresolved placeholder markers; every code cell is preceded by an explanatory markdown cell;
 - exactly one generated tutorial notebook (the WORKSHOP notebook is declared and checked separately; see the workshop section below), named in `tutorials/README.md` with its `E2E` profile, the notebook-spec version
-  and the standalone carrier; `metadata.dimer` declares that profile, spec `2.0`, a §3.3 pedagogical mode,
+  and the standalone carrier; `metadata.dimer` declares that profile, spec `2.2`, a §3.3 pedagogical mode,
   `standalone: true` and `generated_from` (repository, revision, module SHA-256, generator);
 - the standalone carrier (ST1–ST8, PAR1–PAR4): no clone, repository install or repository import on the primary
   path; one cell per carried module (`pipeline.py`, `metrics.py`, `samples.py`), each equal to its source after the
   generator's documented rewrites; the inline `MANIFEST` equal to the committed 8-entry snapshot manifest and the
   inline `PINS` equal to the `pyproject.toml` runtime pins; the notebook byte-identical (on LF) to
-  `tools/build_notebook.py` output for its recorded revision; the pinned-install cell with its
-  restart-on-stale-import guard; `NOTEBOOK_SOURCE` recorded in exports;
+  `tools/build_notebook.py` output for its recorded revision; exactly two kernel cells — the isolated-environment
+  install (pinned `uv` wheel checked by size and SHA-256, managed CPython 3.12.12, the carried hash lock
+  `tutorials/requirements-colab.lock.txt` installed with `--require-hashes --only-binary :all:`, Linux x86_64 only) and
+  the router that runs every later cell there; `NOTEBOOK_SOURCE` recorded in exports;
 - `MODEL_ID`/`MODEL_REVISION` bound only in the carried module cell (and repeated in the inline manifest, which the
   notebook asserts against the module before fetching), the revision a 40-hex immutable commit, and the same
   identity string in `README.md`, `MODEL_CARD.md` and `docs/WEIGHTS.md` with no stray revisions (the FoodSeg103
@@ -29,20 +31,27 @@ CI runs `tools/validate_release_assets.py`, which checks:
   documents may cite);
 - the profile-specific public-API calls (`stage_missing_files`, `verify_snapshot`,
   `ClipSegSegmentationPipeline.from_pretrained(weights_dir=...)`, `fetch_corpus` from the pinned cache path,
-  `read_corpus`, `build_sample_dataset(corpus, seed=SPLIT_SEED)` / `load_byod_dataset` + `split_dataset`,
-  `validate_dataset` per split, `check_split_disjoint`, `write_dataset_csv`, the four dataset refusal probes, the
+  `read_corpus`, `build_sample_dataset(corpus, seed=SPLIT_SEED)` / the notebook's `load_byod_records` (relative-path
+  keys, collision and same-file refusals, the 12-image floor checked before splitting, `BYOD_PATH`) + `split_dataset`,
+  `validate_dataset` per split (training `MIN_RECORDS`, validation and test a minimum of one), `check_split_disjoint`, `write_dataset_csv`, the four dataset refusal probes, the
   ceiling print, `validate_inputs` with the duplicate-phrase refusal probe, `segment` on the drawn scene with the
   structural checks and the `evaluation_report` against the drawn masks, `empty_baseline`, `full_baseline`,
-  `pipe.evaluate` on the frozen model, `pipe.adapt` with its explicit hyperparameters, `pipe.evaluate` on the
-  validation and test splits after adaptation with the two mean-IoU assertions, the drawn scene re-segmented after
-  adaptation, the example panels, `pipe.save_artifact`, `ClipSegSegmentationPipeline.from_artifact` and the
-  mask-parity assertion, and the result fields `weight_file` / `weight_format` / `weight_sha256`, the `corpus`
-  block), the seven expected `outputs/` paths, the learner-facing statements (Apache-2.0 weights, the uncalibrated
+  `reset_to_pretrained()` before Sections 5, 6 and 7 with Section 6 refusing an adapted model, `pipe.evaluate` on the
+  frozen model, `pipe.adapt` with its explicit hyperparameters, `pipe.evaluate` on the
+  validation and test splits after adaptation with a printed verdict and `run_history` (no result-dependent assertion), the drawn scene re-segmented after
+  adaptation, the reference / frozen / adapted example panels, `pipe.save_artifact`,
+  `ClipSegSegmentationPipeline.from_artifact` and the mask-parity check that raises with its cause, the result fields
+  `weight_file` / `weight_format` / `weight_sha256`, the `corpus` block replaced by `byod_upload` on a BYOD run, and the
+  Section 10 threshold activity), the eight expected `outputs/` paths, the guided layer (audience, input → model →
+  output, how to use, roadmap, at least seven predictions with worked answers, the change-one-thing activity,
+  troubleshooting, glossary, conclusion template, three Infrastructure labels), a list of stale learner-facing text
+  that must not return (the restart instruction, the 0.86 scene value, the eight-image BYOD minimum, the two-minute
+  estimate), no bare `assert` in learner cells, the learner-facing statements (Apache-2.0 weights, the uncalibrated
   sigmoid, the caller-owned threshold, adaptation of the decoder on labelled records, the two non-adapted baselines,
   mean and micro IoU, Dice, pixel precision and recall, the empty-mask and full-mask baselines, the per-pixel binary
   cross-entropy, the frozen-tower cache, highest validation mean IoU, no dispersion estimate, float32 on every
   device, the leakage guidance, the precision-and-recall guidance, the excluded instance/panoptic scope, the snapshot
-  note, the troubleshooting block) and the gated-off BYOD default; forbidden patterns (credential-in-URL, any `git
+  note, the troubleshooting section) and the gated-off BYOD default; forbidden patterns (credential-in-URL, any `git
   clone` / `github.com/kurtvalcorza` / repository import on the primary path, a mutable `revision='main'`, direct
   `from transformers import` / `CLIPSegForImageSegmentation` / `CLIPSegProcessor` / `torch.sigmoid(` /
   `torch.inference_mode(` / `from huggingface_hub import` / `urllib.request` / `pyarrow` / `safetensors` imports /
@@ -80,14 +89,16 @@ Before changing the registry status from `Candidate` to `Release-grade`:
    the manifest itself, stages the missing files from the Hub and reads the pinned row groups over range requests,
    so neither directory may be seeded);
 3. run the notebook top-to-bottom without editing implementation cells (form parameters at their defaults:
-   `USE_BYOD = False`, `SPLIT_SEED = 42`, `EPOCHS = 8`, `LEARNING_RATE = 3e-4`, `BATCH_SIZE = 8`);
-4. verify that Section 1 reports `NOTEBOOK_SOURCE.repository_revision` equal to the revision recorded in
-   `metadata.dimer.generated_from` and that the installed core package versions equal the inline `PINS`
+   `USE_BYOD = False`, `BYOD_PATH = ''`, `SPLIT_SEED = 42`, `THRESHOLD = 0.5`, `EPOCHS = 8`, `LEARNING_RATE = 3e-4`,
+   `BATCH_SIZE = 8`, `ACTIVITY_THRESHOLD = 0.3`) on a Linux x86_64 runtime;
+4. verify that Section 1 builds the isolated environment (the printed dictionary names the isolated Python 3.12.12
+   and the locked package count), that the runtime-record cell reports `NOTEBOOK_SOURCE.repository_revision` equal
+   to the revision recorded in `metadata.dimer.generated_from` and imported versions equal to the inline `PINS`
    (= `pyproject.toml`): `torch==2.14.0`, `transformers==4.57.6`, `huggingface-hub==0.36.2`, `safetensors==0.8.0`,
-   `numpy==2.5.3`, `pillow==11.3.0`, `pyarrow==25.0.1` (an interpreter restart after the install is expected where
-   the runtime's preinstalled torch or numpy differ from the pins);
+   `numpy==2.5.3`, `pillow==11.3.0`, `pyarrow==25.0.1`, and that the whole notebook completes in **one pass with no
+   restart** — a run that needed a restart is not a one-pass `Run all` and is not promotion evidence (REL11);
 5. verify every default-path stage completes:
-   - pinned runtime installed from the inline `PINS` with no GitHub access;
+   - the locked runtime installed into the isolated environment from the carried hash lock with no GitHub access;
    - the three carried module cells execute (defining `ClipSegSegmentationPipeline`, `verify_snapshot`,
      `stage_missing_files`, `validate_inputs`, `evaluation_report`, `format_prompts`, `mask_iou`, `mask_bbox`,
      `segmentation_metrics`, `mask_metrics`, `empty_baseline`, `full_baseline`, `fetch_corpus`, `read_corpus`,
@@ -116,18 +127,23 @@ Before changing the registry status from `Candidate` to `Release-grade`:
      and an eight-epoch history with the validation mean IoU rising (build record: 0.603 → 0.822 / 0.840 / 0.851 / 0.855 / 0.849 / 0.854 / 0.851 / 0.853, `best_epoch`
      4);
    - Section 8: `pipe.evaluate` on the validation and test splits with the four-way comparison, the predicted area
-     and `outputs/…_evaluation_report.json` written (the cell asserts the adapted test mean IoU is at least the
-     frozen one and above the full-mask baseline — 0.842 against 0.637 in the build record,
-     Dice 0.715 → 0.904);
-   - Section 9: six example panels under `outputs/…_examples/`; the drawn scene re-segmented by the adapted model
-     with `outputs/…_scene_adapted.json` and `.png` (build record: before adaptation `green grass` 0.96, `a red circle` 0.96, `a blue square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.95); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000; after adaptation `green grass` 0.97, `a red circle` 0.97, `a blue square` 0.96, `a yellow triangle` 0.93 (mean IoU 0.96); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000 — a recorded observation, not an
+     and `outputs/…_evaluation_report.json` written; the printed verdict (adapted against frozen and both baselines —
+     0.842 against 0.637 in the build record, Dice 0.715 → 0.904) and one `run_history` row;
+   - Section 9: six three-panel example sheets (reference, frozen, adapted) under `outputs/…_examples/`; the drawn scene re-segmented by the adapted model
+     with `outputs/…_scene_adapted.json` and `.png` (build record: before adaptation `green grass` 0.96, `a red circle` 0.96, `a blue square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.947); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000; after adaptation `green grass` 0.97, `a red circle` 0.97, `a blue square` 0.96, `a yellow triangle` 0.93 (mean IoU 0.958); absent phrases' area fraction `a cat` 0.000, `the sky` 0.000 — a recorded observation, not an
      assertion); `pipe.save_artifact` writing `outputs/…_adapter/{adapter.safetensors,manifest.json}` (the decoder,
      about 4.5 MB) and `ClipSegSegmentationPipeline.from_artifact` reloading it with 8/8 identical masks on eight
-     test records (the cell asserts it); `outputs/…_result.json` written with `NOTEBOOK_SOURCE`, the model identity
+     test records (the cell raises with the cause if any differ); `outputs/…_result.json` written with `NOTEBOOK_SOURCE`, the model identity
      and licence, the snapshot block (`weight_file`, `weight_format`, `weight_sha256`), the `corpus` block, the
      inference-contract records before and after adaptation, the comparison, the artifact digest, the reload
-     parity, the runtime versions, device and dtype;
-6. verify the exports exist and the interpretation section matches the observed path;
+     parity, `run_history`, the runtime versions, device and dtype;
+   - Section 10: the adapted model's validation rates at `THRESHOLD` and `ACTIVITY_THRESHOLD` and
+     `outputs/…_threshold_activity.json`;
+6. verify the exports exist and the interpretation section matches the observed path; then, in the same session,
+   exercise the reuse journeys (REL12): set `USE_BYOD = True` with a representative set of at least 12 distinct images
+   and **Run after** from Section 4 (Section 6 must print `adapted: False` and the frozen rows of a freshly loaded
+   model; the run must reach Section 9's reload parity and `result.json` must carry `byod_upload` and no `corpus`),
+   and once with 11 images (refused in Section 4, naming the count and the minimum);
 7. record the notebook Git blob id, commit, runtime (platform, Python, PyTorch, Transformers, device), the model
    identifier and immutable revision, whether the model cache, the weights directory and the row-group cache were
    clean, outcome, produced outputs, the observed metrics (as observations, not a benchmark) and any warning or
@@ -140,7 +156,7 @@ A known-failing default path in the supported runtime blocks release (REL11).
 
 | Notebook | Commit / notebook blob | Date (UTC) | Executor | Outcome |
 |---|---|---|---|---|
-| `clipseg_segmentation_colab.ipynb` (`E2E`) | `2c999ae` / `100adc4f` | 2026-09-21 | Kaggle Tesla T4 (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v3; image `torch 2.10.0+cu128` / `transformers 5.0.0` before the pinned install, `torch 2.14.0+cu130` / `transformers 4.57.6` after, Python 3.12.13, `cuda:0`, float32) | **PASSED** — 11/11 code cells ok (1 restart after install cell); 26 files, 647 MB staged from the Hub into a clean cache; comparison {miou: {empty: 0, full: 0.283, frozen: 0.637, adapted: 0.842}, iou_micro: {empty: 0, full: 0.254, frozen: 0.642, adapted: 0.824}, dice: {empty: 0, full: 0.426, frozen: 0.715, adapted: 0.904}, pixel_precision: {empty: 0, full: 0.254, frozen: 0.835, adapted: 0.881}, pixel_recall: {empty: 0, full: 1, frozen: 0.736, adapted: 0.927}, delta_vs_frozen: {miou: 0.205, iou_micro: 0.181, dice: 0.189, pixel_precision: 0.046, pixel_recall: 0.191}, area: {reference_pixels: 11411484, frozen_predicted_pixels: 10047557, adapted_predicted_pixels: 12006659, frozen_predicted_area_fraction: 0.248, adapted_predicted_area_fraction: 0.291}}; drawing / scene / page check frozen vs adapted {frozen: {miou: 0.947}, adapted: {miou: 0.958}}; reload parity {identical_masks: 8, of: 8}; run summary and executed notebook archived under `.agent/backups/kaggle-e2e-2026-09-19/out/dimer-nb2-clipseg-segmentation/v3/evidence/` in the workspace |
+| `clipseg_segmentation_colab.ipynb` (`E2E`, previous blob) | `2c999ae` / `100adc4f` | 2026-09-21 | Kaggle Tesla T4 (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v3; image `torch 2.10.0+cu128` / `transformers 5.0.0` before the pinned install, `torch 2.14.0+cu130` / `transformers 4.57.6` after, Python 3.12.13, `cuda:0`, float32) | **Not a one-pass `Run all`** — attempt 1 stopped in the install cell with the restart `RuntimeError` (`cuda-bindings: loaded=12.9.4, installed=13.4.2; numpy: loaded=2.0.2, installed=2.5.3`) after 237.2 s; 11/11 code cells ok on attempt 2 after a manual restart (198.1 s). Not promotion evidence (REL11; review CLS-M1, 2026-10-02); the metrics below are observations of that run: 26 files, 647 MB staged from the Hub into a clean cache; comparison {miou: {empty: 0, full: 0.283, frozen: 0.637, adapted: 0.842}, iou_micro: {empty: 0, full: 0.254, frozen: 0.642, adapted: 0.824}, dice: {empty: 0, full: 0.426, frozen: 0.715, adapted: 0.904}, pixel_precision: {empty: 0, full: 0.254, frozen: 0.835, adapted: 0.881}, pixel_recall: {empty: 0, full: 1, frozen: 0.736, adapted: 0.927}, delta_vs_frozen: {miou: 0.205, iou_micro: 0.181, dice: 0.189, pixel_precision: 0.046, pixel_recall: 0.191}, area: {reference_pixels: 11411484, frozen_predicted_pixels: 10047557, adapted_predicted_pixels: 12006659, frozen_predicted_area_fraction: 0.248, adapted_predicted_area_fraction: 0.291}}; drawing / scene / page check frozen vs adapted {frozen: {miou: 0.947}, adapted: {miou: 0.958}}; reload parity {identical_masks: 8, of: 8}; run summary and executed notebook archived under `.agent/backups/kaggle-e2e-2026-09-19/out/dimer-nb2-clipseg-segmentation/v3/evidence/` in the workspace |
 | `clipseg_segmentation_colab.ipynb` (`TASK-INFERENCE`, superseded) | `69dc7ee` / `2fd1160bfd0d` | 2026-09-14 | Kaggle CPU (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v1) | PASSED — 8/8 code cells, 18 files, 605 MB staged, 224.8 s; evidence for the earlier inference-only notebook, not for the `E2E` blob |
 
 ## Recorded executions
@@ -152,15 +168,16 @@ stated runtime, not general estimates.
 
 | Date (UTC) | Commit / notebook blob | Executor | Path exercised | Wall | Outcome |
 |---|---|---|---|---|---|
-| 2026-09-21 | `d7b8652` / `c74a3b90` (pre-flight: the build-record placeholders still unfilled in the prose, code identical) | Kaggle Tesla T4 (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v2) | Default sample path, `Run all` from a fresh interpreter with an empty Hugging Face cache and no repository checkout | 302.6 s | **PASSED** — 11/11 code cells ok (1 restart after install cell); 26 files, 647 MB staged; the metrics the build record quotes |
-| 2026-09-21 | `2c999ae` / `100adc4f` | Kaggle Tesla T4 (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v3; image `torch 2.10.0+cu128` / `transformers 5.0.0` before the pinned install, `torch 2.14.0+cu130` / `transformers 4.57.6` after, Python 3.12.13, `cuda:0`, float32) | Default sample path, `Run all` from a fresh interpreter with an empty Hugging Face cache and no repository checkout (blob SHA-1 verified against GitHub before execution) | 435.4 s | **PASSED** — 11/11 code cells ok (1 restart after install cell); 26 files, 647 MB staged from the Hub into a clean cache; comparison {miou: {empty: 0, full: 0.283, frozen: 0.637, adapted: 0.842}, iou_micro: {empty: 0, full: 0.254, frozen: 0.642, adapted: 0.824}, dice: {empty: 0, full: 0.426, frozen: 0.715, adapted: 0.904}, pixel_precision: {empty: 0, full: 0.254, frozen: 0.835, adapted: 0.881}, pixel_recall: {empty: 0, full: 1, frozen: 0.736, adapted: 0.927}, delta_vs_frozen: {miou: 0.205, iou_micro: 0.181, dice: 0.189, pixel_precision: 0.046, pixel_recall: 0.191}, area: {reference_pixels: 11411484, frozen_predicted_pixels: 10047557, adapted_predicted_pixels: 12006659, frozen_predicted_area_fraction: 0.248, adapted_predicted_area_fraction: 0.291}}; drawing / scene / page check frozen vs adapted {frozen: {miou: 0.947}, adapted: {miou: 0.958}}; reload parity {identical_masks: 8, of: 8}; run summary and executed notebook archived under `.agent/backups/kaggle-e2e-2026-09-19/out/dimer-nb2-clipseg-segmentation/v3/evidence/` in the workspace |
+| 2026-10-04 | review-fix head of PR #10 / blob `fce863b3` (pre-flight; the executed copy's code cells are identical to this blob, four markdown cells then received the numbers this run produced) | Windows venv `dimer-next16` (`torch 2.14.0+cu130`, `transformers 4.57.6`, Python 3.12.10, `cpu`, float32, 24 threads), `CUDA_VISIBLE_DEVICES=-1`, `HF_HUB_OFFLINE=1`; the two kernel cells (isolated install and router) skipped and the runtime-record cell run with `DIMER_NOTEBOOK_CI_PREINSTALLED=1`; snapshot and row groups pre-staged (re-hashed by the notebook) | every learner cell verbatim from the notebook JSON: (a) default path Sections 4–10; (b) then **Run after** from Section 5 with the fields unchanged and Section 7 at `EPOCHS = 1`; (c) a separate session: BYOD by `BYOD_PATH`, an `images/` + `masks/` zip with a macOS `__MACOSX/` entry and `.DS_Store`, 11 then 12 distinct images, Sections 4–10 at `EPOCHS = 1` | (a) Section 7 337.1 s (tower cache 131.6 s); (b) 582.5 s session in all; (c) 19.4 s | Pre-flight, not promotion evidence. (a) 600 / 60 / 140; scene 0.947; empty 0.000, full 0.283, frozen 0.637 / Dice 0.715 / precision 0.835 / recall 0.736 (`adapted: False`); validation 0.603 → 0.822 / 0.840 / 0.851 / **0.855** / 0.848 / 0.853 / 0.851 / 0.854, epoch 4 kept; adapted 0.842 / 0.904 / 0.881 / 0.927; scene after 0.958; panels 976 px wide (three overlays); 64 tensors, 4,514,484 bytes; reload parity 8/8; activity on validation: 0.5 → mean IoU 0.855, precision 0.903, recall 0.911, area 0.298; 0.3 → 0.851 / 0.871 / 0.933 / 0.315; 0.7 → 0.844 / 0.927 / 0.873 / 0.282 (reference area 0.298). (b) the reload message printed, scene 0.947 again, Section 6 frozen rates equal to (a) within 1e-6 (identical) with `adapted: False`, Section 7 epoch 0 0.6033 = (a)'s. (c) 11 images refused in Section 4: `Your upload holds 11 records (11 distinct images); BYOD needs at least 12 distinct images …`; 12 images accepted (2 OS-metadata files ignored, images distinct from their masks), split 8 / 2 / 2, through Section 9 with reload parity 2/2 and Section 10; validation kept epoch 0 and Section 8 printed *not improved* without stopping; `result.json` had no `corpus` and `byod_upload` {name, bytes 12268, sha256 equal to the zip's}. The uv isolated-environment path itself is Linux-only and was not executed here |
+| 2026-09-21 | `d7b8652` / `c74a3b90` (pre-flight: the build-record placeholders still unfilled in the prose, code identical) | Kaggle Tesla T4 (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v2) | Default sample path, `Run all` from a fresh interpreter with an empty Hugging Face cache and no repository checkout | 302.6 s | Pre-flight; 11/11 code cells ok only after a manual restart following the install cell — not a one-pass `Run all`; 26 files, 647 MB staged; the metrics the build record quotes |
+| 2026-09-21 | `2c999ae` / `100adc4f` | Kaggle Tesla T4 (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v3; image `torch 2.10.0+cu128` / `transformers 5.0.0` before the pinned install, `torch 2.14.0+cu130` / `transformers 4.57.6` after, Python 3.12.13, `cuda:0`, float32) | Default sample path, `Run all` from a fresh interpreter with an empty Hugging Face cache and no repository checkout (blob SHA-1 verified against GitHub before execution) | 435.4 s (237.2 s attempt 1 + 198.1 s attempt 2) | **Not a one-pass `Run all`** — attempt 1 stopped in the install cell with the restart `RuntimeError` (`cuda-bindings: loaded=12.9.4, installed=13.4.2; numpy: loaded=2.0.2, installed=2.5.3`) after 237.2 s; 11/11 code cells ok on attempt 2 after a manual restart (198.1 s). Not promotion evidence (REL11; review CLS-M1, 2026-10-02); the metrics below are observations of that run: 26 files, 647 MB staged from the Hub into a clean cache; comparison {miou: {empty: 0, full: 0.283, frozen: 0.637, adapted: 0.842}, iou_micro: {empty: 0, full: 0.254, frozen: 0.642, adapted: 0.824}, dice: {empty: 0, full: 0.426, frozen: 0.715, adapted: 0.904}, pixel_precision: {empty: 0, full: 0.254, frozen: 0.835, adapted: 0.881}, pixel_recall: {empty: 0, full: 1, frozen: 0.736, adapted: 0.927}, delta_vs_frozen: {miou: 0.205, iou_micro: 0.181, dice: 0.189, pixel_precision: 0.046, pixel_recall: 0.191}, area: {reference_pixels: 11411484, frozen_predicted_pixels: 10047557, adapted_predicted_pixels: 12006659, frozen_predicted_area_fraction: 0.248, adapted_predicted_area_fraction: 0.291}}; drawing / scene / page check frozen vs adapted {frozen: {miou: 0.947}, adapted: {miou: 0.958}}; reload parity {identical_masks: 8, of: 8}; run summary and executed notebook archived under `.agent/backups/kaggle-e2e-2026-09-19/out/dimer-nb2-clipseg-segmentation/v3/evidence/` in the workspace |
 | 2026-09-21 | package API at `d7b8652` (pre-flight, not the notebook blob) | Kaggle Tesla T4 script kernel (`kurtvalcorza/dimer-probe-clipseg-e2e` v3 — v1 was never run and v2 died after its green pytest on an import-path slip in the probe script, not in the row; `torch 2.14.0+cu130`, `transformers 4.57.6`, Python 3.12, `cuda:0`, float32), branch cloned, pins installed, snapshot staged from the Hub | `tests/test_model_backed.py` (7 passed, 19 warnings in 43.48s) and the recipe probe: the eight pinned row groups read over range requests (800 records, digest match), empty and full baselines, frozen model on the 140 test records, `adapt(epochs=8, lr=3e-4, batch_size=8)` with validation-mIoU selection, adapted evaluation, artifact round trip | 398 s | **PASS** — 7 passed, 19 warnings in 43.48s; the notebook's 8 code cells re-executed through the package API in 130 s with peak CUDA memory 1.61 GB; the metrics it produced are the ones the notebook run above recorded (same seed, same split, same recipe) |
 | 2026-09-20 | package API at the working tree of `feat/e2e-segmentation-adaptation` (pre-flight, not the notebook blob) | Windows venv `dimer-next16` (`torch 2.14.0+cu130`, `transformers 4.57.6`, Python 3.12.10, `cpu`, float32), `CUDA_VISIBLE_DEVICES=-1`, `HF_HUB_OFFLINE=1`, row groups cached | the CPU recipe sweep on the default split (600 / 60 / 140): frozen 0.637 mean IoU (Dice 0.715, precision 0.835, recall 0.736; empty 0.000, full 0.283); 8 epochs, batch 8, validation mean IoU per epoch (epoch 0 = frozen 0.603) → test mean IoU / Dice at the kept epoch: lr 3e-5 → 0.777 … 0.820 (epoch 7 kept) → 0.804 / 0.875; lr 1e-4 → 0.813 … 0.844, still rising at epoch 8 (kept) → 0.831 / 0.896; **lr 3e-4 → 0.822, 0.840, 0.851, 0.855 (epoch 4 kept), then 0.848–0.854 plateau → 0.842 / 0.904**; lr 1e-3 → 0.848, 0.834, 0.850, 0.856, 0.858 (epoch 5 kept), 0.855, 0.849, 0.856 → 0.850 / 0.910. 3e-4 and 1e-3 are within noise of each other; 3e-4 plateaus by epoch 4 without the epoch-2 dip and is the default. Decoder-on-cache parity max abs 7.0e-4 (fp16 cache); artifact 4,514,484 bytes; reload parity 8/8 | ~19 min (tower cache 129–157 s per arm, adapt 307–369 s per arm incl. the eight validation passes, frozen test 35.8 s; the box was shared with another CPU job) | PASS — pre-flight only; fixed the recipe at lr 3e-4 × 8; not promotion evidence |
 | 2026-09-14 | `69dc7ee` / `2fd1160bfd0d` (`TASK-INFERENCE`, superseded) | Kaggle CPU (`kurtvalcorza/dimer-nb2-clipseg-segmentation` v1) | Default sample path, `Run all` from a fresh interpreter, no repository checkout | 224.8 s | PASSED — 8/8 code cells, 18 files, 605 MB staged; not evidence for the `E2E` blob |
 
 ## Current status
 
-**Release-grade.** The `E2E` notebook blob `100adc4f` (committed at `2c999ae`) executed top-to-bottom in a clean Kaggle Tesla T4 runtime on 2026-09-21 (11/11 ok (1 restart after install cell), 435.4 s, 26 files, 647 MB fetched from the Hub and digest-verified inside the notebook) with no repository checkout — the REL1/REL10 supported-runtime evidence this file gates on. The pre-flight rows above (the package-API probe and the notebook pre-flight of the previous blob) and the superseded TASK-INFERENCE run are history. Any later change to the carried modules or to the notebook produces a new blob, and the registry returns to **Candidate** until a clean run of that blob is recorded here.
+**Candidate** — the `E2E` notebook `tutorials/clipseg_segmentation_colab.ipynb` was regenerated on 2026-10-04 for the 2026-10-02 review findings (CLS-M1..M5, CLS-m1..m5): it now builds an isolated `uv` environment from a hash-locked lock instead of installing into the kernel (no restart), and its blob `fce863b3` has no hosted run yet. The 2026-09-21 Kaggle T4 run of the previous blob `100adc4f` needed a manual restart after the install cell, so it was not a one-pass `Run all` and is not promotion evidence. A fresh hosted `Run all` of the current blob, recorded in `docs/release-verification.md`, is required before promotion. The pre-flight rows above (the 2026-10-04 local CPU run of this version, the package-API probe, the notebook pre-flight of an earlier blob) and the superseded TASK-INFERENCE run are history, not promotion evidence. Remaining before promotion: a hosted Colab (or Kaggle) T4 `Run all` of the current blob in one pass with no restart, followed in the same session by the BYOD and rerun journeys of step 6.
 
 Facts a reviewer should weigh: the sample is food photographs with the largest ingredient's mask, a phrase vocabulary
 (`bread`, `chicken duck`, `steak`, …) and a boundary convention the PhraseCut-trained decoder never saw, but the CLIP
@@ -175,7 +192,7 @@ few hundredths of mean IoU the expected spread between two runs, not a finding. 
 
 ## Image-segmentation workshop notebook
 
-`tutorials/DIMER_MultiModel_Image_Segmentation_Workshop.ipynb` (`E2E` / `WORKSHOP`, DIMER Notebook Specification 2.2) is a **Candidate**. It is recorded separately from the release-grade `clipseg_segmentation_colab.ipynb`, whose status it does not change. It carries the CLIPSeg package modules, the SAM (`kurtvalcorza/sam-vit-segmentation-pipeline@ed74a93`) and SAM 2 (`kurtvalcorza/sam2-segmentation-pipeline@df023e1`) reference modules, their manifests and licences, a runner, a frozen sample manifest and a hash-pinned dependency lock. These are installed into an isolated `uv` Python 3.12.12 environment. Its design is `docs/image-segmentation-workshop-spec.md`.
+`tutorials/DIMER_MultiModel_Image_Segmentation_Workshop.ipynb` (`E2E` / `WORKSHOP`, DIMER Notebook Specification 2.2) is a **Candidate**. It is recorded separately from `clipseg_segmentation_colab.ipynb` (also a Candidate), whose status it does not change. It carries the CLIPSeg package modules, the SAM (`kurtvalcorza/sam-vit-segmentation-pipeline@ed74a93`) and SAM 2 (`kurtvalcorza/sam2-segmentation-pipeline@df023e1`) reference modules, their manifests and licences, a runner, a frozen sample manifest and a hash-pinned dependency lock. These are installed into an isolated `uv` Python 3.12.12 environment. Its design is `docs/image-segmentation-workshop-spec.md`.
 
 | Check | Automatic (every pull request) | Manual (before promotion) |
 |---|---|---|
