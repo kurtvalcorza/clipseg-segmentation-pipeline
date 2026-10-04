@@ -1,6 +1,6 @@
 """Static release-asset validation for the CLIPSeg rd64-refined text-prompted segmentation DIMER pipeline.
 
-Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.0 §4), the tutorial
+Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.2 §4), the tutorial
 registry, model card, README, STATUS.md and weight documentation for source conformance and
 cross-document identity consistency, and runs the generator parity checks (PAR1–PAR3).
 
@@ -42,20 +42,36 @@ EXPECTED_OUTPUTS = (
     "outputs/clipseg_segmentation_examples",
     "outputs/clipseg_segmentation_adapter",
     "outputs/clipseg_segmentation_result.json",
+    "outputs/clipseg_segmentation_threshold_activity.json",
 )
 # Profile-specific code the notebook must exercise through the carried package's public API.
 CODE_MARKERS = (
     "corpus_groups = fetch_corpus(cache_dir='weights/foodseg103')",
     "corpus = read_corpus(corpus_groups)",
     "splits = build_sample_dataset(corpus, seed=SPLIT_SEED)",
-    "records = load_byod_dataset(byod_zip)",
+    # CLS-M4 / CLS-m5: the notebook's own BYOD loader, keyed by relative path, and the BYOD_PATH field
+    "def load_byod_records(path):",
+    "records, byod_report = load_byod_records(byod_source)",
+    "raise ValueError(f'{where}: the image and the mask are the same file {image_key!r}; the mask must be a separate image')",
+    "raise ValueError(f'the zip holds two members with the same path {key!r}; keep one of them')",
+    "BYOD_PATH = ''",
+    "if len(uploaded) != 1:",
+    # CLS-M3: the BYOD floor is checked before splitting; validation and test splits are validated with a minimum of one
+    "BYOD_MIN_IMAGES = byod_minimum_images()",
+    "if distinct_images < BYOD_MIN_IMAGES:",
     "splits = split_dataset(records, seed=SPLIT_SEED)",
-    "dataset_manifests = {name: validate_dataset(part) for name, part in splits.items()}",
+    "dataset_manifests = {name: validate_dataset(part, min_records=MIN_RECORDS if name == 'train' else 1) for name, part in splits.items()}",
     "disjoint = check_split_disjoint(splits)",
     "write_dataset_csv(train_records, 'outputs/clipseg_segmentation_train.csv')",
     "validate_dataset(probe)",
     "print({'ceilings': {'MIN_IMAGE_SIDE': MIN_IMAGE_SIDE, 'MAX_IMAGE_SIDE': MAX_IMAGE_SIDE, 'LOGIT_SIZE': LOGIT_SIZE, 'MAX_PROMPTS': MAX_PROMPTS, 'MAX_PROMPT_CHARS': MAX_PROMPT_CHARS, 'MAX_TEXT_TOKENS': MAX_TEXT_TOKENS, 'MASK_THRESHOLD': MASK_THRESHOLD, 'EXTRACT_LAYERS': list(EXTRACT_LAYERS), 'MIN_RECORDS': MIN_RECORDS, 'MAX_RECORDS': MAX_RECORDS, 'EVAL_BATCH_SIZE': EVAL_BATCH_SIZE",
     "def synthetic_scene(width=640, height=480):",
+    # CLS-M2: Sections 5-7 start from the pretrained model; THRESHOLD is a form field; nothing adapted is called frozen
+    "THRESHOLD = 0.5",
+    "def reset_to_pretrained():",
+    "    pipe = ClipSegSegmentationPipeline.from_pretrained(weights_dir=WEIGHTS_DIR)",
+    "if frozen_test['adapted']:",
+    "if pipe.adapter is not None:",
     "input_manifest = validate_inputs(scene, scene_prompts, threshold=THRESHOLD, names=[scene_name])",
     "validate_inputs(scene, ['a red circle', 'A red circle.'])",
     "result = pipeline.segment(scene, scene_prompts, threshold=THRESHOLD)",
@@ -66,12 +82,21 @@ CODE_MARKERS = (
     "adapt_result = pipe.adapt(train_records, val_records, epochs=EPOCHS, lr=LEARNING_RATE, batch_size=BATCH_SIZE, threshold=THRESHOLD, progress=report)",
     "adapted_test = pipe.evaluate(test_records, threshold=THRESHOLD, batch_size=EVAL_BATCH_SIZE)",
     "adapted_val = pipe.evaluate(val_records, threshold=THRESHOLD, batch_size=EVAL_BATCH_SIZE)",
-    "assert adapted_test['miou'] >= frozen_test['miou']",
-    "assert adapted_test['miou'] > baseline_full['miou']",
+    # A printed verdict instead of a result-dependent assert (a BYOD run reaches the export), and a run history
+    "improved = adapted_test['miou'] > frozen_test['miou']",
+    "run_history = globals().get('run_history', [])",
+    # CLS-m1: the frozen masks kept in Section 6 are drawn beside the reference and adapted masks
+    "frozen_example_masks = [item['mask'] for item in pipe.segment_batch(",
+    "'panels': ['reference overlay', 'frozen overlay', 'adapted overlay']",
     "adapted_scene, adapted_scene_seconds, adapted_scene_checks, adapted_scene_report = segment_scene(pipe, 'adapted')",
     "pipe.save_artifact(artifact_dir, metadata={'tutorial': 'clipseg_segmentation', 'data_source': data_source})",
     "reloaded = ClipSegSegmentationPipeline.from_artifact(artifact_dir, weights_dir=WEIGHTS_DIR, device=pipe.device)",
-    "assert parity['identical_masks'] == parity['of']",
+    "raise RuntimeError(f'Reload parity failed: {parity}.",
+    # CLS-m4: a BYOD result records the upload, not the FoodSeg103 corpus
+    "del result_payload['corpus']",
+    "result_payload['byod_upload'] = byod_upload",
+    # CLS-M5: the change-one-thing activity
+    "ACTIVITY_THRESHOLD = 0.3",
     "'model_revision': MODEL_REVISION",
     "'model_license': MODEL_LICENSE",
     "'weight_file': WEIGHTS_FILE, 'weight_format': 'safetensors, digest-verified', 'weight_sha256': pipe.weight_sha256",
@@ -109,7 +134,38 @@ MARKDOWN_MARKERS = (
     "## 9. Look at the masks, segment the scene again, export the adapter and reload it",
     "**Precision and recall together:**",
     "**Leakage:**",
-    "**Troubleshooting.**",
+    "## Troubleshooting",
+)
+# Learner-facing text the review fixes removed; it must not come back (CLS-M1 restart/install text, CLS-M3 the wrong
+# BYOD minimum, CLS-m2 the stale scene value, CLS-m3 the runtime estimate without an environment, CLS-M2 the vague
+# rerun instruction).
+STALE_MARKDOWN = (
+    "Restart the runtime, then rerun",
+    "restart the runtime and rerun from the top",
+    "installs the pinned dependencies",
+    "at least eight images",
+    "a dataset needs 8..5,000 records",
+    "mean IoU of 0.86",
+    "about 2 minutes of cell time",
+    "re-run from that cell",
+    "before Section 6 and read",
+    "The cell asserts the adapted mean IoU",
+)
+# The guided layer (NOTEBOOK_SPEC 2.2 §3.5, GDL1-GDL15; review CLS-M5): each marker with its minimum count.
+GUIDED_MARKERS = (
+    ("**Who this is for.**", 1),
+    ("**Input → Model → Output.**", 1),
+    ("**How to use this notebook.**", 1),
+    ("**Roadmap:**", 1),
+    ("**Predict before running:**", 7),
+    ("**What to notice:**", 7),
+    ("<summary>Check your reasoning</summary>", 7),
+    ("## 10. Your turn — change one thing", 1),
+    ("**Predict → Change → Run → Observe → Explain:**", 1),
+    ("## Troubleshooting", 1),
+    ("## Glossary", 1),
+    ("## Conclusion (your notes)", 1),
+    ("> **Infrastructure.**", 3),
 )
 # Direct-library use that must stay inside the carried module cells (G2: the notebook calls the
 # pipeline API, it does not reimplement it). Checked on every code cell except the embedded ones
@@ -139,10 +195,10 @@ INSTALL_CELL_MARKER = "subprocess.run([sys.executable, '-m', 'pip', 'install', '
 # ---------------------------------------------------------------------------
 # Shared checks. Everything below is source/structure validation only. Passing
 # these checks is NOT clean-runtime execution evidence under DIMER Notebook
-# Specification 2.0; see docs/release-verification.md for the release gate.
+# Specification 2.2; see docs/release-verification.md for the release gate.
 # ---------------------------------------------------------------------------
 
-NOTEBOOK_SPEC = "2.0"
+NOTEBOOK_SPEC = "2.2"
 # WORKSHOP-mode notebooks (DIMER Notebook Specification 2.2). They carry their own reference source, dependency
 # lock and runner and execute in an isolated environment, so they are checked for carried-source integrity and
 # for byte parity of the carried CLIPSeg modules and manifest with the package (line endings normalized for the
@@ -656,11 +712,29 @@ def _validate_notebook_content(
     _check(not missing, f"{path.name}: missing required source markers: {missing}")
     present = [label for label, pattern in FORBIDDEN_PATTERNS if pattern.search(code)]
     _check(not present, f"{path.name}: forbidden/insecure source: {present}")
-    outside_stage_cells = "\n".join(
-        text for index, text in stripped.items() if index not in embedded and INSTALL_CELL_MARKER not in text
+    # The two kernel cells (isolated install and router, CLS-M1) download the pinned uv wheel and carry the hash lock,
+    # which names pyarrow; they are the only cells outside the carried modules allowed urllib.request and that name.
+    kernel = {index for index, source, _tree in code_cells if "# dimer: kernel cell" in source}
+    kernel_raw = [source for index, source, _tree in code_cells if index in kernel]
+    learner = "\n".join(
+        text for index, text in stripped.items() if index not in embedded and index not in kernel and INSTALL_CELL_MARKER not in text
     )
-    leaked = [marker for marker in FORBIDDEN_OUTSIDE_MODULE if marker in outside_stage_cells]
+    leaked = [marker for marker in FORBIDDEN_OUTSIDE_MODULE if marker in learner]
+    leaked += [m for m in FORBIDDEN_OUTSIDE_MODULE if m not in ("urllib.request", "pyarrow") and any(m in _strip_comments(k) for k in kernel_raw)]
     _check(not leaked, f"{path.name}: direct library use outside the carried module cell (G2): {leaked}")
+    _check(len(kernel) == 2, f"{path.name}: exactly two kernel cells (isolated install and router) are expected (CLS-M1)")
+    install = next((k for k in kernel_raw if "LOCK_TEXT = r" in k), "")
+    for needed in ('"--managed-python"', '"--require-hashes"', '"--only-binary"', '":all:"', "UV_SHA256", "LOCK_SHA256", 'platform.machine() != "x86_64"'):
+        _check(needed in install, f"{path.name}: the isolated install cell must use {needed} (CLS-M1)")
+    _check("_ip.input_transformers_cleanup.append(_route_to_isolated_runtime)" in "\n".join(kernel_raw), f"{path.name}: later cells must be routed to the isolated environment (CLS-M1)")
+    stale = [marker for marker in STALE_MARKDOWN if marker in markdown]
+    _check(not stale, f"{path.name}: stale learner-facing text: {stale}")
+    _check("{{" not in markdown and "}}" not in markdown, f"{path.name}: markdown must not show doubled braces")
+    _check("\nassert " not in "\n" + learner, f"{path.name}: learner cells must not use a bare assert (CLS-M3: a BYOD run must reach the export)")
+    short = [(marker, markdown.count(marker), least) for marker, least in GUIDED_MARKERS if markdown.count(marker) < max(least, 1)]
+    _check(not short, f"{path.name}: guided layer incomplete (marker, found, needed): {short}")
+    resets = [index for index, text in stripped.items() if "\nreset_to_pretrained()" in "\n" + text]
+    _check(len(resets) >= 3, f"{path.name}: Sections 5, 6 and 7 must each call reset_to_pretrained() (CLS-M2)")
     _check(
         f"pipe = {MODEL_LOAD_EXPR}" in outside,
         f"{path.name}: must load through {MODEL_LOAD_EXPR} (INF1)",

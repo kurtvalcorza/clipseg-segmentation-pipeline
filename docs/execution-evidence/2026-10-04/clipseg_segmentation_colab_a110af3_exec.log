@@ -1,0 +1,73 @@
+[colab] Parsing notebook '/home/kurt/colab-runs/clipseg-segmentation-pipeline-a110af3-315dbc/clipseg_segmentation_colab_a110af3_colab-cli-t4.ipynb'...
+[colab] Executing cell 1/14 - Infrastructure: install the locked runtime into an isolated environment...
+{'isolated_environment': '/content/dimer_isolated_env', 'isolated_python': '3.12.12', 'kernel_python': '3.13.15', 'locked_packages': 48, 'setup_seconds': 50}
+[colab] Executing cell 2/14 - Route the remaining cells to the isolated environment...
+Every later code cell now runs in /content/dimer_isolated_env/bin/python (pid 3001).
+[colab] Executing cell 3/14 - clipseg_segmentation-07...
+{'notebook_source': {'repository': 'clipseg-segmentation-pipeline', 'repository_revision': '58e7cd95e2b31ea7a90c4b371c71a388afea8453', 'embedded_module': 'src/clipseg_segmentation_pipeline/pipeline.py', 'embedded_modules': ['src/clipseg_segmentation_pipeline/metrics.py', 'src/clipseg_segmentation_pipeline/pipeline.py', 'src/clipseg_segmentation_pipeline/samples.py'], 'module_sha256': '81153d120f741754fabb3624d7c6799e79d46bc818809f28e8df75c4334d0c6a', 'generator': 'build_notebook.py/2.1', 'notebook_spec': '2.2'}, 'python': '3.12.12', 'torch': '2.14.0+cu130', 'transformers': '4.57.6', 'PIL': '11.3.0', 'cuda': True}
+[colab] Executing cell 4/14 - clipseg_segmentation-09...
+[colab] Executing cell 5/14 - clipseg_segmentation-11...
+[colab] Executing cell 6/14 - clipseg_segmentation-13...
+[colab] Executing cell 7/14 - clipseg_segmentation-15...
+{'model_id': 'CIDAS/clipseg-rd64-refined', 'revision': '999e0328d9e10b484360c477313983f9afdd7050', 'license': 'apache-2.0', 'files': 8, 'total_bytes': 604641231}
+{'weights_dir': '/content/weights/clipseg-rd64-refined', 'fetched': ['README.md', 'config.json', 'merges.txt', 'model.safetensors', 'preprocessor_config.json', 'special_tokens_map.json', 'tokenizer_config.json', 'vocab.json']}
+{'verified_files': 8, 'revision': '999e0328d9e10b484360c477313983f9afdd7050'}
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+{'device': 'cuda:0', 'source': 'local-snapshot'}
+[colab] Executing cell 8/14 - clipseg_segmentation-17...
+{'data_source': 'FoodSeg103 (validation split), first eight parquet row groups @ 176acc3edd24 (Apache-2.0 (FoodSeg103, LARC-CMU-SMU; Wu, Fu, Liu, Lim, Hoi, Sun, ACM MM 2021; images curated from Recipe1M))', 'raw_rows': {'row_groups': 8, 'images': 800, 'records': 800, 'bytes': 42297825, 'seconds': 14.8}, 'splits': {'train': 600, 'validation': 60, 'test': 140}}
+{'train': {'n': 600, 'prompts': 58, 'mask_area': {'min': 0.043, 'max': 0.799, 'mean': 0.278}, 'width': {'min': 200, 'max': 1820}, 'height': {'min': 149, 'max': 1024}, 'digest': '455eacd8f9b185ef...'}}
+{'validation': {'n': 60, 'prompts': 26, 'mask_area': {'min': 0.109, 'max': 0.762, 'mean': 0.298}, 'width': {'min': 256, 'max': 1820}, 'height': {'min': 204, 'max': 1024}, 'digest': '01a438d82a264b12...'}}
+{'test': {'n': 140, 'prompts': 38, 'mask_area': {'min': 0.06, 'max': 0.601, 'mean': 0.283}, 'width': {'min': 256, 'max': 1820}, 'height': {'min': 204, 'max': 1024}, 'digest': '6b9043f957dc3d29...'}}
+{'example': {'id': 'foodseg103-val-732', 'image': [512, 364], 'prompt': 'cake', 'mask_area_fraction': 0.338}}
+{'probe': 'duplicate id', 'rejected': "duplicate id 'same'"}
+{'probe': 'empty mask', 'rejected': 'records[0].mask: the mask has no true pixel'}
+{'probe': 'mask of the wrong shape', 'rejected': "records[0].mask: shape (8, 8) does not match the image's height x width (364, 512)"}
+{'probe': 'too small', 'rejected': '3 records; 8..5000 are required'}
+[colab] Executing cell 9/14 - clipseg_segmentation-19...
+{'ceilings': {'MIN_IMAGE_SIDE': 16, 'MAX_IMAGE_SIDE': 4096, 'LOGIT_SIZE': 352, 'MAX_PROMPTS': 16, 'MAX_PROMPT_CHARS': 64, 'MAX_TEXT_TOKENS': 77, 'MASK_THRESHOLD': 0.5, 'EXTRACT_LAYERS': [3, 6, 9], 'MIN_RECORDS': 8, 'MAX_RECORDS': 5000, 'EVAL_BATCH_SIZE': 8, 'device': 'cuda:0'}, 'threshold': 0.5}
+{'scene': 'synthetic_shapes_640x480', 'sha256': '7d695224e2e73b1a...', 'manifest_verdict': 'accepted', 'findings': 1}
+/content/dimer_isolated_env/lib/python3.12/site-packages/transformers/image_processing_utils.py:51: UserWarning: The following named arguments are not valid for `ViTImageProcessor.preprocess` and were ignored: 'padding'
+  return self.preprocess(images, **kwargs)
+{'frozen': {'seconds': 1.26, 'checks': {'one_segment_per_phrase': True, 'probabilities_in_unit_interval': True, 'masks_at_input_resolution': True, 'identity_reported': True}, 'mask_iou': {'green grass': 0.958, 'a red circle': 0.964, 'a blue square': 0.96, 'a yellow triangle': 0.908}, 'miou': 0.947, 'absent_phrases': {'a cat': 0.0, 'the sky': 0.0}, 'verdict': 'sample-sanity', 'adapted': False}}
+[colab] Executing cell 10/14 - clipseg_segmentation-21...
+{'empty_baseline': {'miou': 0.0, 'iou_micro': 0.0, 'dice': 0.0, 'pixel_precision': 0.0, 'pixel_recall': 0.0}, 'n': 140, 'note': 'empty mask (no pixel predicted)'}
+{'full_baseline': {'miou': 0.283, 'iou_micro': 0.254, 'dice': 0.426, 'pixel_precision': 0.254, 'pixel_recall': 1.0}, 'note': 'full-image mask (every pixel predicted)'}
+{'frozen_model_test': {'miou': 0.637, 'iou_micro': 0.642, 'dice': 0.715, 'pixel_precision': 0.835, 'pixel_recall': 0.736}, 'adapted': False, 'n': 140, 'predicted_area_fraction': 0.248, 'verdict': 'measured', 'seconds': 6.9}
+{'definitions': {'miou': 'mean over records of the intersection-over-union between the thresholded mask and the reference mask (macro IoU; an empty prediction against a non-empty reference scores 0)', 'iou_micro': 'total intersection pixels over total union pixels across all records (micro IoU; large masks weigh more)', 'dice': 'mean over records of 2·|A∩B| / (|A| + |B|)', 'pixel_precision': 'total true-positive pixels over total predicted pixels', 'pixel_recall': 'total true-positive pixels over total reference pixels', 'baselines': "empty = no pixel predicted (IoU 0 by construction); full = every pixel predicted (IoU = the reference's area fraction)"}}
+{'id': 'foodseg103-val-761', 'prompt': 'potato', 'iou': 0.0, 'dice': 0.0, 'reference_pixels': 79589, 'predicted_pixels': 2113}
+{'id': 'foodseg103-val-763', 'prompt': 'steak', 'iou': 0.904, 'dice': 0.95, 'reference_pixels': 142116, 'predicted_pixels': 154868}
+{'id': 'foodseg103-val-642', 'prompt': 'chicken duck', 'iou': 0.819, 'dice': 0.9, 'reference_pixels': 12469, 'predicted_pixels': 12108}
+{'id': 'foodseg103-val-156', 'prompt': 'asparagus', 'iou': 0.601, 'dice': 0.751, 'reference_pixels': 17126, 'predicted_pixels': 11613}
+[colab] Executing cell 11/14 - clipseg_segmentation-23...
+{'epoch': 0, 'train_loss': None, 'val_miou': 0.603, 'val_iou_micro': 0.528, 'val_dice': 0.681, 'val_pixel_precision': 0.787, 'val_pixel_recall': 0.616, 'note': 'frozen model'}
+{'epoch': 1, 'train_loss': 0.1833, 'val_miou': 0.822, 'val_iou_micro': 0.788, 'val_dice': 0.886, 'val_pixel_precision': 0.892, 'val_pixel_recall': 0.871}
+{'epoch': 2, 'train_loss': 0.1153, 'val_miou': 0.84, 'val_iou_micro': 0.809, 'val_dice': 0.902, 'val_pixel_precision': 0.891, 'val_pixel_recall': 0.897}
+{'epoch': 3, 'train_loss': 0.0936, 'val_miou': 0.851, 'val_iou_micro': 0.824, 'val_dice': 0.909, 'val_pixel_precision': 0.891, 'val_pixel_recall': 0.916}
+{'epoch': 4, 'train_loss': 0.0809, 'val_miou': 0.855, 'val_iou_micro': 0.829, 'val_dice': 0.911, 'val_pixel_precision': 0.903, 'val_pixel_recall': 0.911}
+{'epoch': 5, 'train_loss': 0.074, 'val_miou': 0.849, 'val_iou_micro': 0.822, 'val_dice': 0.907, 'val_pixel_precision': 0.891, 'val_pixel_recall': 0.914}
+{'epoch': 6, 'train_loss': 0.0698, 'val_miou': 0.854, 'val_iou_micro': 0.835, 'val_dice': 0.911, 'val_pixel_precision': 0.914, 'val_pixel_recall': 0.906}
+{'epoch': 7, 'train_loss': 0.0661, 'val_miou': 0.851, 'val_iou_micro': 0.822, 'val_dice': 0.908, 'val_pixel_precision': 0.88, 'val_pixel_recall': 0.926}
+{'epoch': 8, 'train_loss': 0.0603, 'val_miou': 0.853, 'val_iou_micro': 0.834, 'val_dice': 0.909, 'val_pixel_precision': 0.908, 'val_pixel_recall': 0.911}
+{'threshold': 0.5, 'trainable_parameters': 1127009, 'total_parameters': 150747746, 'extract_layers': [3, 6, 9], 'best_epoch': 4, 'selection': 'highest validation mean IoU', 'loss': 'per-pixel binary cross-entropy over the 352x352 decoder logits against the reference mask resampled to that grid; computed on cached CLIP activations', 'cache_seconds': 30.082, 'seconds': 64.6}
+[colab] Executing cell 12/14 - clipseg_segmentation-25...
+{'miou': {'empty': 0.0, 'full': 0.283, 'frozen': 0.637, 'adapted': 0.842}}
+{'iou_micro': {'empty': 0.0, 'full': 0.254, 'frozen': 0.642, 'adapted': 0.824}}
+{'dice': {'empty': 0.0, 'full': 0.426, 'frozen': 0.715, 'adapted': 0.904}}
+{'pixel_precision': {'empty': 0.0, 'full': 0.254, 'frozen': 0.835, 'adapted': 0.881}}
+{'pixel_recall': {'empty': 0.0, 'full': 1.0, 'frozen': 0.736, 'adapted': 0.927}}
+{'delta_vs_frozen': {'miou': 0.205, 'iou_micro': 0.181, 'dice': 0.189, 'pixel_precision': 0.046, 'pixel_recall': 0.191}}
+{'area': {'reference_pixels': 11411484, 'frozen_predicted_pixels': 10047557, 'adapted_predicted_pixels': 12006659, 'frozen_predicted_area_fraction': 0.248, 'adapted_predicted_area_fraction': 0.291}}
+{'report': 'outputs/clipseg_segmentation_evaluation_report.json', 'adapted_beats_frozen': True, 'adapted_beats_both_baselines': True, 'verdict': 'improved on the held-out records'}
+{'run_history': {'data_source': 'FoodSeg103 (validation split), first eight parquet row groups @ 176acc3edd24 (Apache-2.0 (FoodSeg103, LARC-CMU-SMU; Wu, Fu, Liu, Lim, Hoi, Sun, ACM MM 2021; images curated from Recipe1M))', 'threshold': 0.5, 'epochs': 8, 'learning_rate': 0.0003, 'split_seed': 42, 'best_epoch': 4, 'frozen_miou': 0.637, 'adapted_miou': 0.842, 'delta_miou': 0.205}}
+[colab] Executing cell 13/14 - clipseg_segmentation-27...
+{'examples': ['foodseg103-val-112.png', 'foodseg103-val-156.png', 'foodseg103-val-48.png', 'foodseg103-val-642.png', 'foodseg103-val-761.png', 'foodseg103-val-763.png'], 'panels': ['reference overlay', 'frozen overlay', 'adapted overlay']}
+{'adapted': {'seconds': 0.249, 'checks': {'one_segment_per_phrase': True, 'probabilities_in_unit_interval': True, 'masks_at_input_resolution': True, 'identity_reported': True}, 'mask_iou': {'green grass': 0.971, 'a red circle': 0.97, 'a blue square': 0.958, 'a yellow triangle': 0.931}, 'miou': 0.958, 'absent_phrases': {'a cat': 0.0, 'the sky': 0.0}, 'verdict': 'sample-sanity', 'adapted': True}}
+{'artifact': 'outputs/clipseg_segmentation_adapter', 'format': 'org.valcorza.clipseg-rd64-refined.adapter.v1', 'tensors': 64, 'bytes': 4514484, 'sha256': '5d4c6e1c79bdde36...', 'threshold': 0.5, 'best_epoch': 4}
+{'reload_parity': {'identical_masks': 8, 'of': 8}, 'reloaded_best_epoch': 4}
+['clipseg_segmentation_adapter', 'clipseg_segmentation_evaluation_report.json', 'clipseg_segmentation_example_record.png', 'clipseg_segmentation_examples', 'clipseg_segmentation_input_manifest.json', 'clipseg_segmentation_result.json', 'clipseg_segmentation_scene_adapted.json', 'clipseg_segmentation_scene_adapted.png', 'clipseg_segmentation_scene_frozen.json', 'clipseg_segmentation_scene_frozen.png', 'clipseg_segmentation_train.csv']
+[colab] Executing cell 14/14 - clipseg_segmentation-29...
+{'model': 'adapted', 'records': 'validation', 'n': 60, 'reference_area_fraction': 0.298}
+{'threshold': 0.3, 'miou': 0.851, 'iou_micro': 0.82, 'dice': 0.908, 'pixel_precision': 0.871, 'pixel_recall': 0.933, 'predicted_area_fraction': 0.315}
+{'threshold': 0.5, 'miou': 0.855, 'iou_micro': 0.829, 'dice': 0.911, 'pixel_precision': 0.903, 'pixel_recall': 0.911, 'predicted_area_fraction': 0.298}
+[colab] Saving notebook with outputs to '/home/kurt/colab-runs/clipseg-segmentation-pipeline-a110af3-315dbc/clipseg_segmentation_colab_a110af3_colab-cli-t4_output.ipynb'...

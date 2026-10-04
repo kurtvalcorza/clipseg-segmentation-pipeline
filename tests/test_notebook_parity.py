@@ -1,4 +1,4 @@
-"""NOTEBOOK_SPEC 2.0 parity tests (PAR1–PAR3) for the standalone tutorial notebook.
+"""NOTEBOOK_SPEC 2.2 parity tests (PAR1–PAR3) for the standalone tutorial notebook.
 
 The notebook carries `src/<package>/pipeline.py` verbatim; these tests fail whenever the carried
 cell, the inline manifest, or the inline pins diverge from the repository at HEAD.
