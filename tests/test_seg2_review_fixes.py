@@ -135,14 +135,56 @@ def test_box_experiment_shows_clipped_and_not_clipped_counts(tmp_path, monkeypat
     assert "| 10% | 2 / 0 / 7 (of 9) | 1 / 0 / 2 (of 3) |" in table
     assert "| 25% | 1 / 0 / 10 (of 11) | 0 / 0 / 1 (of 1) |" in table
     assert "| foodseg103-val-78 | biscuit | 0.953 | 0.002 | none |" in table
+    assert "cannot establish that clipping caused a change" in table  # Codex CX2: the split is descriptive
 
 
-def test_activity_interpretation_covers_boxes_that_are_not_clipped() -> None:
+# Wording tests (source inspection only): they check that the prose stays qualified, not that it is true.
+
+
+def test_activity_interpretation_stays_qualified() -> None:
     note = _cells()["md-17"]
-    assert "foodseg103-val-78" in note and "not clipped" in note and "plate" in note
-    assert "enclosing object" in note and "SAM (ViT-B)" in note
+    assert "foodseg103-val-78" in note and "not clipped" in note
+    assert "region visually resembling the plate" in note
+    assert "it does not establish a universal selection rule" in note  # Codex CX1
+    assert "possible sensitivity to box coordinates" in note
+    assert "their differences cannot establish that clipping caused a change" in note  # Codex CX2
+    for overclaim in ("best fits the box", "how box prompts work", "not a quirk", "separate the two effects"):
+        assert overclaim not in note
     assert "not re-run in this notebook" in note and "`a93bf44`" in note  # REL13 labels on quoted numbers
-    assert "narrow conclusion" in note
+    assert "docs/execution-evidence/2026-10-03/" in note and "narrow conclusion" in note
+
+
+def test_filled_box_baseline_is_described_as_a_comparison() -> None:
+    note = _cells()["md-15"]
+    assert "improves on simply filling the supplied box" in note  # Codex CX3
+    assert "beyond localization" not in note and "how much of a box-prompted score" not in note
+
+
+def test_sample_provenance_gaps_are_stated() -> None:
+    note = _cells()["md-05"]
+    assert "`source_id`" in note and "remains unverified" in note  # Codex CX6
+    assert "does not measure whether a model rejects an ingredient that is absent" in note  # Codex CX5
+
+
+def test_prepare_cell_prints_per_role_class_counts(tmp_path, capsys) -> None:
+    (tmp_path / "data").mkdir()
+    (tmp_path / "sample.json").write_text(json.dumps({"roles": {"train": 2, "test": 2}}))
+    records = [
+        {"role": "train", "prompt": "bread"},
+        {"role": "train", "prompt": "rice"},
+        {"role": "validation", "prompt": "bread"},
+        {"role": "test", "prompt": "bread"},
+        {"role": "test", "prompt": "egg"},
+        {"role": "activity", "prompt": "egg"},
+    ]
+    (tmp_path / "data/records.json").write_text(json.dumps({"records": records}))
+    namespace = {"json": json, "ROOT": tmp_path, "run_stage": lambda *a, **k: True,
+                 "show_previews": lambda *a, **k: None}
+    exec(compile(_cells()["code-06"], "code-06", "exec"), namespace)
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[1].startswith("role") and "classes also in train" in lines[1]
+    rows = {line.split("|")[0].strip(): [int(v) for v in line.split("|")[1:]] for line in lines[2:]}
+    assert rows == {"train": [2, 2, 2], "validation": [1, 1, 1], "test": [2, 2, 1], "activity": [1, 1, 0]}
 
 
 # ---------------------------------------------------------------- SEG2-m6 (DAT20, REL12)
@@ -188,6 +230,71 @@ def test_unreadable_manifest_is_refused_cleanly(tmp_path, carried_dir) -> None:
     result = subprocess.run(command, capture_output=True, text=True, env=_child_env())
     assert result.returncode == 65
     assert result.stdout.startswith("Refused: manifest.json is not valid UTF-8 JSON") and not result.stderr
+
+
+def _role_list(directory, records):
+    records[2]["role"] = []
+
+
+def _role_number(directory, records):
+    records[2]["role"] = 3
+
+
+def _group_list(directory, records):
+    records[6]["group_id"] = ["g06"]
+
+
+def _group_object(directory, records):
+    records[6]["group_id"] = {"source": 6}
+
+
+def _truncate(path: Path) -> None:
+    data = path.read_bytes()
+    path.write_bytes(data[: len(data) // 2])  # the header still decodes, the pixel data does not
+
+
+def _corrupt_image(directory, records):
+    _truncate(directory / "images/09.png")
+
+
+def _corrupt_mask(directory, records):
+    _truncate(directory / "masks/11.png")
+
+
+@pytest.mark.parametrize(
+    ("mutate", "index", "rule"),
+    [
+        (_role_list, 2, "unknown role []"),
+        (_role_number, 2, "unknown role 3"),
+        (_group_list, 6, "group_id must be a string or an integer, not list"),
+        (_group_object, 6, "group_id must be a string or an integer, not dict"),
+        (_corrupt_image, 9, "image images/09.png could not be decoded"),
+        (_corrupt_mask, 11, "mask masks/11.png could not be decoded"),
+    ],
+)
+def test_malformed_fields_and_corrupt_files_are_refused(tmp_path, carried_dir, mutate, index, rule) -> None:
+    byod = _write_byod(tmp_path / "byod", mutate)
+    command = [sys.executable, str(carried_dir / "workshop.py"), "--root", str(tmp_path / "child"),
+               "--stage", "prepare", "--byod", str(byod)]
+    result = subprocess.run(command, capture_output=True, text=True, env=_child_env())
+    assert result.returncode == 65, result.stderr
+    assert not result.stderr and "Traceback" not in result.stdout
+    (line,) = result.stdout.splitlines()
+    assert line.startswith(f"Refused: records[{index}] (id 'r{index:02d}')") and rule in line
+
+
+def test_integer_groups_of_the_pinned_sample_are_still_accepted(tmp_path, monkeypatch, workshop) -> None:  # noqa: F811
+    def integer_groups(directory, records):
+        for index, record in enumerate(records):
+            record["group_id"] = 700 + index
+
+    seen = {}
+    def capture(root, records, default):
+        seen.update(workshop.validate_roles(records))
+
+    monkeypatch.setattr(workshop, "persist_records", capture)
+    workshop.prepare(tmp_path / "run", _write_byod(tmp_path / "byod", integer_groups))
+    assert sorted(r["group"] for rs in seen.values() for r in rs) == list(range(700, 713))
 
 
 def test_genuine_prepare_failures_still_raise(tmp_path, monkeypatch, workshop) -> None:  # noqa: F811
