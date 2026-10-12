@@ -546,9 +546,13 @@ def test_cells_display_what_their_notes_ask_for() -> None:
 def test_review_revision_is_recorded() -> None:
     notebook = _notebook()
     meta = notebook["metadata"]["dimer"]
-    revision = meta["review_revisions"][-1]
-    assert revision["revision"] == "0.2.0-candidate" and revision["base_commit"].startswith("bf3ae25")
+    revision = next(r for r in meta["review_revisions"] if r["revision"] == "0.2.0-candidate")
+    assert revision["base_commit"].startswith("bf3ae25")
     assert {"SEG-M1", "SEG-M2"} <= set(revision["findings"])
     code02 = next(c for c in notebook["cells"] if c["id"] == "code-02")
     assert code02["metadata"].get("cellView") == "form"
-    assert revision["workshop_py_sha256"]["after"] == meta["generated_from"]["files"]["workshop.py"]
+    # Later review revisions (tests/test_seg2_review_fixes.py) chain from this one's workshop.py digest.
+    later = meta["review_revisions"][meta["review_revisions"].index(revision) :]
+    chain = [r["workshop_py_sha256"] for r in later]
+    assert all(a["after"] == b["before"] for a, b in zip(chain, chain[1:], strict=False))
+    assert chain[-1]["after"] == meta["generated_from"]["files"]["workshop.py"]
