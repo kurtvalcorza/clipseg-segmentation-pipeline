@@ -30,6 +30,8 @@ jobs:
         run: python tools/validate_release_assets.py
       - name: Standalone notebook parity (NOTEBOOK_SPEC 2.2 PAR3)
         run: python tools/build_notebook.py --check
+      - name: Workshop notebook generator parity (reconstructed build_segmentation_workshop.py)
+        run: python tools/build_segmentation_workshop.py --check
 
   release-evidence-boundary:
     runs-on: ubuntu-latest

@@ -1,0 +1,289 @@
+{
+ "nbformat": 4,
+ "nbformat_minor": 5,
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.12"
+  },
+  "accelerator": "GPU",
+  "colab": {
+   "name": "DIMER_MultiModel_Image_Segmentation_Workshop.ipynb",
+   "gpuType": "T4",
+   "provenance": []
+  },
+  "dimer": {
+   "notebook_spec": "2.2",
+   "notebook_profile": "E2E",
+   "notebook_mode": "WORKSHOP",
+   "standalone": true,
+   "requires_dimer_worker": false,
+   "release_status": "Candidate",
+   "generated_from": {
+    "repository": "kurtvalcorza/clipseg-segmentation-pipeline",
+    "base_revision": "2b004834303160e19ad2aef37b9ac7eeb996476c",
+    "generator": "tools/build_segmentation_workshop.py/1r",
+    "original_generator": "build_segmentation_workshop.py/1",
+    "reconstruction": "tools/build_segmentation_workshop.py is a reconstruction (2026-10-13, review finding SEG2-m4, owner decision A) of build_segmentation_workshop.py/1, the generator used at base_revision 2b00483, whose source was never committed and could not be recovered. It emits this notebook byte for byte with the 0c7906b, a93bf44 and 2026-10-13 edit rounds folded in, from tools/segmentation_workshop/ plus the CLIPSeg sources in src/ and weights/; CI fails if its output differs from the committed notebook (--check). The carried source.json keeps the original generator id because it is part of the carried bytes.",
+    "files": "@carried-digests",
+    "post_generation_revisions": [
+     {
+      "date": "2026-10-03",
+      "reason": "Source layout: no cell line over 2000 characters (the CARRIED_FILES line was 415,188 characters)",
+      "base_commit": "0c7906b5d2578e1433f735c9963636d0d52bca6b",
+      "cells": [
+       "code-03"
+      ],
+      "carried_files_changed": [],
+      "method": "tools/split_workshop_carrier.py: CARRIED_FILES re-serialised as parenthesised runs of string pieces (at most 1000 characters each); ast.literal_eval of the new literal equals the old one, so the carried text and its hashes are unchanged; generator not in this repository at the time (reconstructed 2026-10-13 as tools/build_segmentation_workshop.py)",
+      "clean_runtime_evidence": "pending; no hosted run of this blob yet"
+     }
+    ]
+   },
+   "review_revisions": [
+    {
+     "revision": "0.2.0-candidate",
+     "date": "2026-10-02",
+     "base_commit": "bf3ae25850c9f8e94050e437bc14caaf6f91baeb",
+     "review": "docs/reviews/2026-10-02-notebook-review/DIMER_MultiModel_Image_Segmentation_Workshop_Review.md",
+     "findings": [
+      "SEG-M1",
+      "SEG-M2",
+      "SEG-m1",
+      "SEG-m2",
+      "SEG-m3",
+      "SEG-m4",
+      "SEG-m5",
+      "SEG-m6",
+      "SEG-m7",
+      "SEG-m8",
+      "SEG-m9"
+     ],
+     "method": "anchor-asserting edits on the notebook (no in-repo generator); cell ids and order unchanged; the carried workshop.py was edited after generation, so CARRIED_HASHES, the carried source.json and generated_from.files record its new digest",
+     "workshop_py_sha256": {
+      "before": "51129c5383dceb572261e558ff96a747c06d9e010e1621695aecdd67df97fa73",
+      "after": "bc97f0ad87c43674f7b24b70b9e8e81ea33852768cb76f73e3528e7dab88e7b1"
+     },
+     "clean_runtime_evidence": "pending; the 2026-09-27 Colab T4 run covers the previous blob 6e455fb1 only"
+    },
+    {
+     "revision": "0.2.1-candidate",
+     "date": "2026-10-13",
+     "base_commit": "1e156eed5b9ad0cd44ff56e588bd021bff540b18",
+     "review": "Notebook Review Framework v1, round 2026-10-12 (review of 1e156ee, blob 3f94b41f0870; findings SEG2-*); the review report is not committed to this repository",
+     "findings": [
+      "SEG2-m1",
+      "SEG2-m2",
+      "SEG2-m3",
+      "SEG2-m5",
+      "SEG2-m6"
+     ],
+     "cells": [
+      "code-03",
+      "code-04",
+      "code-06",
+      "code-12",
+      "code-20",
+      "md-00",
+      "md-05",
+      "md-15",
+      "md-17",
+      "md-19"
+     ],
+     "method": "anchor-asserting edits on blob 3f94b41f0870 (no in-repo generator; each anchor matched exactly once); cell ids and order unchanged; CARRIED_FILES re-serialised with tools/split_workshop_carrier.py carried_literal; carried workshop.py edited, so CARRIED_HASHES, the carried source.json and generated_from.files record its new digest; default-path stage functions of workshop.py are AST-identical",
+     "workshop_py_sha256": {
+      "before": "bc97f0ad87c43674f7b24b70b9e8e81ea33852768cb76f73e3528e7dab88e7b1",
+      "after": "7c4d5bbcbcae183d628d36f21915cc296f405f8655e3b1860d2fa0e005eb40bb"
+     },
+     "clean_runtime_evidence": "pending; the 2026-10-03 Colab CLI run covers the previous blob 3f94b41f0870 only",
+     "peer_review": "Codex peer review of the PR #12 changes (CX1-CX4, CX6 and one CX5 sentence), applied by fix_cx.py on blob da4033ea; same anchor-asserting method; default-path stage functions still AST-identical",
+     "generator": "SEG2-m4 (owner decision A): the notebook is now emitted by tools/build_segmentation_workshop.py, a reconstruction of build_segmentation_workshop.py/1; the anchor-asserting edits above are folded into its sources"
+    }
+   ]
+  }
+ },
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "md-00",
+   "metadata": {},
+   "source": "@cells/md-00.md"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-01",
+   "metadata": {},
+   "source": "@cells/md-01.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-02",
+   "metadata": {
+    "cellView": "form"
+   },
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-02.py"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-03",
+   "metadata": {
+    "cellView": "form",
+    "dimer": {
+     "embedded_sources": true
+    }
+   },
+   "execution_count": null,
+   "outputs": [],
+   "source": "@carrier"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-04",
+   "metadata": {
+    "cellView": "form"
+   },
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-04.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-05",
+   "metadata": {},
+   "source": "@cells/md-05.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-06",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-06.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-07",
+   "metadata": {},
+   "source": "@cells/md-07.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-08",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-08.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-09",
+   "metadata": {},
+   "source": "@cells/md-09.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-10",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-10.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-11",
+   "metadata": {},
+   "source": "@cells/md-11.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-12",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-12.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-13",
+   "metadata": {},
+   "source": "@cells/md-13.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-14",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-14.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-15",
+   "metadata": {},
+   "source": "@cells/md-15.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-16",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-16.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-17",
+   "metadata": {},
+   "source": "@cells/md-17.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-18",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-18.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-19",
+   "metadata": {},
+   "source": "@cells/md-19.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-20",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-20.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-21",
+   "metadata": {},
+   "source": "@cells/md-21.md"
+  },
+  {
+   "cell_type": "code",
+   "id": "code-22",
+   "metadata": {},
+   "execution_count": null,
+   "outputs": [],
+   "source": "@cells/code-22.py"
+  },
+  {
+   "cell_type": "markdown",
+   "id": "md-23",
+   "metadata": {},
+   "source": "@cells/md-23.md"
+  }
+ ]
+}

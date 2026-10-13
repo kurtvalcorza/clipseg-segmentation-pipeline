@@ -1,0 +1,2141 @@
+{
+  "schema": "dimer-segmentation-sample-v1",
+  "seed": 42,
+  "dataset": "EduardoPacheco/FoodSeg103",
+  "revision": "176acc3edd2432ee126bda6fb01469eadeb018df",
+  "source": "FoodSeg103 (validation split), first eight parquet row groups",
+  "license": "Apache-2.0 (FoodSeg103, LARC-CMU-SMU; Wu, Fu, Liu, Lim, Hoi, Sun, ACM MM 2021; images curated from Recipe1M)",
+  "roles": {
+    "train": 120,
+    "validation": 40,
+    "test": 40,
+    "activity": 12
+  },
+  "source_count": 800,
+  "unique_count": 800,
+  "exclusions": [],
+  "selection": "stable ID order; decoded-image deduplication; Random(42) shuffle",
+  "target": "largest eligible ingredient class union; never largest connected component",
+  "records": [
+    {
+      "id": "foodseg103-val-758",
+      "prompt": "french fries",
+      "class_id": 3,
+      "source_id": 758,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "21452a2594212da09112ee220ac2226a8e43b4b182c3031e43239ec93daee993",
+      "mask_sha256": "4c29f81ba3dd500772720979ab9c33bd09bf5613f0da1d0ece2de91979ac6a65"
+    },
+    {
+      "id": "foodseg103-val-435",
+      "prompt": "asparagus",
+      "class_id": 85,
+      "source_id": 435,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "bace96be0479d14f4f15bd4d5fc7f4af6e4825d8f16f78ec1136e48a5f7ba417",
+      "mask_sha256": "4972b0e7cc1a7585dad97292c9ebaab601d9cc2d1ad17dbbf476404432f395db"
+    },
+    {
+      "id": "foodseg103-val-614",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 614,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "24e051113414acd1b866db7bf0c1316f9998577aaadd94dc770286a0183bb168",
+      "mask_sha256": "effa1c0e37d35a69bf65918de4658c2172fa2418c40ed67732b18f3d42e110de"
+    },
+    {
+      "id": "foodseg103-val-54",
+      "prompt": "grape",
+      "class_id": 41,
+      "source_id": 54,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "d22470cc406354d02278741a73bd5385cbb952d9349713b8c2b322caeb861bfd",
+      "mask_sha256": "30ddfbe721b05a904da8bf25a81335819b50410f58d92e5f9c10c2194e80a302"
+    },
+    {
+      "id": "foodseg103-val-681",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 681,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "b693b2d3d99f264531dbc8b1d0bb4c15d93c42c53cc5781e21cba62f6dce4b2b",
+      "mask_sha256": "1c9f85c2317e9b6fd59697e5bdb51206af106b3230f7232fcb2ad4766284bdfc"
+    },
+    {
+      "id": "foodseg103-val-577",
+      "prompt": "rice",
+      "class_id": 66,
+      "source_id": 577,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "4c4af2f7915b170ccb72a457b70d11308e21e7718d52a732d4924aac3fbfe523",
+      "mask_sha256": "7f74af6fdc19e3aafc2bdc9da02939ac689f490172265ba9c1cbb9b574e58581"
+    },
+    {
+      "id": "foodseg103-val-420",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 420,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "26c656b4c33ced07646d14998fdaf3058f8b0cc247fab1181630709022f5e602",
+      "mask_sha256": "29715da89fc3ef373f1aef6854b5af562a1abd06a846213e0094a9a7753227f5"
+    },
+    {
+      "id": "foodseg103-val-683",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 683,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "852adbaaa0362f9bbbe95089cb7d105c1e9a68176bc5dc0aa9d79f96231fbb33",
+      "mask_sha256": "d8ead58172f2b718905ce8eca576c460027567a38eaa54bd43221cff3b910f61"
+    },
+    {
+      "id": "foodseg103-val-503",
+      "prompt": "coffee",
+      "class_id": 13,
+      "source_id": 503,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "0f9bbd636769c8daa4ac17fc45fd8c70a94b6adc686881e81321dd69fcbb5b0a",
+      "mask_sha256": "2b0ca9f98ce482edaac38cda9866a086543fae08ba89edb1ca8cff6af5393ae6"
+    },
+    {
+      "id": "foodseg103-val-795",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 795,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "d8bea9f98fc4321a1d32aec301b76a0465e71c54fefb3667ee7f0e207ba5369d",
+      "mask_sha256": "f06693dc1f5f887d46d3920006d5c9a351cf0928498c10f7dc23216e0d8c5721"
+    },
+    {
+      "id": "foodseg103-val-544",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 544,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "74491e03957b1de79c922cce776dd65784039d0d57ad8d6161eb745f048681e0",
+      "mask_sha256": "4ce3e95db026686725dc51172bdaed69a3cc529374de3f4877dc6d9f4f3f4e84"
+    },
+    {
+      "id": "foodseg103-val-679",
+      "prompt": "carrot",
+      "class_id": 84,
+      "source_id": 679,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "05f6881b1aac5bbd6656a0785d41602beb46b106655c664287e8615e55f5cd54",
+      "mask_sha256": "bf8e99cacc648328aeb2f8eed029a07953df81cdc141e011f6ed3815e2319425"
+    },
+    {
+      "id": "foodseg103-val-89",
+      "prompt": "cucumber",
+      "class_id": 82,
+      "source_id": 89,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "a12d77f2b3d4f5c13ee37c5d1996496b073971c7cf4024221c14e14449eeed83",
+      "mask_sha256": "49c79e517d9f15b8723644e5383adf3d569f8946c3780be61f636bd52ea01c22"
+    },
+    {
+      "id": "foodseg103-val-401",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 401,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "d914ccc30c7956863afd2c0f0d0876dbd35d4d471206c3f9ad002fa1e7a51632",
+      "mask_sha256": "6788258a1371a1cf321f32c11f9263f5602ef29aee94b463893909035263b7b5"
+    },
+    {
+      "id": "foodseg103-val-12",
+      "prompt": "broccoli",
+      "class_id": 87,
+      "source_id": 12,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "3dbf82fd8644a461152620a457a12a771f86b502ee7dc4e3bf2d5fd7ed2b073c",
+      "mask_sha256": "5f3773514560acefabb3701accaefe0c518ec0981e7c4232427be31ebcd68e01"
+    },
+    {
+      "id": "foodseg103-val-91",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 91,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "13714c535c6dbf7658b20730a0241c64a42c0c3702445ae6ef2069c100b50c45",
+      "mask_sha256": "02a64b9e1133c66093269565d8150a85d5aa2f075af71fea3166cf5725d06c4c"
+    },
+    {
+      "id": "foodseg103-val-258",
+      "prompt": "french fries",
+      "class_id": 3,
+      "source_id": 258,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "a86d198ee695c9457698c23aef82d659f4417b05e89e0e669b6ef8e844d7c3ef",
+      "mask_sha256": "bc36cbdc7204e22fac0a6cf7d99f3a7db6beafee52e245e4b393324377d98338"
+    },
+    {
+      "id": "foodseg103-val-439",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 439,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "3cbb2128a3db2cad8104c0cae898ef0576d882638872f9b1fe8063c7416f1353",
+      "mask_sha256": "c9688c0452b43c92a5d83c637bf4eda2dbce966d587371beaf742e9453d23f38"
+    },
+    {
+      "id": "foodseg103-val-404",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 404,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "7c37f284a0e653ab90aab553abdc1c3031613b78ab27edef86795f848df3b4e6",
+      "mask_sha256": "2a7892e43a5ec457b338f70472940d51a4b405145d3381b1566ff37edefeb9c3"
+    },
+    {
+      "id": "foodseg103-val-193",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 193,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "cf201ca85447c222e35794c38916c49d6ed52dac8aef941de39e5aba3f133e63",
+      "mask_sha256": "2d623d2942148e9de7c5ac83470c2e670397db4eccf6a10551a91c50f1c3a685"
+    },
+    {
+      "id": "foodseg103-val-457",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 457,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "844bddb7ed6d52a790d92367a8f52486fb6e281f2468373096b1415c143bddd2",
+      "mask_sha256": "5a62ecbd1e5ad20e0089c4e73a40f48fe80e53685652d8441ba3ff660121b82b"
+    },
+    {
+      "id": "foodseg103-val-178",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 178,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "e56ec8eb6caa94b1af650de24b4b63a807ecb3ed828b207e146b10a5fae0fdb2",
+      "mask_sha256": "d09cb1d55111a287ffd350477ab9680b11fa217466e5a676973235eceb38ca64"
+    },
+    {
+      "id": "foodseg103-val-652",
+      "prompt": "corn",
+      "class_id": 59,
+      "source_id": 652,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "a552926a811e70ae500acbb4b2556648de110d2d207aac3ca3e63352fcfb315f",
+      "mask_sha256": "979cbbade731a5e57bcd504264f7966615692f159aa740eb71ccd3f8542bb3c8"
+    },
+    {
+      "id": "foodseg103-val-478",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 478,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "3d2c2a7686503bc2766fd5bd05e53fb93317b39dd018e3f4ed66503d3d00a770",
+      "mask_sha256": "6991922e7de8635a67f1ca491d909050ddd87ab53853b32062b94048e5e57122"
+    },
+    {
+      "id": "foodseg103-val-279",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 279,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "87455768fbcfc9d696b5db1852c894dea8a0121cda90d0997860d71bf6e4c707",
+      "mask_sha256": "750e00f15d85085f387884774b00a32fe1f64d2702e01e72f16e59ee76f632c6"
+    },
+    {
+      "id": "foodseg103-val-28",
+      "prompt": "french fries",
+      "class_id": 3,
+      "source_id": 28,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "c3cae4e888a78252a6bd3e9dabd269afe964f2aeb3fee3828149d997b6a6a001",
+      "mask_sha256": "aedcf733a5ee724930f761e2cfda78a64cc7bd463008b0e008c7954f3020140a"
+    },
+    {
+      "id": "foodseg103-val-539",
+      "prompt": "noodles",
+      "class_id": 65,
+      "source_id": 539,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "8b431d388bade7d0f77d116237f59baf020d22cf9410bf6035f1ac8d6aa60d67",
+      "mask_sha256": "ca99607f4630a21f3500fdc386b539db780ce2dd3b0900c57ee20575f8fd9c2f"
+    },
+    {
+      "id": "foodseg103-val-306",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 306,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "36af5e74e38c2c1efd239cf28ef587d6144f794245e5a6a8c808bc381cadb08c",
+      "mask_sha256": "f54a267b1a3fdc3cc32afff524c9b01a531b9a2b0c33a14ebacb7f1b8661afab"
+    },
+    {
+      "id": "foodseg103-val-313",
+      "prompt": "green beans",
+      "class_id": 95,
+      "source_id": 313,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "fe80a5b1bd8a06fd68b1ef529bf833b1c8be1c84be1da969ae3e5e3f5bbea4a5",
+      "mask_sha256": "4dde98519255fa853a28e5db135327eaa5b1ec28097307fa0d3c791578e88173"
+    },
+    {
+      "id": "foodseg103-val-437",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 437,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "3a299e5f38a5337faa805686167b7497605d37bf4de3a8d7062b78d5f62980ca",
+      "mask_sha256": "382a9a21b6adea0b3f5f1fafaddda6523e58954eff37e6a8a278602444c1d14c"
+    },
+    {
+      "id": "foodseg103-val-156",
+      "prompt": "asparagus",
+      "class_id": 85,
+      "source_id": 156,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "6f398c343dbb3f8982395640ac5e693ca327c174012985351a128e4d1f78cd78",
+      "mask_sha256": "b71ec819b4d936b9a27d169ae8a802b48f38e4f2744568d09e507c6063006b4b"
+    },
+    {
+      "id": "foodseg103-val-76",
+      "prompt": "shrimp",
+      "class_id": 56,
+      "source_id": 76,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "e9250015589d1583a3581272ce20e5d15a872acf6d123af5f79cb6efb643f360",
+      "mask_sha256": "3ab65be052b1bc5db34265b18cd74cd66fcfe021cd2b19a498394206797996c8"
+    },
+    {
+      "id": "foodseg103-val-756",
+      "prompt": "carrot",
+      "class_id": 84,
+      "source_id": 756,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "da4c7dc943369ac540c7777c1edd91ea576dac410420094a511b1ed7f85f09d6",
+      "mask_sha256": "477f3a914526f125c189e368d6d677ae7af9f5e1a92718de0c4e99d2a93a916a"
+    },
+    {
+      "id": "foodseg103-val-304",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 304,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "ac3394144cf94d6b1704fe27dd3c0731a57b424a85063dd92b635a874bab35ef",
+      "mask_sha256": "d6ac1ce4e40652bbf80c041deafbf0d0d7fbd9f3f37e05e06196b4ab369e1c24"
+    },
+    {
+      "id": "foodseg103-val-589",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 589,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "6def589d4b3221f59362f7a99127387b811be9b71aa9d3a1757d5383ef2b76bf",
+      "mask_sha256": "ff5177513627cfc665dd53ef3224e129b379e914c5381bd1903eeabafe5493ee"
+    },
+    {
+      "id": "foodseg103-val-65",
+      "prompt": "sausage",
+      "class_id": 49,
+      "source_id": 65,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "51ee7d1dfb8a79b003979a7055e2691ef957799b7dd71ab81683ffb5b475436f",
+      "mask_sha256": "a2d3ba2445749664b7ae02b70949941ce727b2ced218d072ce169e9307f5a1fd"
+    },
+    {
+      "id": "foodseg103-val-558",
+      "prompt": "strawberry",
+      "class_id": 30,
+      "source_id": 558,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "381f80eb38ce41529098fa7359696b6c21929820015833e2b6c598be9ab3a3a1",
+      "mask_sha256": "78804ec71ca43c3ec42fd72de0cd239a310bc5424e42fcf3878548b211fad2e9"
+    },
+    {
+      "id": "foodseg103-val-310",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 310,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "e6548bb8270f4600cd8d69013791d51efc486c21ebe51c58f9f2c1004d0acfbc",
+      "mask_sha256": "b0536bfc614385cdef29c71ad262b1ec04f0f84372dc59b098f33ce647568f20"
+    },
+    {
+      "id": "foodseg103-val-667",
+      "prompt": "French beans",
+      "class_id": 96,
+      "source_id": 667,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "9e208780dd66f11b9453fcb82f21b3074b566a2969af925cdec3f067a7fb9840",
+      "mask_sha256": "87bf98bee2e4650751bae02c45cebaf03c90ed8005489c46c5186f0e53ed90ab"
+    },
+    {
+      "id": "foodseg103-val-71",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 71,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "555ece99236c543cf0fe9a4b29bf117d059e96fd4f1b5647deee57fa4722f4b1",
+      "mask_sha256": "0514a58f6c1bc281df25c122c2d2a969a6ff0d889b3c54c0a46aa589189e34e6"
+    },
+    {
+      "id": "foodseg103-val-298",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 298,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "f792255405232e9ea9a941a9e81873da1af15cf27831363e5c7dffc90649a192",
+      "mask_sha256": "a94b34e676a4febabcd45d620b2fe9a82539e066606e0433942cec8e56a2323e"
+    },
+    {
+      "id": "foodseg103-val-499",
+      "prompt": "milkshake",
+      "class_id": 12,
+      "source_id": 499,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "061c0bad6a54a13dd65892f2729a55d4241ec1421d25f5e2e944250ab207943c",
+      "mask_sha256": "b9934448929a5ad82ef66c87aec5d89e902cc5b7d733266813f8320d324eed64"
+    },
+    {
+      "id": "foodseg103-val-548",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 548,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "9da021179b21e11e4226614b3eb2634b264b936d93e3eaacf2c459e6d1808830",
+      "mask_sha256": "d6d6d002685db3e105f5b3b301a67c917ef2afd5168f701db473a994f95f87ad"
+    },
+    {
+      "id": "foodseg103-val-757",
+      "prompt": "wine",
+      "class_id": 11,
+      "source_id": 757,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "d9fae455150b58940a46e2b26e6b09f2e829ec7ac9a985a5b9a2526f9c05a2d8",
+      "mask_sha256": "2c11d7ad507b2a207a3449eaa0bad3e98249cdcb80230bf1095e6b9df17f7a09"
+    },
+    {
+      "id": "foodseg103-val-395",
+      "prompt": "French beans",
+      "class_id": 96,
+      "source_id": 395,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "813bd55d0daf9e2b561e2e78dee9ff21824c5bb34a4e4d352cf97c2401bfe336",
+      "mask_sha256": "f5af4beb067054426e156154582234cd11b9a0e897c8498e780849a5da425cbb"
+    },
+    {
+      "id": "foodseg103-val-350",
+      "prompt": "sauce",
+      "class_id": 52,
+      "source_id": 350,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "071e21e4050dff9c22a9b9e65a447922fe19e766a86d36f9dec9fd821b4ebecd",
+      "mask_sha256": "f1799fa57c4c1fca87009d59d9b62cd8ec1ac4dfe25a24392b7eb79528875519"
+    },
+    {
+      "id": "foodseg103-val-370",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 370,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "cf0c23071f85c60e32bd46004cdcbd5ef210d3621dbfafbdd01fb6ebb6e0fd16",
+      "mask_sha256": "fa49cbeaa5157621c2c369feec673778189f88b4006cc8a26afcfef20bb96425"
+    },
+    {
+      "id": "foodseg103-val-270",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 270,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "a26bd0b3de5b192c164d2d95e5a2ddec1ed0422a429668fc0aabef694d523d4d",
+      "mask_sha256": "610ac4f60a570ecb11dbfc479a7dcbaed04a8368d20965e0687e7a796785bb33"
+    },
+    {
+      "id": "foodseg103-val-46",
+      "prompt": "strawberry",
+      "class_id": 30,
+      "source_id": 46,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "76a71188b5b59f5494edb288390c406a1ea1a4de9c1804f1e145fb3caa60b797",
+      "mask_sha256": "e8a53be6cd657a7a4f6069f36af7c1d05e8171e8df13de524c5545d195827ece"
+    },
+    {
+      "id": "foodseg103-val-383",
+      "prompt": "red beans",
+      "class_id": 18,
+      "source_id": 383,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "d1fa52519b37cbcb2b23204d9b271998134a9ec0db029cb06f4492b39c93eb51",
+      "mask_sha256": "b51b72ee8dd6d9289717a3527586e1c46c8e924f4d026b0eb396dfce92c7b339"
+    },
+    {
+      "id": "foodseg103-val-169",
+      "prompt": "rice",
+      "class_id": 66,
+      "source_id": 169,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "9ee252dd654b9395e3e783a0b404471f62fbf093a2711eb7a09f4c1c49bff531",
+      "mask_sha256": "197f679134428abc571a9cc1c4ef06720f5dc5a0416ff1509883c0803c7bc1d4"
+    },
+    {
+      "id": "foodseg103-val-29",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 29,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "5669bc6e25bdae38685313d175829345e80edd8e32e5b19f5272204168bcfe7a",
+      "mask_sha256": "30854d193ac07b35212f139f85800ee47096b02567f8791a7a2c0ba5f961c3a1"
+    },
+    {
+      "id": "foodseg103-val-705",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 705,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "b97acfaa0302cdfb3a6ed5158cacd98662d6066c6a83999c0fbcda3e70244423",
+      "mask_sha256": "572cc8fc1df7ddcca9667e3119f4a481f0e1dc9ac7861d0e7f0ee91127bb1712"
+    },
+    {
+      "id": "foodseg103-val-443",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 443,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "a8b454dc319d52cb1465201dc4d3123d1e216ce48c91197452df010361b8d9f7",
+      "mask_sha256": "c6e90106dbed5f91ba4fe47aca074ce248b3a35cb6b8d439955d788f95bfcfb1"
+    },
+    {
+      "id": "foodseg103-val-761",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 761,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "8bc747f6a24652e9d3c4752009d5957336c06afb9b7cc57dcb0e2d7780031c1a",
+      "mask_sha256": "93782a4b67bf9620e6de3cf58541b89385d8caa4cd24cdcd0145e1134ff6794f"
+    },
+    {
+      "id": "foodseg103-val-450",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 450,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "887370a803738ebc8033427b3de9698e8ef5776ae9d40e73703b0f911b7d8222",
+      "mask_sha256": "f5794906ca2a0cd1bb90ad28cf613503fb892e7ed3ec791275992fcc5037d8f2"
+    },
+    {
+      "id": "foodseg103-val-69",
+      "prompt": "tomato",
+      "class_id": 73,
+      "source_id": 69,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "35f52faddea006245db088909d11473541f1772a372afa366e008876a8458b45",
+      "mask_sha256": "0c832776c200ace53c49c81ee0a71c63aa0638dbf1270901f0ba5230df36035f"
+    },
+    {
+      "id": "foodseg103-val-774",
+      "prompt": "rice",
+      "class_id": 66,
+      "source_id": 774,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "de7f32a2a155cd5365b2da3bd1c6f2423f7834dbc075a401e4036b046311ca93",
+      "mask_sha256": "4713e2d987ade4503a1644fd24b5e42a4b522cda2d24616cf4d6630323e8ac8a"
+    },
+    {
+      "id": "foodseg103-val-37",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 37,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "0647a12c196c9877e140265c74ca790c8e8ac9f44b19046678956c8fc32452d6",
+      "mask_sha256": "b5ea28a0be91a1c44a343b42b5495529a7b32370f9b8db3788da8fc8e08015cc"
+    },
+    {
+      "id": "foodseg103-val-233",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 233,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "3deb6f74871c4bbfdbbe928e2746bc2adbbd3c31b710934783bc55c644b53818",
+      "mask_sha256": "66a96a60bfbc39960aee99bdab39a77e67b9018ae941c28b5620ecaa9db549a0"
+    },
+    {
+      "id": "foodseg103-val-583",
+      "prompt": "carrot",
+      "class_id": 84,
+      "source_id": 583,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "ddc2f8c13447bcdc74279f4e5df6bf9d20961e83994a994e7320d5fb1fe84bb1",
+      "mask_sha256": "8d48a78c5f99d3caa75817dceb7c87a95c8d786532528e5abe0d25cc5ef459b4"
+    },
+    {
+      "id": "foodseg103-val-130",
+      "prompt": "milkshake",
+      "class_id": 12,
+      "source_id": 130,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "808cb5118b8e4bfcf92c6efefacd760d235812b96a8d71f1605c8c19539c7d37",
+      "mask_sha256": "0ec8d572d6d2c2e6355c3baeea882a4353b75ad1784a42d15f08c8a2bc2f62ae"
+    },
+    {
+      "id": "foodseg103-val-640",
+      "prompt": "cucumber",
+      "class_id": 82,
+      "source_id": 640,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "692a1a8b36de0b08e0c48b871e701eea9e557fa706ef03c0b21ac0a9f28b80bb",
+      "mask_sha256": "e2cfda584013528fe956474fde33af7a2dc14ccc050649eb2ae1efca401979b6"
+    },
+    {
+      "id": "foodseg103-val-265",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 265,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "3613085e8e4049027431cc190a37efc56dba9d5aa68e59c3ba436661c528bc34",
+      "mask_sha256": "66066c77147aa829ac708c4993aec41d9f452c2d919062c77771f9aeb9509b98"
+    },
+    {
+      "id": "foodseg103-val-253",
+      "prompt": "carrot",
+      "class_id": 84,
+      "source_id": 253,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "864223f8de4be57aa2a3146bddb5d95a5794a8c0abe29fee6c96a98640bddb31",
+      "mask_sha256": "892d3d6bcd168e8b17b1f785810ebd1afbcec9ea3cf62296974323c056357cf5"
+    },
+    {
+      "id": "foodseg103-val-260",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 260,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "cf3c0613c550d8f75a6d81705bb8c82f284b2df412817cbe5be696ce2f888b1f",
+      "mask_sha256": "89e18ab0d268d419b6e3c7069c536fa2a406f6f8fe7c417b8a8c3fb0df9acb14"
+    },
+    {
+      "id": "foodseg103-val-181",
+      "prompt": "cheese butter",
+      "class_id": 9,
+      "source_id": 181,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "9070232b2faf89a18808e1a0662e905ebefd14f0d8f6a5613a8f7d6c57d33e00",
+      "mask_sha256": "c25049c002b54d3464f6e84ab00a67aa9be5aa91cebd8b9f39fbba65e5e6c0ae"
+    },
+    {
+      "id": "foodseg103-val-106",
+      "prompt": "milkshake",
+      "class_id": 12,
+      "source_id": 106,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "3f7aa2ad7b8246c136a266d42d996dbf439087da5441d5e14baf7467865d2ba9",
+      "mask_sha256": "3613c8a3b32ac8e74437bd5dc53da0bd8407fa5a25c242f367acad7f70c58de2"
+    },
+    {
+      "id": "foodseg103-val-42",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 42,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "630fe8692c7004e8ac77eb13b3fd9d5d64dfdb0b474f2f7a5ba98dfd2d0a580e",
+      "mask_sha256": "01f8931967450ff00f1d03bbc8ff2a67e39eb4da951e9ae6cf48e0148afa5ac0"
+    },
+    {
+      "id": "foodseg103-val-143",
+      "prompt": "lamb",
+      "class_id": 51,
+      "source_id": 143,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "374e24286ae679fd823fecf28fb4fb327b357b55ae2513573da8ad2d92c062ed",
+      "mask_sha256": "7961a4e9c6e89ad71eeb67ebf19861f4ea73b37c6c7f322a152f37662b287e1c"
+    },
+    {
+      "id": "foodseg103-val-515",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 515,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "3ef9243ebe3ee357e10ecf4b9af379c991e5013ac155b687373c494b2013a52f",
+      "mask_sha256": "319292f923c026e1bbbde95d5c956d0e734f3cbfdc90c2eda9a3ece84252c13b"
+    },
+    {
+      "id": "foodseg103-val-165",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 165,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "37cb85ac2a2c04fd63cbc2863ba76ee18a2a16bc239ac343700014fffac0953c",
+      "mask_sha256": "dada7f8b19ed39fd12f6721dceec49210fbfd3125260af22fb82ba9f62411df1"
+    },
+    {
+      "id": "foodseg103-val-699",
+      "prompt": "cucumber",
+      "class_id": 82,
+      "source_id": 699,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "f01f2d399a21431359b3d19d028d59d74c8f6577868b3a228762a53cef305041",
+      "mask_sha256": "5c8ef0f6a6cb6dc3215b489ef3bf302b8970481839b491f6754cca2af9ce93f2"
+    },
+    {
+      "id": "foodseg103-val-11",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 11,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "038e5a485c18d2090277ddf63d9cb385a6ac66d7a5ad22a608ca99b934e66bc1",
+      "mask_sha256": "04ab8b9ee8fc76626b16ae19f5ad9340b63e6466b0635eacbaa665aa380210e8"
+    },
+    {
+      "id": "foodseg103-val-763",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 763,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "960719c280759b96279b5f18fcc1037ab11e7b08ec180c249f1bd97025dff191",
+      "mask_sha256": "88cb4d8bde4cc3d87f8947a4d7296db2f10f2c4deb6ccabe89062db35a10a2da"
+    },
+    {
+      "id": "foodseg103-val-255",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 255,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "0a0a80208edf6564a205ec9b5d12f2d27b6af30fdf6db31301215c99ac457171",
+      "mask_sha256": "c20b66fa389d7e2baaede3e6a4f5e258ce463dc5b179f17ff285dd940d7ecca9"
+    },
+    {
+      "id": "foodseg103-val-791",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 791,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "83bf9a4dfe91a8f9a141c204cfd700658cd24ce1cbf41139df899822fc07b371",
+      "mask_sha256": "5adae0f46f8459916f5674eba7a7d5860eee5bf05dfa599d8e90846c5433b23a"
+    },
+    {
+      "id": "foodseg103-val-584",
+      "prompt": "blueberry",
+      "class_id": 32,
+      "source_id": 584,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "36879f2723b18ab701bebd696068a53c56841b063a9bb7d69a546c1c05f2cbf3",
+      "mask_sha256": "b9dff3468a44399215afdeb2ae133d0a9cb346424df6fa9722975357e33d2058"
+    },
+    {
+      "id": "foodseg103-val-460",
+      "prompt": "onion",
+      "class_id": 93,
+      "source_id": 460,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "ac6fd6c69f06a4debd1d4fa4d1432fe1fbddbccc339867b7aae40b51f8a54551",
+      "mask_sha256": "b021a5df6f7038829d5f370be1a641c0d269eea678366040ef83ed8d8ed98934"
+    },
+    {
+      "id": "foodseg103-val-504",
+      "prompt": "french fries",
+      "class_id": 3,
+      "source_id": 504,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "85320d8a557f9cd1f3d930373db8cc1e218d11b34565a63765867a38df1b517f",
+      "mask_sha256": "1476f57e963ae7bc569ac4a4beaf01303633a6bac7258ac80c778dba46fbe807"
+    },
+    {
+      "id": "foodseg103-val-348",
+      "prompt": "tomato",
+      "class_id": 73,
+      "source_id": 348,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "937af62314f3b31b6bf7661fd607116324ca27e5edac6b9f65a8b095b2ffb332",
+      "mask_sha256": "87a98854d5ceeee1fd52df6cf5dff5f7a1fb0bedcc2036cd794edfbdd8613259"
+    },
+    {
+      "id": "foodseg103-val-337",
+      "prompt": "pepper",
+      "class_id": 94,
+      "source_id": 337,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "b166bc844016c0185c78ebdcb44597da53d805a7a50499fab75da8a3aec98166",
+      "mask_sha256": "3e152337dfb8a5f2f7e72cf1edf56f717692e34cc3ea52f8792ee907e071fca4"
+    },
+    {
+      "id": "foodseg103-val-421",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 421,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "ccc067232388d15e24649f9515fb95c83ab519c6ea43812f9c083361ecd973fe",
+      "mask_sha256": "3549ca4a8169b41f115f96049397c19e135ee0585d6f53a196530aff5195d7c0"
+    },
+    {
+      "id": "foodseg103-val-616",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 616,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "7b7d65d5615ba35b538d4cc0b16d04622db8355008046c08fe0a8bc865fb7de1",
+      "mask_sha256": "85b206b1cf316494630a5cbac2c7f873bad441210c852fefde6516ea49435db7"
+    },
+    {
+      "id": "foodseg103-val-387",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 387,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "cc3265f72b7d6e04a1a7eb1f5fac1eac3334ede7dc5508a19e1a24b48bcc5839",
+      "mask_sha256": "89cc6cf16d2d5e5ab12f3c3bbafc0db8b83440942574aef3883d04772ac0c889"
+    },
+    {
+      "id": "foodseg103-val-664",
+      "prompt": "lemon",
+      "class_id": 37,
+      "source_id": 664,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "d9b979685147d0e15e4336f3430896fa4b8f77fd8c4c246aa58777c89e2f24da",
+      "mask_sha256": "94b6a8827221c7287b31b283ae658274fa0df1c66e3d8670157c8136582735a0"
+    },
+    {
+      "id": "foodseg103-val-307",
+      "prompt": "lemon",
+      "class_id": 37,
+      "source_id": 307,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "ffc2af096834031049920f57f2845a6ba23d57970f2812edc59525bc32d90375",
+      "mask_sha256": "2778d06ac3ca8409fe26d515a08787ad75d2518871e3f4a4abe4e54df468e83f"
+    },
+    {
+      "id": "foodseg103-val-83",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 83,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "74e19a8f96c8a4ed0bed78777e98513cbfd9a4db4d939b0f105e0c23150b3eae",
+      "mask_sha256": "59245017373b4b9e96f35cd7e0f7c80352c5da2be90ba8b91066a04072edb625"
+    },
+    {
+      "id": "foodseg103-val-49",
+      "prompt": "pasta",
+      "class_id": 64,
+      "source_id": 49,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "a992b3df2894fad50d857b723fb8125c9a41774945277d275efa18ca1d11f62c",
+      "mask_sha256": "bf65171264b6bb10e5449aef765ef2a54fa659cac5e525c5498e2c3c65e9514b"
+    },
+    {
+      "id": "foodseg103-val-419",
+      "prompt": "sausage",
+      "class_id": 49,
+      "source_id": 419,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "3a408263aacae0122d7af60f0320e94447bfd3c8447a0c9306128fdaa53c839b",
+      "mask_sha256": "b9ba31514f990d441d70bb344d594607e90d1b852c20a88c9b7cf94f00ec9f35"
+    },
+    {
+      "id": "foodseg103-val-731",
+      "prompt": "grape",
+      "class_id": 41,
+      "source_id": 731,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "ccfb47f57d68ba4a359d701f58661f337bc62cc89c96431e7cb78d0f04df8ae9",
+      "mask_sha256": "34856b2061d4258a44506074be5b1ada4e4d1a2af2fa6baf45dc6ed98a295814"
+    },
+    {
+      "id": "foodseg103-val-555",
+      "prompt": "milkshake",
+      "class_id": 12,
+      "source_id": 555,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "9afe7b89130b44f361a92f3930ab2b4e242f98913e4be6493cefa29cc7b5b472",
+      "mask_sha256": "338e554518d33022f8f3530a198eba98384e416309d3745d52a33aea058ffdf2"
+    },
+    {
+      "id": "foodseg103-val-290",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 290,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "407ed586723c79bb67e96058a760a9d037d4347510fa79f84e57d72c681ed3ce",
+      "mask_sha256": "5818053ccb1ecf21ad3d22eb1749e5cd8f34334bf301eb558e5743887f9846d9"
+    },
+    {
+      "id": "foodseg103-val-675",
+      "prompt": "lettuce",
+      "class_id": 80,
+      "source_id": 675,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "42a0db428625316208e1aaa78aa6cf39d246ddfc5d5f423aefb9eee5bb2c2db0",
+      "mask_sha256": "190e233237590c0e48df8aeae70414dd85d83c7ef77f8a221ee7c94889193e7d"
+    },
+    {
+      "id": "foodseg103-val-719",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 719,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "830a8c6a22a94414e6945fe77a721ac6232e7191181425c30a977dd8d3eddf24",
+      "mask_sha256": "7568d3ed65f5be096bca24712ebed71ed4e6295ed9753c31ec1c9283a318572c"
+    },
+    {
+      "id": "foodseg103-val-320",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 320,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "5e8426a7ef012ac688359e388196a63903119b812f3ed00ec890b07b8f4f5de5",
+      "mask_sha256": "4525c2a4681a46982fd23334882ccfed4b5a92f18a88572f20a64f1dc103399b"
+    },
+    {
+      "id": "foodseg103-val-105",
+      "prompt": "milkshake",
+      "class_id": 12,
+      "source_id": 105,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "4ed178240328687bad84fe96bc2b7ee5fffe9453321ccfc1c848a791bdf489d9",
+      "mask_sha256": "ad0a96aec0d47cef1ee22c669d269428706966f4b1ad3bd35604cacd847e8904"
+    },
+    {
+      "id": "foodseg103-val-417",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 417,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "cc4c67eada18712a84ba33d1b6b13fa14717932c6c060a6b6626f97ef72c1be2",
+      "mask_sha256": "2612f5c612bc1f0333323133917cfb1cd655c39fd508364b635aba3b2819622d"
+    },
+    {
+      "id": "foodseg103-val-123",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 123,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "33b2be58058cd7639a9c2a99c02281c6cc0b64a0b003c15f7ead80837bda9cd1",
+      "mask_sha256": "ed2ad84ae2fc076ed93dac5de9b7bbb4e631937de99ee4632561f3060f4d58d7"
+    },
+    {
+      "id": "foodseg103-val-771",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 771,
+      "source_row_group": 7,
+      "role": "train",
+      "image_sha256": "ed26ed6728c4d6477773285db6b80b9a6fad49cfa0a1c2165c181d53cfe90599",
+      "mask_sha256": "89fed0b060912a2694ea6dab152df05ba6ba6ccd2b67f6e44e112bd0ec22e598"
+    },
+    {
+      "id": "foodseg103-val-680",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 680,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "ad3a793997c96558e868dade228c8b2967e25cb30e9708d4ad425ae5b9b7432e",
+      "mask_sha256": "891df9ecccb84a15786e599326ac06b669fc06a5bb8280e4e3a0c6669cd9bc9e"
+    },
+    {
+      "id": "foodseg103-val-456",
+      "prompt": "lemon",
+      "class_id": 37,
+      "source_id": 456,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "df71a114053b1f13cbcb739ec914c5d5723f652ee82812b4a9a455aca1886682",
+      "mask_sha256": "67092492fcb59e76c2fe2b405fed4b0939da06c2f9927b82c36a4db859e59f93"
+    },
+    {
+      "id": "foodseg103-val-543",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 543,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "fb09b110498aaba6bd571b76109aec0f0cc60a7285e61c97a40811acdf04e64c",
+      "mask_sha256": "92efe31fa9a753b3c903c71516a6956fe28255740b893b1e05edc6630e87118f"
+    },
+    {
+      "id": "foodseg103-val-57",
+      "prompt": "rice",
+      "class_id": 66,
+      "source_id": 57,
+      "source_row_group": 0,
+      "role": "train",
+      "image_sha256": "9d3d20a4d867344e85eee5b0e73cbcddabe6373462d23c012abe3f3a3a1b7284",
+      "mask_sha256": "c65574044bc64a9e7c444c568a87563bbc1485d30f11610faab6ad034c770f04"
+    },
+    {
+      "id": "foodseg103-val-391",
+      "prompt": "sauce",
+      "class_id": 52,
+      "source_id": 391,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "00480f1f00285ea01ccca8ddac4ee94a5c277ebac65ea3ff6886a168cfd6881f",
+      "mask_sha256": "2a46a6c212bfdf2999d88bf12573a75e26a526dd7fc793e88b4c232e03323606"
+    },
+    {
+      "id": "foodseg103-val-107",
+      "prompt": "noodles",
+      "class_id": 65,
+      "source_id": 107,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "38b188248f319ecc81dd9d2369f70914fcd56562063c7458c3868b9ed99f199f",
+      "mask_sha256": "f73c54cadd02e85e0fb7b8308df89334358406252eba3f6f50de280ad60b0d97"
+    },
+    {
+      "id": "foodseg103-val-627",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 627,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "a3b319f882fc731bf9e2d778cad643bb00e8ab226a8604a8e3037f8035040fdf",
+      "mask_sha256": "308aa218c212a8f23f947192eb459364909809347c30c0343f94692f1cce5a8d"
+    },
+    {
+      "id": "foodseg103-val-445",
+      "prompt": "pizza",
+      "class_id": 61,
+      "source_id": 445,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "36f5a5c950cbce314332632a36b85d050513dbf8242e93fe0f76be6c5e059b81",
+      "mask_sha256": "445929df9e3042460c427b4610cfc8a5d0203096c773368c3f6368be5805ee42"
+    },
+    {
+      "id": "foodseg103-val-479",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 479,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "e4abc9e1bb32f24245ce4e608f19a8696cf17448f7a91f9174b3b88d991ba058",
+      "mask_sha256": "4bbd93d680143ad583563c27cd95db1a4a38bca2b246dd227ec3188d30291120"
+    },
+    {
+      "id": "foodseg103-val-336",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 336,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "75d82ea4f15cc29994a9146279ccf9b7e4698c57f1fbff784b286f16abcaa6bc",
+      "mask_sha256": "864004d2184834c8c8b28e02e902079dfbb24e10d755d07e34fa12f24045bc7a"
+    },
+    {
+      "id": "foodseg103-val-643",
+      "prompt": "carrot",
+      "class_id": 84,
+      "source_id": 643,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "2491ae5fd61d8d1c0c0dd0d78793c52b83000c252ff05142e4b1809fd86abf90",
+      "mask_sha256": "ab77ecf5ceb9239f9d0c33be4fa8a197cd0ab053f020c56ff7d9cab940d238f3"
+    },
+    {
+      "id": "foodseg103-val-254",
+      "prompt": "cabbage",
+      "class_id": 91,
+      "source_id": 254,
+      "source_row_group": 2,
+      "role": "train",
+      "image_sha256": "1d7f78c570ea7238cf60e1c50e3e696035ca08faa7c5c20fbef4519be2a7c462",
+      "mask_sha256": "fd49b30feba898f494d781f4bfa2a7578f72c4cb06e4bb892a1323cfa832d09a"
+    },
+    {
+      "id": "foodseg103-val-462",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 462,
+      "source_row_group": 4,
+      "role": "train",
+      "image_sha256": "4852d47426b13e7a5b63b10aa2029a3edc96e1c7faddc2663f890b07d4c1c282",
+      "mask_sha256": "ea6cfb5813fd7b2c81947e272fc5c2088c4f3e565af49d45d83f06811c32ffc7"
+    },
+    {
+      "id": "foodseg103-val-672",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 672,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "d4cf3073652eb2e48611838a87c0291475b6a9a65f9884240d96c045b31cd1a6",
+      "mask_sha256": "f255c9e5052d361a9a38992e83c23aa1bd931406cff629b17a2dc46d95f16760"
+    },
+    {
+      "id": "foodseg103-val-687",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 687,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "346ca2d78ac51a98fa1ab234afd380a17e6bbd04d2512c47e762c01bae437012",
+      "mask_sha256": "f1b54b5a01574bc2c3b5b8be79aad4552c6911239cfedd115eaab816bb0f274f"
+    },
+    {
+      "id": "foodseg103-val-334",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 334,
+      "source_row_group": 3,
+      "role": "train",
+      "image_sha256": "0f9bf51e87eaab5457b89a5df72d84129c9ad422720d1c574d2b933df6ea11c9",
+      "mask_sha256": "1060e4c33fc91721d2c0c8820c984b16d4645c5c4bf02c0dd0e8ed13094fd5c1"
+    },
+    {
+      "id": "foodseg103-val-662",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 662,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "6b39b2c967cc66416dc3c8911b0ac4c7075f4d32e96bf45645b8694c0e77e0d6",
+      "mask_sha256": "7a24711bcdfa9110f1d5c22deb211c2b920852f02d79af89188eedb7d1ff5514"
+    },
+    {
+      "id": "foodseg103-val-150",
+      "prompt": "biscuit",
+      "class_id": 5,
+      "source_id": 150,
+      "source_row_group": 1,
+      "role": "train",
+      "image_sha256": "f792befbb077ea892929af8d43d969a492a056248d624fc68c4ec47415ddff7e",
+      "mask_sha256": "51a043bcf35130c62e1705b2d22c65ab91d353be598a55ef1a4c641089e538cc"
+    },
+    {
+      "id": "foodseg103-val-623",
+      "prompt": "fried meat",
+      "class_id": 50,
+      "source_id": 623,
+      "source_row_group": 6,
+      "role": "train",
+      "image_sha256": "9123b7f7e5ed706e9949c5cfaec50f8edcb3f68c18a1529a247143538f394dac",
+      "mask_sha256": "08467287925587683328578c7a9ed1e55d61023d569e5f91ab10c0ca2a5f6a8e"
+    },
+    {
+      "id": "foodseg103-val-528",
+      "prompt": "fried meat",
+      "class_id": 50,
+      "source_id": 528,
+      "source_row_group": 5,
+      "role": "train",
+      "image_sha256": "9f57b3722646159d0e0665fe3d4f14d242d83eea294bc3c0caa91c3135a1b117",
+      "mask_sha256": "cedbb99f28aa53ebd00c17492dc835133055483264f46e7c0bdfa51bd3a22090"
+    },
+    {
+      "id": "foodseg103-val-794",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 794,
+      "source_row_group": 7,
+      "role": "validation",
+      "image_sha256": "5f5ce516f279f11a1dcd75f6a985ccccb3ebd93161f274f5dc63dc7cafc4b16e",
+      "mask_sha256": "0b10f6f1153f0450838e926eaf69bae54f87126f628d79a39e324f61e2f28cf5"
+    },
+    {
+      "id": "foodseg103-val-128",
+      "prompt": "shiitake",
+      "class_id": 98,
+      "source_id": 128,
+      "source_row_group": 1,
+      "role": "validation",
+      "image_sha256": "15ca297a01d8186822d60c3a803b7f914f79907b64d6a91397c323f6bc864e62",
+      "mask_sha256": "04b8bce59179ab16a0870c3dfc6392b44c3c826e8e5258cb77e16617eab48378"
+    },
+    {
+      "id": "foodseg103-val-492",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 492,
+      "source_row_group": 4,
+      "role": "validation",
+      "image_sha256": "ac085f5e875c09526913c0dc3be6125b6d84d31bad5cbeac53204af020ec949f",
+      "mask_sha256": "15c8f484ee27b679214717ad6ce63efb2ad32008171e11bb061cb8537081ec09"
+    },
+    {
+      "id": "foodseg103-val-119",
+      "prompt": "corn",
+      "class_id": 59,
+      "source_id": 119,
+      "source_row_group": 1,
+      "role": "validation",
+      "image_sha256": "3b5eee3f8bcc56c032c24edc4f720f21bbe1ab99febe49b3525e2cf3c261e367",
+      "mask_sha256": "d40e95dc97e387d3585dd5e1fbacf4d7b5da765999b24aad1c60bf9d05828c8f"
+    },
+    {
+      "id": "foodseg103-val-569",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 569,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "1e1b83b97c80e1682f6d78814892bffbbb1704b8d086e05e32c322e773bbcf3b",
+      "mask_sha256": "0f45325f99a5ebbbd9e7ccdb839b2c6061ff81538b7f4e6f64e56c871470a7bb"
+    },
+    {
+      "id": "foodseg103-val-198",
+      "prompt": "egg",
+      "class_id": 24,
+      "source_id": 198,
+      "source_row_group": 1,
+      "role": "validation",
+      "image_sha256": "fa980a9dfe4c173721b8bf06c4b704f3079929720051a90b97d2286f66d07b89",
+      "mask_sha256": "bb073c2f117e2fb66cea8e63ddf54b01ffa993dc1be53afdb13694e5dc232872"
+    },
+    {
+      "id": "foodseg103-val-113",
+      "prompt": "ice cream",
+      "class_id": 8,
+      "source_id": 113,
+      "source_row_group": 1,
+      "role": "validation",
+      "image_sha256": "2e66ac744298cf8a5c2d5dec7920405f9d9ef8fac68a8780bd416333e2467aa7",
+      "mask_sha256": "e847459464798f1ebfd35f8651cd55949e6cfb570089867995e6c74305d09071"
+    },
+    {
+      "id": "foodseg103-val-277",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 277,
+      "source_row_group": 2,
+      "role": "validation",
+      "image_sha256": "4cd602fb65f654493d5283cb6115c5259ed1ec2f25373ec7a8b22ce0aacb4b66",
+      "mask_sha256": "dd6881aa4ec1f888716fd031e681c57a8c63b19e33a60ac4e0b6b7605936adc4"
+    },
+    {
+      "id": "foodseg103-val-717",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 717,
+      "source_row_group": 7,
+      "role": "validation",
+      "image_sha256": "0b89c7eecb003172b1d6c7fa2b3feb8ea80e01e0bb0120e102f0dce49dfee812",
+      "mask_sha256": "4507b4b332f846d1773859f2e1e2f5f4ab284297e037e6d597a40855842a3efa"
+    },
+    {
+      "id": "foodseg103-val-645",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 645,
+      "source_row_group": 6,
+      "role": "validation",
+      "image_sha256": "c5c0dee58f5575737d6fc75d44db650abe87230416a7483c9904e67580b6d5d3",
+      "mask_sha256": "ccf07b2bf87405b2fb7252a8a2d67aa4b72953ac8a77aaabb441d9060c2081d7"
+    },
+    {
+      "id": "foodseg103-val-531",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 531,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "e7d14f50c881558bde379cbf77d8119d4e14d2babf7999e10eb3b5f3def04ceb",
+      "mask_sha256": "a70bbcede391525bd3b1fd800006a78c13a8c5c945e10e4501d3aa89b83000f4"
+    },
+    {
+      "id": "foodseg103-val-63",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 63,
+      "source_row_group": 0,
+      "role": "validation",
+      "image_sha256": "676d9dfa027984cdfd661759e859933a679d4e1d047059aeb5a7f20889f58337",
+      "mask_sha256": "0dc2cb11636315bf6181f2322521293bb37fdcb78f3647a6c6d645d358bbdd2d"
+    },
+    {
+      "id": "foodseg103-val-618",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 618,
+      "source_row_group": 6,
+      "role": "validation",
+      "image_sha256": "aba421a74dbb5f5db8e0b89d31bc953ebd5dee7120a53fd70fbed3dd28e61fac",
+      "mask_sha256": "23e6bfacf746a50f4c883c84c86129dc502556cefc196dc7203f4ad97caec291"
+    },
+    {
+      "id": "foodseg103-val-244",
+      "prompt": "french fries",
+      "class_id": 3,
+      "source_id": 244,
+      "source_row_group": 2,
+      "role": "validation",
+      "image_sha256": "f29c0cd92d37f085f3f48cca622f8ffcfb392fb2ccbe3b5090940437347fd3db",
+      "mask_sha256": "64426efc5dcfbac77ff1466b66d60c7018dc6a24eabe63a9d0eab1d4eeb4a6a5"
+    },
+    {
+      "id": "foodseg103-val-136",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 136,
+      "source_row_group": 1,
+      "role": "validation",
+      "image_sha256": "c3db89e8375784d2639e1abff4bd7073f7fcacc1a676a241970c7198414a5f62",
+      "mask_sha256": "ed0932c42fde6ff59c95c9ce2d624a3592e30f606566e69834c52cbf569db272"
+    },
+    {
+      "id": "foodseg103-val-752",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 752,
+      "source_row_group": 7,
+      "role": "validation",
+      "image_sha256": "8e30afc88d3dd697b5c52de187977a0f6e2803e3a35348f22cc19d5508680c5e",
+      "mask_sha256": "2a44ac8b6d7d975c6ce0fb869f22aa18f831d8a40dfad3cd4ccf7b3f71d0c486"
+    },
+    {
+      "id": "foodseg103-val-335",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 335,
+      "source_row_group": 3,
+      "role": "validation",
+      "image_sha256": "88dee314bc8afa0a8f9fe41d6f56ce0cf7f6645f8245f6a511c84dc424bf9307",
+      "mask_sha256": "c838f889980d23757aaf17788a9852082860eadf4e11deb6370c846fb5a81ef4"
+    },
+    {
+      "id": "foodseg103-val-231",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 231,
+      "source_row_group": 2,
+      "role": "validation",
+      "image_sha256": "9bc60cdae9349f8f1458eca250e62ca66f85473cc489ac3d264f28bdc1c7f8b3",
+      "mask_sha256": "1d647f8bde8467bd03791bb4dd2a7fbd7b71b67d18cd50d540d70f5504d5fa6a"
+    },
+    {
+      "id": "foodseg103-val-622",
+      "prompt": "tomato",
+      "class_id": 73,
+      "source_id": 622,
+      "source_row_group": 6,
+      "role": "validation",
+      "image_sha256": "ad1202ff72a03e5cf51122cf9713d52fec1ebe6b374198ef356cafff9f615c29",
+      "mask_sha256": "882bc93eb963f519ce3a7c76b97ea08cf8630ac29e68f9ca6e7bca6f7e8b9f7d"
+    },
+    {
+      "id": "foodseg103-val-750",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 750,
+      "source_row_group": 7,
+      "role": "validation",
+      "image_sha256": "1011b0c2e0f064f04ace1f3e37c1fa85acfcec40359cac6d0ccb6b2d472d0551",
+      "mask_sha256": "198a1085bd5f6681493db024b428763017918b5c8da0ac014e5f6e56323ed563"
+    },
+    {
+      "id": "foodseg103-val-594",
+      "prompt": "coffee",
+      "class_id": 13,
+      "source_id": 594,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "25c969428b8b22ecce53a0ada55519697bc9b6df19961f467dbc7d1509e15fd5",
+      "mask_sha256": "05c95427764ef58e22538b9cb3e98839c49e193a27561777725d7e630d0a17e8"
+    },
+    {
+      "id": "foodseg103-val-73",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 73,
+      "source_row_group": 0,
+      "role": "validation",
+      "image_sha256": "9973d7f6b31b071820e8aa5fe9044372a6b8f50e129a50e640495dd59f5e3f7f",
+      "mask_sha256": "bc325c8010fa9d1ea0558a34d69ba62fe8c57b8c6a10460ce6d8bd4cd5018a7f"
+    },
+    {
+      "id": "foodseg103-val-487",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 487,
+      "source_row_group": 4,
+      "role": "validation",
+      "image_sha256": "49c7d5d426580b34f3243e0819364282bfe8800ac86d16a5f7ff763856b505e1",
+      "mask_sha256": "a0d847acd63bd0940da6b7c16b4951d5db4d4f07bd55891b6004944ce7731b81"
+    },
+    {
+      "id": "foodseg103-val-530",
+      "prompt": "eggplant",
+      "class_id": 69,
+      "source_id": 530,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "eee9908bf6e242c4d40ee57a56160b6def559cbe05e0ba8dda2e2b80b7ae45f9",
+      "mask_sha256": "f1cdc2ab9a0492ad1bef9896f889d22c4e464f0794c096bbfbfa53b559b79bb2"
+    },
+    {
+      "id": "foodseg103-val-379",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 379,
+      "source_row_group": 3,
+      "role": "validation",
+      "image_sha256": "467355419d896bd2257c88dc9a6cdd533e9ab9be080f886355a4fb31a0c6db7d",
+      "mask_sha256": "286c5e1feb178598f1de13c43d438fe8b4de3af508d58084a422ac997019597a"
+    },
+    {
+      "id": "foodseg103-val-471",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 471,
+      "source_row_group": 4,
+      "role": "validation",
+      "image_sha256": "e35379133063fdf387bd066e6f6885f9a9fffc402bae95141f79ed40db1f68fc",
+      "mask_sha256": "0402b968e51bef8523f187947f1f28f410ac67c1814d80cdb01578099e26c298"
+    },
+    {
+      "id": "foodseg103-val-221",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 221,
+      "source_row_group": 2,
+      "role": "validation",
+      "image_sha256": "b064e0d4d35ef5df4bdde1951f70ee08fccbfee627090ec026b5b8ee217c7d4b",
+      "mask_sha256": "3866d2f163c4992c87edaed1f55ee3f589491cd79e2a29b9d6f8972783a44762"
+    },
+    {
+      "id": "foodseg103-val-552",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 552,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "3d7087253cdae1cee908c515e3246a5f040d1e7fa073ef336e5929ce0d400199",
+      "mask_sha256": "61207d2eda2e2b9eb0283af907044b6de4291407b0655821a0d390922a6c0fef"
+    },
+    {
+      "id": "foodseg103-val-430",
+      "prompt": "lamb",
+      "class_id": 51,
+      "source_id": 430,
+      "source_row_group": 4,
+      "role": "validation",
+      "image_sha256": "ca51619a50d5b0e7d0d4818a5e8b48901d39525b7b1602d7657c7ce2676f09a8",
+      "mask_sha256": "b66920402e4a69e861a67bb6a449c8bbc67880b2d9ca08825bb78d7075e3116d"
+    },
+    {
+      "id": "foodseg103-val-751",
+      "prompt": "cilantro mint",
+      "class_id": 89,
+      "source_id": 751,
+      "source_row_group": 7,
+      "role": "validation",
+      "image_sha256": "e6d92bdb41c35c78aa56fb16967c90518415454d7442ed23dd43e98e11134e6f",
+      "mask_sha256": "dd5dabbfee4751fe2369b9efb503996a860065ec8b8651f1aa0ae9efc167f75b"
+    },
+    {
+      "id": "foodseg103-val-474",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 474,
+      "source_row_group": 4,
+      "role": "validation",
+      "image_sha256": "af59d01f1a6723643d14479dc4ca64631b372f4ba2eeba62df81e55c3d06767f",
+      "mask_sha256": "58587d8ce848ff638c519ffe7f4327e9b8aec3c0968b32b4ba6c023b5578aec9"
+    },
+    {
+      "id": "foodseg103-val-629",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 629,
+      "source_row_group": 6,
+      "role": "validation",
+      "image_sha256": "524964610e12d2849e027ebd4e437c11db18f27b8a017dad77f8472e4136b21a",
+      "mask_sha256": "5e3897f716a4511c3545d827f0b505117de105a04a928a701b3e968d6310fce1"
+    },
+    {
+      "id": "foodseg103-val-567",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 567,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "e1de5481fd7771e7188ea0bbf9db2a5d10592f3ab39fd1371cc9f12a6a2507fa",
+      "mask_sha256": "9fdaa328e24fa6de802a3e60f8d1d9eca326fece27ef19c4052fc4653a2d85a7"
+    },
+    {
+      "id": "foodseg103-val-561",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 561,
+      "source_row_group": 5,
+      "role": "validation",
+      "image_sha256": "a65a071751d3a7a713c01770bc48c8840c7d3f7e41723814ec7175685f5dd4ae",
+      "mask_sha256": "7cacbb588f8c270a4360e0fb4a52f2cb8b98b81259b99c8f475c6e6b9b6dca3e"
+    },
+    {
+      "id": "foodseg103-val-315",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 315,
+      "source_row_group": 3,
+      "role": "validation",
+      "image_sha256": "e0cead11dcb0eba74dc4c15ef36fe097d3449ef0226478a652ea9e9efe63384d",
+      "mask_sha256": "472ec6970f58c3c255ae2aefde3e38c368789f71c4094736801c539e75dd472d"
+    },
+    {
+      "id": "foodseg103-val-102",
+      "prompt": "broccoli",
+      "class_id": 87,
+      "source_id": 102,
+      "source_row_group": 1,
+      "role": "validation",
+      "image_sha256": "189caf45afef24c10267e61d77e6b5e44d9fff9087969561ae9cf93933c232df",
+      "mask_sha256": "e64a5f3ce121a4538812b6ab67ecd428ae544048bffad8d3366771a30f2305df"
+    },
+    {
+      "id": "foodseg103-val-232",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 232,
+      "source_row_group": 2,
+      "role": "validation",
+      "image_sha256": "660b961c49d32565ab40357ccea035c5b1d42e97aa3099e1ae58a2c0600a1659",
+      "mask_sha256": "66b44da41728516ef583031a509ea54893705d49974f09cfc21131e8d0a281f1"
+    },
+    {
+      "id": "foodseg103-val-603",
+      "prompt": "rice",
+      "class_id": 66,
+      "source_id": 603,
+      "source_row_group": 6,
+      "role": "validation",
+      "image_sha256": "e7d6cd0615095e8192aed107f1e567a1a8bcedcb58ab4dcdf6c5600e16dde34e",
+      "mask_sha256": "9dac8b238a030a0cc156d615a9c0b9b0fad7297ea8358969f62118c5d772eb12"
+    },
+    {
+      "id": "foodseg103-val-343",
+      "prompt": "cabbage",
+      "class_id": 91,
+      "source_id": 343,
+      "source_row_group": 3,
+      "role": "validation",
+      "image_sha256": "c3ef9f143e77f318d186a66ec291217bd8fb49e2bff7f8b98f6da8f875285058",
+      "mask_sha256": "abf090f907db00408b14704f01171f399b587c57603e0a14479fa2a58824e8f0"
+    },
+    {
+      "id": "foodseg103-val-446",
+      "prompt": "ice cream",
+      "class_id": 8,
+      "source_id": 446,
+      "source_row_group": 4,
+      "role": "validation",
+      "image_sha256": "e73503d9a589bfca708654bd98fd4d8e640fd90f0b6ecbc2c7b38d3038c0d3e1",
+      "mask_sha256": "07a02b9ca3271150b519f2ede133038faa3e3752ccc2fa5c73dfb80089d457c2"
+    },
+    {
+      "id": "foodseg103-val-580",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 580,
+      "source_row_group": 5,
+      "role": "test",
+      "image_sha256": "4afe29b6d3d15640f02b62ba1908cb98cfe2ac1b55dbc34c8eabb0203d72292e",
+      "mask_sha256": "6d6e2d5ab4089802f1d07833e326924559d3d6d53067deaabb90b5b69f19ea33"
+    },
+    {
+      "id": "foodseg103-val-747",
+      "prompt": "white button mushroom",
+      "class_id": 101,
+      "source_id": 747,
+      "source_row_group": 7,
+      "role": "test",
+      "image_sha256": "672cc1f1181f77f62750f8343fc1d628b5f371eb0b2044719f3072097ad5ffd6",
+      "mask_sha256": "69ec672192fc207fa105ce4e734b337c773bdabd804da8dca42ab34e72abbca5"
+    },
+    {
+      "id": "foodseg103-val-205",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 205,
+      "source_row_group": 2,
+      "role": "test",
+      "image_sha256": "3b80229d54f51a9566e01f57e7d3b092b10f4e17672b31fdd3d0dc432bd41f3f",
+      "mask_sha256": "7830176eb0cbf3bc51881b548aba98d6f798351f9b2f6b91bf8341265a6a829b"
+    },
+    {
+      "id": "foodseg103-val-467",
+      "prompt": "ice cream",
+      "class_id": 8,
+      "source_id": 467,
+      "source_row_group": 4,
+      "role": "test",
+      "image_sha256": "77a2379a6e62f137d75f9528e180af503d8ceeec91c4d1753df8b4271adf6897",
+      "mask_sha256": "3facbea3e81bd055b7e28a30d18934db470e3d2d4f8a0183731087c8264df3d7"
+    },
+    {
+      "id": "foodseg103-val-174",
+      "prompt": "egg",
+      "class_id": 24,
+      "source_id": 174,
+      "source_row_group": 1,
+      "role": "test",
+      "image_sha256": "ac42337fe0a97628c1810314a20ca15849b1b38f2a19817224662bd421a64326",
+      "mask_sha256": "e722b03190f71366870a7352857a758417fddcbdc7da9f97c2be1549875e9691"
+    },
+    {
+      "id": "foodseg103-val-635",
+      "prompt": "broccoli",
+      "class_id": 87,
+      "source_id": 635,
+      "source_row_group": 6,
+      "role": "test",
+      "image_sha256": "b527e3d26f1e8aa8d1d8f1bd13adf3c3ccf8d87930edc8e74fe327fc078d7764",
+      "mask_sha256": "5e963361a4955adafba25955df7e892d4cd33b2e869c0556e52ce3afca0d130d"
+    },
+    {
+      "id": "foodseg103-val-7",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 7,
+      "source_row_group": 0,
+      "role": "test",
+      "image_sha256": "3d752bacc7cea2891e001846fa6a2008430941a1eacdc757411d0524dba95747",
+      "mask_sha256": "5f9b10017272607632e81318127a5d9e18a7747591da2f5d7239d98fbee82caa"
+    },
+    {
+      "id": "foodseg103-val-112",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 112,
+      "source_row_group": 1,
+      "role": "test",
+      "image_sha256": "4f6678faa6e125acd609cc267494b495b6740d5263c5da02c7b6af6264833205",
+      "mask_sha256": "f53281c6bdab93fed09a2bd3fcd570650606c18e586ed932a12347d01ce00ef9"
+    },
+    {
+      "id": "foodseg103-val-550",
+      "prompt": "french fries",
+      "class_id": 3,
+      "source_id": 550,
+      "source_row_group": 5,
+      "role": "test",
+      "image_sha256": "8410a5cbb2217bf661c13106348c61517f6c8c15683fffc06b130ee738c213c6",
+      "mask_sha256": "7f4205598b5b63f119d672b8fd202994506cbcafd31f3d27b16a168bc53712f2"
+    },
+    {
+      "id": "foodseg103-val-133",
+      "prompt": "tomato",
+      "class_id": 73,
+      "source_id": 133,
+      "source_row_group": 1,
+      "role": "test",
+      "image_sha256": "57413f112c7e9eb7ca323ebf3ccabecf59503639a904dcc3c79845e87ce4d56b",
+      "mask_sha256": "cface38977b45de70f52d8dad152800e21fb2f1efb502b4f5a1e436c26066c9f"
+    },
+    {
+      "id": "foodseg103-val-311",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 311,
+      "source_row_group": 3,
+      "role": "test",
+      "image_sha256": "54412f5bf14b78ac973c2794ac47049e537dfb9322af71b5b8477b9f534c37f5",
+      "mask_sha256": "e71d5f87beb4a3ad40794c309d4ab927ac28f35fbdaf752f76a65160e6e43de0"
+    },
+    {
+      "id": "foodseg103-val-374",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 374,
+      "source_row_group": 3,
+      "role": "test",
+      "image_sha256": "1a83d95bad9311bd7c8e35e223b986623a45be4556ae793040a4d743e1970303",
+      "mask_sha256": "1ee59c7a9e13396e64f5bf1693e249bb36d3b7c3bbe8442203ecdc88600094f1"
+    },
+    {
+      "id": "foodseg103-val-441",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 441,
+      "source_row_group": 4,
+      "role": "test",
+      "image_sha256": "b4259e6083662dcedc72a4eb4c2b4444239b040e34b1e7c0784e6dde01a94201",
+      "mask_sha256": "b84cd12ef17a8008c9dbb19b022f7ac3e1c89019e6dd93c7d4df269ec88aaf36"
+    },
+    {
+      "id": "foodseg103-val-362",
+      "prompt": "cilantro mint",
+      "class_id": 89,
+      "source_id": 362,
+      "source_row_group": 3,
+      "role": "test",
+      "image_sha256": "1afcf89e1cf6a5f4dc2d034f1789e0256e66e3a941426b464481b2945899d590",
+      "mask_sha256": "fe79d45decbb8b7ba252c6020febf98fc5d50e6cb38cd9afc56ee34e065f3b4a"
+    },
+    {
+      "id": "foodseg103-val-573",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 573,
+      "source_row_group": 5,
+      "role": "test",
+      "image_sha256": "c60aabaee78f87cf53186dc7ef245948aef3cc101ba7022835e19335be664c1a",
+      "mask_sha256": "29ba78d6f8336b19e89a3ae07bebbf8c2e42ca0eb0320c5e029e246ed36c481a"
+    },
+    {
+      "id": "foodseg103-val-222",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 222,
+      "source_row_group": 2,
+      "role": "test",
+      "image_sha256": "2190f75fcd9e2fcef4e631c8a62ecadf1a23f09e1c2e5e2bbbae5b40dfc4903b",
+      "mask_sha256": "943e421bd38e515bb04beae72f5e28f13a8cddea161dd7a4260c576693a4f0de"
+    },
+    {
+      "id": "foodseg103-val-724",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 724,
+      "source_row_group": 7,
+      "role": "test",
+      "image_sha256": "03f5d28bee12bbb7e6215b861093604835fdaf75df0816b985147659313b67c3",
+      "mask_sha256": "984668f2e357dfad258748b6c94d44b5123ceb76be32ad4c7ce3daabe676a507"
+    },
+    {
+      "id": "foodseg103-val-175",
+      "prompt": "tomato",
+      "class_id": 73,
+      "source_id": 175,
+      "source_row_group": 1,
+      "role": "test",
+      "image_sha256": "536d317c5ce461cd1defc306927076bd50c62cc1b74fff561035a2cc97942cc7",
+      "mask_sha256": "5799de5924fab2bd43a159dc18e89a77097c0d2e59d556b11fa92dd83976d5ea"
+    },
+    {
+      "id": "foodseg103-val-619",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 619,
+      "source_row_group": 6,
+      "role": "test",
+      "image_sha256": "b8945e2156dd7cba36ae230c57a76b5558b54bb940b2582d9a414f905dde1724",
+      "mask_sha256": "148ddeaec1de77ff9e0c54c7a1e34074c04c40a60023e288c3da26233a451ac0"
+    },
+    {
+      "id": "foodseg103-val-709",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 709,
+      "source_row_group": 7,
+      "role": "test",
+      "image_sha256": "81a9328b42c2383e6ee29ac9fe4eddc346859f443772e36101ccef0ecf110b98",
+      "mask_sha256": "436ecac0febdfa63e00c0914c09e40b58b1784842604d34847df6d0a9907e645"
+    },
+    {
+      "id": "foodseg103-val-74",
+      "prompt": "cake",
+      "class_id": 10,
+      "source_id": 74,
+      "source_row_group": 0,
+      "role": "test",
+      "image_sha256": "ca2036454c0dffcd0654003fc00b81ff41976dc3d3c14e18ae2249ceb1c49341",
+      "mask_sha256": "4c37fc20951730ec9dc0d42918024247ac8704c5abae25cf6d902f42f2dec27f"
+    },
+    {
+      "id": "foodseg103-val-773",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 773,
+      "source_row_group": 7,
+      "role": "test",
+      "image_sha256": "60e037e03fa8f76ae111cbdfb58fafbb74594487b999c0d60ec8b204a713b377",
+      "mask_sha256": "cc3910e1f62d423b574feb9b22ed24a2ec59e2dd67d75605e7ba4dd8f4dd1336"
+    },
+    {
+      "id": "foodseg103-val-697",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 697,
+      "source_row_group": 6,
+      "role": "test",
+      "image_sha256": "b29d1c2ebabbd6f1cc3f58a58a08654be58f4465f07cc881c85c7546010893c9",
+      "mask_sha256": "cf883e79d8f1f3e6f46d1eed4e0967f58733cc2725a3007a8335de83933db289"
+    },
+    {
+      "id": "foodseg103-val-268",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 268,
+      "source_row_group": 2,
+      "role": "test",
+      "image_sha256": "cb821485d4baa9a8bf71c745b277321772e1d2d7199145d623191fb1d5412fb6",
+      "mask_sha256": "7f704c5f5ff34d58fa71f2423905bb1f3e1a555e486994bf48ba24d43c769494"
+    },
+    {
+      "id": "foodseg103-val-644",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 644,
+      "source_row_group": 6,
+      "role": "test",
+      "image_sha256": "d3fa527052bb9a126d9017192c3ee36f22efb3f828a7be64f31baabcad416dfa",
+      "mask_sha256": "48506aa73194d85d1a0f93f40d4a7b593c04363e42872dab85918139ab0006e2"
+    },
+    {
+      "id": "foodseg103-val-533",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 533,
+      "source_row_group": 5,
+      "role": "test",
+      "image_sha256": "96147915e0574bed3e405abd74e375ca417f356451306075c4111f793a064d2d",
+      "mask_sha256": "371187e239f4d2d5b6a49fc2d1ca7868e90adb5e5b4eea0e8f942dc65e58386a"
+    },
+    {
+      "id": "foodseg103-val-21",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 21,
+      "source_row_group": 0,
+      "role": "test",
+      "image_sha256": "124e7ef6061ccae152cf7116af02dbca48a8ffbe5bf32eed9ce51597b537f1e4",
+      "mask_sha256": "c138263770131a14e3d7966a18cb90401893a9deb7f682aa8526595ae8cab12b"
+    },
+    {
+      "id": "foodseg103-val-505",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 505,
+      "source_row_group": 5,
+      "role": "test",
+      "image_sha256": "728144a22aeb123f34465af71cfc6e94faad1b4b39b909f28b9c30847d897bc2",
+      "mask_sha256": "3364f3083cd701c7e78cfc2d115fe2ddbe1942de97be830a0e94b3965927d822"
+    },
+    {
+      "id": "foodseg103-val-730",
+      "prompt": "ice cream",
+      "class_id": 8,
+      "source_id": 730,
+      "source_row_group": 7,
+      "role": "test",
+      "image_sha256": "d769b793ba1f88433577774e96177dc87e67ef903056ecb7675c25ac8e87b515",
+      "mask_sha256": "10d4eb07665e43a949ea86aa754233499b2270c0c1c5bc243da62950546c55f2"
+    },
+    {
+      "id": "foodseg103-val-694",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 694,
+      "source_row_group": 6,
+      "role": "test",
+      "image_sha256": "f9fe94c13e5db90534fcb9a6b3c1069fa8282f2ac8f86a78240fd1ebf1f0f1ee",
+      "mask_sha256": "06dca6937d1ba9b11912780b5f0465cb450276451ace3e2c319f95c7d54691e4"
+    },
+    {
+      "id": "foodseg103-val-527",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 527,
+      "source_row_group": 5,
+      "role": "test",
+      "image_sha256": "cd8718f8410c53ee4f7fd387d8d62c9c304367edcad1fc00e753ef161c717d31",
+      "mask_sha256": "fd3443eb62c40f570f5e8a275c862c1597fe1ce51288574b58fd49ce17fed0b0"
+    },
+    {
+      "id": "foodseg103-val-452",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 452,
+      "source_row_group": 4,
+      "role": "test",
+      "image_sha256": "2b336197ffcc2cd7b975a1e067dadba4df94ad44fde7274a332971a3c6b7c40a",
+      "mask_sha256": "4bd8cacb17f1967d45d86fa1ce5f20e90c5b9e3f923c8e337056aef57685afb4"
+    },
+    {
+      "id": "foodseg103-val-329",
+      "prompt": "fish",
+      "class_id": 54,
+      "source_id": 329,
+      "source_row_group": 3,
+      "role": "test",
+      "image_sha256": "fc379e5f95ae647b613a87048e3f24f8a41aeb3abe3f1faec031bd71a9e4c2da",
+      "mask_sha256": "337fd5d0b64a003bf2551cfa51191e59ec3bb3e3a6ca0b8eb359ea8ccc54f663"
+    },
+    {
+      "id": "foodseg103-val-461",
+      "prompt": "bread",
+      "class_id": 58,
+      "source_id": 461,
+      "source_row_group": 4,
+      "role": "test",
+      "image_sha256": "d2376e86e9d4cecc845b636c556d8ab22b3e1dc3d1f8de32f90c2429d6e3579b",
+      "mask_sha256": "4718d4cdb7ff9f4a503c7b88d3f64d5f08cfb7d9b10c85493a89a33439e8faad"
+    },
+    {
+      "id": "foodseg103-val-27",
+      "prompt": "fried meat",
+      "class_id": 50,
+      "source_id": 27,
+      "source_row_group": 0,
+      "role": "test",
+      "image_sha256": "77f052b99f449a0869024d3085a3d49a30c90f0db0bc183cb88f2c94f9ad2428",
+      "mask_sha256": "5171d9f0f8c7b729871a76c96900240b535f6023958878e167992cc95eab2cb2"
+    },
+    {
+      "id": "foodseg103-val-134",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 134,
+      "source_row_group": 1,
+      "role": "test",
+      "image_sha256": "cf71dd486e19064eddef4d5d068d6fa6743be4f1a8974748d052425f5270cc01",
+      "mask_sha256": "0b7fc47fcf8c70a55609fd909839cc41d6b067eac8ad36a0fa5f89ec3f7a3439"
+    },
+    {
+      "id": "foodseg103-val-399",
+      "prompt": "soup",
+      "class_id": 57,
+      "source_id": 399,
+      "source_row_group": 3,
+      "role": "test",
+      "image_sha256": "6803dfadc1fc155e718991a9a06dec785dae04870cdc9506aba2b4844827d24a",
+      "mask_sha256": "4ea73256718212470031c2a684868b53746f59f5604bbe325ff75225e5e6a620"
+    },
+    {
+      "id": "foodseg103-val-224",
+      "prompt": "milkshake",
+      "class_id": 12,
+      "source_id": 224,
+      "source_row_group": 2,
+      "role": "test",
+      "image_sha256": "95e212b99552fe140ab3727ef4f7327ceb1e5320b8137ad4f6920c300aeabf33",
+      "mask_sha256": "a7f5eabea6b321129b5c4f47e828beba78f437c0d04a8972b1bab9600c174bcc"
+    },
+    {
+      "id": "foodseg103-val-436",
+      "prompt": "steak",
+      "class_id": 46,
+      "source_id": 436,
+      "source_row_group": 4,
+      "role": "test",
+      "image_sha256": "7eef5e351aded155b9d00dc7b31d43d54c45ef298117b6d00c8858eed41c6110",
+      "mask_sha256": "7717af26df9d2254bdffb80af878fd968759fb9e4ebc4604735eb0a6101e4ef4"
+    },
+    {
+      "id": "foodseg103-val-214",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 214,
+      "source_row_group": 2,
+      "role": "test",
+      "image_sha256": "b3cb6351b41bb21c500c71eb49b02c07d3034d95f4eba0bffd86d95e85bc014a",
+      "mask_sha256": "9e6f60349929d181817be8a188f6273dcda8a58a9ae9ac782e52b393890ca932"
+    },
+    {
+      "id": "foodseg103-val-264",
+      "prompt": "corn",
+      "class_id": 59,
+      "source_id": 264,
+      "source_row_group": 2,
+      "role": "activity",
+      "image_sha256": "40d728c91ba8b515716079ec529b1ae013cec4ef23c515d150cb0371d1f4e765",
+      "mask_sha256": "a833a7b6d6e44b5b8fe56eedef1ba043d8cb4bbeb79ea01f5efb7b5a77d97402"
+    },
+    {
+      "id": "foodseg103-val-322",
+      "prompt": "strawberry",
+      "class_id": 30,
+      "source_id": 322,
+      "source_row_group": 3,
+      "role": "activity",
+      "image_sha256": "16a9df9163de10c02c8a0a58cf45fa5c3df96967e64c4d9d7fe3ffa197bb3711",
+      "mask_sha256": "45427f5a39e1dfcaff45480aee44f530eeace75e26cfc2dab9e9d42997b25bee"
+    },
+    {
+      "id": "foodseg103-val-48",
+      "prompt": "potato",
+      "class_id": 70,
+      "source_id": 48,
+      "source_row_group": 0,
+      "role": "activity",
+      "image_sha256": "31d0010386d6c2f1af43e9aa06b98ec6d8bcae56db6978109df9ab1c16d1ef5e",
+      "mask_sha256": "c4672584fb1af414a7e25c88100865bd2573208e7bf18d606af04ae79e60d6b0"
+    },
+    {
+      "id": "foodseg103-val-272",
+      "prompt": "corn",
+      "class_id": 59,
+      "source_id": 272,
+      "source_row_group": 2,
+      "role": "activity",
+      "image_sha256": "f60ffcc9f84d24dc655f202df5dafa2212409ccf78bc0924887b37eeac2ab267",
+      "mask_sha256": "1a17dcf8a5c35620321b7305522a4710e8f66609b0dce884a8a617ac1dd80ef2"
+    },
+    {
+      "id": "foodseg103-val-78",
+      "prompt": "biscuit",
+      "class_id": 5,
+      "source_id": 78,
+      "source_row_group": 0,
+      "role": "activity",
+      "image_sha256": "de4d2c07fd91c317af8543c9e9ed2ec6380b83a14c61896430f1e5f5b26704bb",
+      "mask_sha256": "28ee3e463bc898fe6424c66e95c74cd576ac67cc55db698cf9112dcac1686a54"
+    },
+    {
+      "id": "foodseg103-val-235",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 235,
+      "source_row_group": 2,
+      "role": "activity",
+      "image_sha256": "05a8e46b3753d37071ebe4b2a5af235f89ce2bf22ff6921e2f216091a8e3067e",
+      "mask_sha256": "e7a37e75a198ec3620206d5b122c6614f7ca88440a4bff27ac4ccd585ae398fc"
+    },
+    {
+      "id": "foodseg103-val-647",
+      "prompt": "pie",
+      "class_id": 67,
+      "source_id": 647,
+      "source_row_group": 6,
+      "role": "activity",
+      "image_sha256": "392d768de8ee3b4681b4d4ee3ba0bf005e5a3c3fb970ea177560561ccc02c8ec",
+      "mask_sha256": "1dc79e42a9c7086ab5757f994de87f4a1b66323328b94768a1b72e3f3f4dc093"
+    },
+    {
+      "id": "foodseg103-val-382",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 382,
+      "source_row_group": 3,
+      "role": "activity",
+      "image_sha256": "29c4d004d0c1604c8cf16d49f27e437d74a119a125643d31ac318a65e251baf9",
+      "mask_sha256": "68705c548e62bb9a80e88a5e4d5ee24a6a88ee5b4e0a054009bbcad257980c1f"
+    },
+    {
+      "id": "foodseg103-val-426",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 426,
+      "source_row_group": 4,
+      "role": "activity",
+      "image_sha256": "f85662c129edf10d0e4299ca45c83f36f7f4e3cc5f5109dfe4b69d0319a9b6d1",
+      "mask_sha256": "527b3799b3f92aaac9f1eec3430757d54d060c5dec22e7fa656de17d37c14407"
+    },
+    {
+      "id": "foodseg103-val-685",
+      "prompt": "pork",
+      "class_id": 47,
+      "source_id": 685,
+      "source_row_group": 6,
+      "role": "activity",
+      "image_sha256": "9eeffdf46da1b4b3bdbefc31d29a534d0bff83c3776c97cf89f53a2ed489756d",
+      "mask_sha256": "05c98b70866140188a60fd42f2d79bcd50f64af9f9bde3996afbca084bb6eaf5"
+    },
+    {
+      "id": "foodseg103-val-302",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 302,
+      "source_row_group": 3,
+      "role": "activity",
+      "image_sha256": "cc63081be625192ec60f2e5aaa7c16d0b1b77fb4e27f44431fa1b419adebee87",
+      "mask_sha256": "4cab3d9b7ede5635e5af1bc2d62b7fb2a12eeed7fc13206fb97a73e4e9a6b8d9"
+    },
+    {
+      "id": "foodseg103-val-8",
+      "prompt": "chicken duck",
+      "class_id": 48,
+      "source_id": 8,
+      "source_row_group": 0,
+      "role": "activity",
+      "image_sha256": "c2eafa052d8a5dd938a60cbffd7374523ea4d2531fc1945f4487dc5dd81d83e3",
+      "mask_sha256": "3dfff3f77f2f0c40e6f2d2b79c467c57df07c3e4b4339f8e8328884b1152f8af"
+    }
+  ]
+}
