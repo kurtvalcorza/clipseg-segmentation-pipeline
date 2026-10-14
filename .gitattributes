@@ -2,3 +2,5 @@
 weights/** -text
 # Executed notebooks kept as execution evidence are SHA-256-verified byte-for-byte; never convert their line endings.
 docs/execution-evidence/** -text
+# Workshop generator sources are emitted byte for byte into the notebook; never convert their line endings.
+tools/segmentation_workshop/** -text

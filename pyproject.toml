@@ -32,6 +32,8 @@ addopts = "-q"
 line-length = 110
 target-version = "py312"
 src = ["src", "tests"]
+# Workshop generator sources: notebook cell bodies and carried vendored files, emitted verbatim (not package code).
+extend-exclude = ["tools/segmentation_workshop"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

@@ -1,0 +1,30 @@
+{
+  "format": "dimer_hf_snapshot",
+  "formatVersion": 1,
+  "modelKey": "sam-vit-base",
+  "modelId": "facebook/sam-vit-base",
+  "revision": "70c1a07f894ebb5b307fd9eaaee97b9dfc16068f",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 6727,
+      "sha256": "7a8579105233ff1e8fdc6c8387e102e88458e94c873463f640c416de01c921dd"
+    },
+    {
+      "path": "config.json",
+      "bytes": 6566,
+      "sha256": "5ebd0d8643b486f3a716bf17c2a15531eb818b2b96ff0c6c5dcc88fa015161af"
+    },
+    {
+      "path": "model.safetensors",
+      "bytes": 374979480,
+      "sha256": "892c410e496344e527255ccdcb2cb7244a609acb5389c7c4fdba1288f861c579"
+    },
+    {
+      "path": "preprocessor_config.json",
+      "bytes": 466,
+      "sha256": "225545a743c654e3c495ec6f545a0eaba57c8ba3fbbd8483b3cb1c0fc58db517"
+    }
+  ],
+  "totalBytes": 374993239
+}

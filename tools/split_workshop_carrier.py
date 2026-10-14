@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Rewrite the segmentation workshop's CARRIED_FILES literal as short string pieces (in-place transform).
 
-The workshop generator (``build_segmentation_workshop.py/1``) is not in this repository, so the notebook
-is maintained by anchor-checked, in-place edits (``metadata.dimer.review_revisions``, commit 0c7906b).
-This transform is recorded in ``metadata.dimer.generated_from.post_generation_revisions`` instead, so the
-last review revision stays the review record. It changes only the layout of the ``CARRIED_FILES = {...}``
-literal: each carried file becomes a parenthesised run of implicitly concatenated string pieces, one per
-source line, with long lines cut every CARRIER_PIECE characters. Python joins the pieces back into
-identical text, so the carried bytes, CARRIED_HASHES, the carried source.json and generated_from.files are
-unchanged. The rewrite asserts ``ast.literal_eval(new) == ast.literal_eval(old)`` before writing.
+When this transform was written (a93bf44) the workshop generator (``build_segmentation_workshop.py/1``) was
+not in this repository and the notebook was maintained by anchor-checked, in-place edits. Since 2026-10-13
+the notebook is emitted by ``tools/build_segmentation_workshop.py``, a reconstruction of that generator that
+imports ``carried_literal()`` from this file; edit its sources and regenerate rather than running this
+transform on the notebook. This transform is recorded in
+``metadata.dimer.generated_from.post_generation_revisions`` instead, so the last review revision stays the
+review record. It changes only the layout of the ``CARRIED_FILES = {...}`` literal: each carried file
+becomes a parenthesised run of implicitly concatenated string pieces, one per source line, with long lines
+cut every CARRIER_PIECE characters. Python joins the pieces back into identical text, so the carried bytes,
+CARRIED_HASHES, the carried source.json and generated_from.files are unchanged. The rewrite asserts
+``ast.literal_eval(new) == ast.literal_eval(old)`` before writing.
 
 Usage (from the repository root):
     python tools/split_workshop_carrier.py           # rewrite the notebook in place
@@ -39,7 +42,8 @@ REVISION = {
     "method": (
         "tools/split_workshop_carrier.py: CARRIED_FILES re-serialised as parenthesised runs of string"
         " pieces (at most 1000 characters each); ast.literal_eval of the new literal equals the old one,"
-        " so the carried text and its hashes are unchanged; generator not in this repository"
+        " so the carried text and its hashes are unchanged; generator not in this repository at the time"
+        " (reconstructed 2026-10-13 as tools/build_segmentation_workshop.py)"
     ),
     "clean_runtime_evidence": "pending; no hosted run of this blob yet",
 }

@@ -1,0 +1,38 @@
+{
+  "sam": {
+    "repository": "kurtvalcorza/sam-vit-segmentation-pipeline",
+    "revision": "ed74a93f0c743dd184efe4f88b23f71b772e4d38",
+    "files": {
+      "sam_reference.py": {
+        "sha256": "ecdf92a7985ba182d716648545c7ba76223eac91cdd1753487d0350daf37d714",
+        "source": "src/sam_vit_segmentation_pipeline/pipeline.py"
+      },
+      "sam_manifest.json": {
+        "sha256": "3b51600ae3133cf24fe8ffaed771d94185f3935c9803d2c57c8b4a8c74c71dd4",
+        "source": "weights/sam-vit-base/dimer-base-manifest.json"
+      },
+      "sam_LICENSE": {
+        "sha256": "f9da6567cb5a1828ccec41c7b72b70997fe6d9d63811b3f3177a7b01da52d138",
+        "source": "LICENSE"
+      }
+    }
+  },
+  "sam2": {
+    "repository": "kurtvalcorza/sam2-segmentation-pipeline",
+    "revision": "df023e1af8c0f49e74af3f308e3e50b236e15850",
+    "files": {
+      "sam2_reference.py": {
+        "sha256": "8c2a3aac5444f2bebe2a56202fd42ae80e539e1a1921e5eb9f7b8c12c98d0a3b",
+        "source": "src/sam2_segmentation_pipeline/pipeline.py"
+      },
+      "sam2_manifest.json": {
+        "sha256": "ccbf7408250a591a6dbef9782ef2a262997bdab4ee97512516b54797769b9a11",
+        "source": "weights/sam2.1-hiera-small/dimer-base-manifest.json"
+      },
+      "sam2_LICENSE": {
+        "sha256": "f9da6567cb5a1828ccec41c7b72b70997fe6d9d63811b3f3177a7b01da52d138",
+        "source": "LICENSE"
+      }
+    }
+  }
+}
