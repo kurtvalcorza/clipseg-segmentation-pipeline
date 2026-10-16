@@ -66,20 +66,97 @@ def test_training_targets_are_area_averaged_not_nearest(notebook):
     assert "rewrites" not in _load("notebook_template").TEMPLATE
 
 
-def test_target_round_trip_is_centre_consistent(notebook):
+def _fixture(name: str) -> np.ndarray:
+    shapes = {
+        "off-centre box, 640x480": ((480, 640), (slice(100, 331), slice(57, 419))),
+        "odd dimensions, 641x479": ((479, 641), (slice(33, 300), slice(101, 500))),
+        "non-integer ratio, 700x500": ((500, 700), (slice(123, 377), slice(211, 589))),
+        "thin 3-px column, 640x480": ((480, 640), (slice(None), slice(300, 303))),
+        "thin 2-px row, 640x480": ((480, 640), (slice(240, 242), slice(None))),
+        "smaller than 352, 150x200": ((200, 150), (slice(40, 130), slice(30, 101))),
+        "tiny, 23x17": ((17, 23), (slice(3, 11), slice(5, 16))),
+    }
+    size, box = shapes[name]
+    mask = np.zeros(size, dtype=np.float32)
+    mask[box] = 1.0
+    return mask
+
+
+@pytest.mark.parametrize("name", ["off-centre box, 640x480", "odd dimensions, 641x479", "non-integer ratio, 700x500", "thin 3-px column, 640x480", "thin 2-px row, 640x480", "smaller than 352, 150x200", "tiny, 23x17"])
+def test_area_targets_on_fixture_geometries(notebook, name):
+    """Regression bounds for these fixtures only, not a general guarantee: area mode is adaptive average pooling
+    (for inputs below 352 it enlarges), so the targets are soft values in [0, 1] whose mean stays close to the
+    mask's area fraction, and the notebook's prediction path (bilinear up, >= 0.5) recovers each fixture."""
     torch = pytest.importorskip("torch")
     mode = _target_mode(notebook)
-    height, width, size = 480, 640, 352
-    mask = np.zeros((height, width), dtype=np.float32)
-    mask[140:340, 220:420] = 1.0  # a centred 200 x 200 square
-    down = torch.nn.functional.interpolate(torch.from_numpy(mask)[None, None], size=(size, size), mode=mode)
-    # the notebook's prediction path: bilinear, align_corners=False, then >= 0.5
+    mask = _fixture(name)
+    height, width = mask.shape
+    down = torch.nn.functional.interpolate(torch.from_numpy(mask)[None, None], size=(352, 352), mode=mode)
+    assert float(down.min()) >= 0.0 and float(down.max()) <= 1.0
+    assert abs(float(down.mean()) - float(mask.mean())) < 0.002
     back = (torch.nn.functional.interpolate(down, size=(height, width), mode="bilinear", align_corners=False)[0, 0] >= 0.5).numpy()
+    reference = mask > 0
+    assert np.logical_and(back, reference).sum() / np.logical_or(back, reference).sum() > 0.99
     ys, xs = np.nonzero(back)
-    y0, x0 = np.nonzero(mask)
-    assert abs(xs.mean() - x0.mean()) < 0.05 and abs(ys.mean() - y0.mean()) < 0.05
-    iou = np.logical_and(back, mask > 0).sum() / np.logical_or(back, mask > 0).sum()
-    assert iou > 0.995
+    y0, x0 = np.nonzero(reference)
+    assert abs(xs.mean() - x0.mean()) < 0.1 and abs(ys.mean() - y0.mean()) < 0.1
+
+
+def test_adapt_refuses_train_validation_overlap():
+    pytest.importorskip("PIL")
+    from clipseg_segmentation_pipeline import ClipSegSegmentationPipeline
+
+    def record(k: int, rid: str) -> dict:
+        image = Image.new("RGB", (64, 48), (200 - 10 * k, 30, 30))
+        mask = np.zeros((48, 64), dtype=bool)
+        mask[10:30, 10:40] = True
+        return {"id": rid, "image": image, "prompt": "a red box", "mask": mask}
+
+    train = [record(k, f"t{k}") for k in range(8)]
+    pipe = ClipSegSegmentationPipeline(lambda image, prompts: [], "cpu")
+    with pytest.raises(ValueError, match=r"train and validation must not share an image \(exact decoded-pixel match\)"):
+        pipe.adapt(train, [record(3, "v-copy-of-t3")])
+    with pytest.raises(RuntimeError, match="no loaded model"):  # a disjoint validation split passes the check
+        pipe.adapt(train, [record(9, "v9")])
+
+
+def test_codex_peer_review_wording(notebook):
+    text = _markdown(notebook)
+    src = (ROOT / "src/clipseg_segmentation_pipeline/pipeline.py").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for banned in ("centred like", "moved threshold", "moved cut", "annotation convention", "without leakage", "rather than the task", "Nobody has checked", "upstream training objective", "no dispersion"):
+        assert banned not in text and banned not in src and banned not in readme, banned
+    assert "soft targets produced by area-mode averaging (adaptive average pooling)" in text
+    assert "an observation on a test set that had already been inspected, not independent confirmation" in text
+    assert "Both rates improved at 0.5. This does not establish superiority over a validation-tuned frozen model." in text
+    assert "following the upstream loss family" in text and "following the upstream loss family" in src
+    assert text.count("these results don't identify whether the gain comes from boundaries, region selection, phrase grounding or other learned associations") == 2
+    assert "near-duplicate and source-level overlap were not audited" in text and "This tutorial has not audited overlap" in text.replace('"\n        "', "")
+    assert "No uncertainty estimate is reported" in text and "no further validation-IoU improvement under this selection rule" in text
+    assert "Compare settings on the validation numbers" in text
+    assert "positive phrase–image pairs only" in text
+
+
+def test_repeated_test_scores_are_labelled_exploratory(notebook):
+    cell = _cell(notebook, "run_history.append(")
+    assert "test_use = 'first test scoring in this session' if not run_history else 'exploratory:" in cell
+    assert "{'test_use': test_use," in cell
+
+
+def test_synthetic_references_are_visible_regions(notebook):
+    source = _cell(notebook, "def synthetic_scene(")
+    tree_src = source[source.index("def synthetic_scene("): source.index("scene, scene_masks = synthetic_scene()")]
+    namespace = {"np": np, "Image": Image, "ImageDraw": ImageDraw}
+    exec(tree_src, namespace)
+    image, masks = namespace["synthetic_scene"]()
+    stacked = np.stack(list(masks.values()))
+    assert stacked.sum(axis=0).max() == 1  # no pixel belongs to two references
+    assert not (masks["green grass"] & masks["a yellow triangle"]).any() and masks["a yellow triangle"].any()
+
+
+def test_both_empty_convention_is_documented():
+    metrics = (ROOT / "src/clipseg_segmentation_pipeline/metrics.py").read_text(encoding="utf-8")
+    assert "both empty" in metrics and "positive phrase-image pairs only" in metrics
 
 
 # ---------------------------------------------------------------------------------------------- CST-m7

@@ -355,7 +355,7 @@ def test_guided_layer_and_corrected_numbers(notebook):
         assert marker in markdown, marker
     assert markdown.count("**Predict before running:**") >= 7 and markdown.count("<summary>Check your reasoning</summary>") >= 7
     assert markdown.count("> **Infrastructure.**") == 3
-    assert "0.86" not in markdown and "mean IoU of **0.947**" in markdown
+    assert "0.86" not in markdown and "mean IoU of **0.909**" in markdown  # 0.947 before the visible-region scene references (Codex #8)
     assert "{{" not in markdown and "}}" not in markdown
     hidden = [c for c in notebook["cells"] if c["metadata"].get("dimer", {}).get("embedded_module")]
     assert all(c["metadata"].get("jupyter", {}).get("source_hidden") for c in hidden)

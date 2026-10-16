@@ -122,7 +122,7 @@ MARKDOWN_MARKERS = (
     "**per-pixel binary cross-entropy**",
     "**frozen-tower cache**",
     "**highest validation mean IoU**",
-    "**no dispersion estimate**",
+    "**No uncertainty estimate is reported**",
     "**Snapshot note:**",
     "**float32 on every device**",
     "instance or panoptic segmentation",
