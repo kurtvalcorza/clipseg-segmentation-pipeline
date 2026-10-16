@@ -7,6 +7,7 @@ round trip uses torch (installed in CI, CPU only); every other test needs NumPy 
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import io
 import json
@@ -59,9 +60,10 @@ def _target_mode(notebook: dict) -> str:
 def test_training_targets_are_area_averaged_not_nearest(notebook):
     assert _target_mode(notebook) == "area"
     assert 'mode="nearest"' not in _cell(notebook, "def _encode(")
-    # src/ keeps its own resize (the workshop notebook carries src/ byte for byte); the tutorial's rewrite is the fix.
-    template = _load("notebook_template")
-    assert any("CST-m8" in rule[1] for rule in template.TEMPLATE["rewrites"])
+    # One implementation: the fix lives in src/, which the tutorial and the workshop both carry (round 2, 2026-10-16).
+    src = (ROOT / "src/clipseg_segmentation_pipeline/pipeline.py").read_text(encoding="utf-8")
+    assert 'mode="area")[0, 0] for r in batch]' in src and 'mode="nearest"' not in src
+    assert "rewrites" not in _load("notebook_template").TEMPLATE
 
 
 def test_target_round_trip_is_centre_consistent(notebook):
@@ -222,5 +224,9 @@ def test_byod_refusal_wraps_contract_errors_but_not_the_default_path(notebook, c
     assert caught.value._render_traceback_()[0].startswith("BYOD upload refused: ")
 
 
-def test_template_default_rewrites_copy_matches_the_generator():
-    assert tuple(tuple(r) for r in _load("notebook_template").DEFAULT_REWRITES) == tuple(tuple(r) for r in _load("build_notebook").DEFAULT_REWRITES)
+def test_workshop_carries_the_fixed_src_byte_for_byte():
+    workshop = json.loads((ROOT / "tutorials" / "DIMER_MultiModel_Image_Segmentation_Workshop.ipynb").read_text(encoding="utf-8"))
+    code = "".join("".join(c["source"]) for c in workshop["cells"] if c["cell_type"] == "code")
+    src = (ROOT / "src/clipseg_segmentation_pipeline/pipeline.py").read_text(encoding="utf-8")
+    digest = hashlib.sha256(src.encode("utf-8")).hexdigest()
+    assert f"'clipseg_reference/pipeline.py': '{digest}'" in code

@@ -76,9 +76,6 @@ def test_par1_rewrite_rules_are_the_only_difference() -> None:
     import difflib
 
     ctx = build.load_context(ROOT, TEMPLATE)
-    # A rule may also rewrite docstring text, where no marker comment fits (review CST, 2026-10-16): such lines must
-    # carry a line of the rule's own replacement. The generator already applies each rule exactly once.
-    fragments = [line.strip() for _, replacement in REWRITES for line in replacement.splitlines() if len(line.strip()) > 20]
     rule_hits = 0
     for module, original in ctx["texts"].items():
         a, b = original.splitlines(), ctx["embedded"][module].splitlines()
@@ -86,9 +83,9 @@ def test_par1_rewrite_rules_are_the_only_difference() -> None:
             if tag == "equal":
                 continue
             replaced = b[j1:j2]
-            assert replaced and all("standalone rewrite" in line or any(f in line for f in fragments) for line in replaced), (module, a[i1:i2], replaced)
+            assert replaced and all("standalone rewrite" in line for line in replaced), (module, a[i1:i2], replaced)
             rule_hits += sum("__file__" in line for line in a[i1:i2])
-    assert rule_hits == sum("__file__" in pattern for pattern, _ in REWRITES)
+    assert rule_hits == len(REWRITES)
 
 
 def test_par2_inline_manifest_and_pins_match_repository(notebook: dict) -> None:

@@ -590,7 +590,8 @@ class ClipSegSegmentationPipeline:
 
     def _encode(self, records: Sequence[Mapping[str, Any]], batch_size: int, progress: Callable[[int, int], None] | None = None) -> tuple[list[Any], Any, Any]:
         """Run the frozen towers once per record: the CLIP vision activations at `EXTRACT_LAYERS` (stored fp16 on
-        the host), the phrase embeddings, and the reference masks resampled to the decoder's logit grid."""
+        the host), the phrase embeddings, and the reference masks area-averaged onto the decoder's logit grid (soft targets in [0, 1], centred like the
+        bilinear upsampling of predictions; review CST-m8)."""
         model, processor = self._require_model()
         import torch
 
@@ -604,15 +605,15 @@ class ClipSegSegmentationPipeline:
                 for slot, layer in enumerate(EXTRACT_LAYERS):
                     activations[slot].append(vision.hidden_states[layer + 1].to("cpu", torch.float16))
                 conditionals.append(model.clip.get_text_features(inputs["input_ids"], attention_mask=inputs["attention_mask"]).to("cpu"))
-                resized = [torch.nn.functional.interpolate(torch.from_numpy(np.asarray(r["mask"], dtype=np.float32))[None, None], size=(LOGIT_SIZE, LOGIT_SIZE), mode="nearest")[0, 0] for r in batch]
+                resized = [torch.nn.functional.interpolate(torch.from_numpy(np.asarray(r["mask"], dtype=np.float32))[None, None], size=(LOGIT_SIZE, LOGIT_SIZE), mode="area")[0, 0] for r in batch]
                 targets.append(torch.stack(resized))
                 if progress is not None:
                     progress(min(start + batch_size, len(records)), len(records))
         return [torch.cat(slot) for slot in activations], torch.cat(conditionals), torch.cat(targets)
 
     def _decoder_logits(self, activations: Sequence[Any], conditionals: Any) -> Any:
-        """The decoder on cached tower outputs: exactly what `CLIPSegForImageSegmentation.forward` computes after
-        its frozen CLIP steps (parity with the full forward is asserted by the model-backed tests)."""
+        """The decoder on cached tower outputs: what `CLIPSegForImageSegmentation.forward` computes after its frozen
+        CLIP steps, except that the cached vision activations were rounded to float16 (see `adapt`)."""
         model, _ = self._require_model()
         import torch
 
@@ -633,8 +634,10 @@ class ClipSegSegmentationPipeline:
         """Bounded fine-tuning of the CLIPSeg decoder on labelled (image, phrase, mask) records with the per-pixel
         binary cross-entropy over the decoder's logit grid — the loss the upstream authors trained the decoder
         with. The frozen CLIP towers are run once per record under no gradient and their outputs cached (the
-        vision activations at `EXTRACT_LAYERS` and the phrase embedding), so each step runs only the decoder; the
-        logits equal the full model's exactly. AdamW (no weight decay), gradient clipping at `GRAD_CLIP`, seeded
+        vision activations at `EXTRACT_LAYERS` and the phrase embedding), so each step runs only the decoder. The
+        vision activations are cached in float16, so the decoder sees them rounded: against the full float32 forward
+        the frozen logits differ by at most about 2e-3, and on the default tutorial run the validation mean IoU moved
+        by at most about 1e-5 per epoch with no change to the kept epoch (review CST-m7). AdamW (no weight decay), gradient clipping at `GRAD_CLIP`, seeded
         shuffling, no scheduler, no augmentation. Epoch 0 records the frozen model's validation rates at
         `threshold`; the epoch with the highest validation mean IoU (the earliest on ties) is kept. On any
         exception the frozen decoder is restored."""
@@ -740,7 +743,7 @@ class ClipSegSegmentationPipeline:
             "batch_size": batch_size,
             "best_epoch": best_epoch,
             "selection": "highest validation mean IoU" if val_checked is not None else "final epoch (no validation split)",
-            "loss": f"per-pixel binary cross-entropy over the {LOGIT_SIZE}x{LOGIT_SIZE} decoder logits against the reference mask resampled to that grid; computed on cached CLIP activations",
+            "loss": f"per-pixel binary cross-entropy over the {LOGIT_SIZE}x{LOGIT_SIZE} decoder logits against the reference mask area-averaged onto that grid; computed on cached CLIP activations",
             "lr": float(lr),
             "seed": seed,
             "n_train": len(train_checked),

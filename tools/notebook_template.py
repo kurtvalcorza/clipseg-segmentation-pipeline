@@ -17,18 +17,11 @@ change-one-thing activity reads the adapted model's validation masks at a second
 Review fixes (2026-10-02 review, CLS-M1..M5, CLS-m1..m5) live here and in the generator, never in src/: the
 image-segmentation workshop notebook carries src/ byte for byte, so the BYOD loader the notebook uses
 (`load_byod_records`, keyed by relative path) is defined in the Section 4 cell and the package's
-`load_byod_dataset` is left unchanged.
+`load_byod_dataset` is left unchanged. The 2026-10-16 review's training fixes (CST-m8 area-averaged targets, CST-m7
+float16-cache wording) are the exception: by the maintainer's decision they live in src/, so the tutorial and the
+workshop carry one implementation.
 """
 # ruff: noqa: E501  -- markdown prose and code-cell text are kept on single lines for readable rendering
-
-# A copy of build_notebook.DEFAULT_REWRITES (the template is loaded without the generator); the parity test checks it.
-DEFAULT_REWRITES = (
-    (
-        r"^DEFAULT_WEIGHTS_DIR = Path\(__file__\)[^\n]*$",
-        'DEFAULT_WEIGHTS_DIR = Path.cwd() / "weights" / MODEL_KEY'
-        "  # standalone rewrite (build_notebook.py): working-directory-relative",
-    ),
-)
 
 # The BYOD loader used by Section 4 (CLS-M4, CLS-m5). Plain Python, inserted into the cell with its braces escaped
 # for str.format, so it can be read and tested here as written.
@@ -202,35 +195,6 @@ TEMPLATE = {
     "pipeline_class": "ClipSegSegmentationPipeline",
     "weights_key": "clipseg-rd64-refined",
     "modules": ["pipeline.py", "metrics.py", "samples.py"],
-    # Standalone rewrites of the carried pipeline module (review CST, 2026-10-16). src/ stays byte-identical, because the
-    # image-segmentation workshop notebook carries it byte for byte. Each rule must match exactly once.
-    "rewrites": [
-        list(DEFAULT_REWRITES[0]),
-        # CST-m8: area-averaged (soft) training targets instead of torch "nearest", which samples each cell's top-left
-        # source pixel while predictions are upsampled bilinear with align_corners=False (the centre convention).
-        [
-            r'size=\(LOGIT_SIZE, LOGIT_SIZE\), mode="nearest"\)\[0, 0\] for r in batch\]$',
-            'size=(LOGIT_SIZE, LOGIT_SIZE), mode="area")[0, 0] for r in batch]'
-            "  # standalone rewrite (review CST-m8): area-averaged soft targets, centred like the bilinear upsampling",
-        ],
-        [
-            r"the reference masks resampled to the decoder's logit grid\.\"\"\"$",
-            "the reference masks area-averaged onto the decoder's logit grid (soft targets in [0, 1]).\"\"\"",
-        ],
-        # CST-m7: the cache is float16, so the cached-path logits are close to the full model's, not equal.
-        [
-            r"^        \"\"\"The decoder on cached tower outputs: exactly what `CLIPSegForImageSegmentation.forward` computes after\n"
-            r"        its frozen CLIP steps \(parity with the full forward is asserted by the model-backed tests\)\.\"\"\"$",
-            "        \"\"\"The decoder on cached tower outputs: what `CLIPSegForImageSegmentation.forward` computes after its frozen\n"
-            "        CLIP steps, except that the cached vision activations were rounded to float16 (see `adapt`).\"\"\"",
-        ],
-        [
-            r"so each step runs only the decoder; the\n        logits equal the full model's exactly\. AdamW",
-            "so each step runs only the decoder. The\n"
-            "        vision activations are cached in float16, so the decoder sees them rounded; measured on the default run\n"
-            "        this moves the validation mean IoU by about 1e-5 and does not change the kept epoch. AdamW",
-        ],
-    ],
     "runtime_imports": ["torch", "transformers", "PIL"],
     "title": "CLIPSeg rd64-refined — DIMER E2E text-prompted segmentation adaptation tutorial (standalone)",
     "badges": [
@@ -377,7 +341,7 @@ TEMPLATE = {
     ),
     "prerequisites": [
         "- **Learner:** basic Python and NumPy, and Colab or Jupyter familiarity; no prior experience with segmentation or fine-tuning. The notebook explains the sigmoid and the threshold, IoU, Dice, precision and recall, the two baselines, the decoder, the frozen-tower cache and epoch 0 where they are first used; the Glossary repeats them.",
-        "- **Runtime:** a fresh supported runtime (Google Colab, Kaggle or Linux Jupyter — **Linux x86_64 only**; the notebook builds its own isolated Python 3.12.12 environment, and a Windows or macOS kernel is not supported). The default path uses CUDA automatically when present, float32 on every device; a GPU runtime is recommended. Measured, each figure with its environment: on a Kaggle Tesla T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here) scoring the 140 frozen records took 7 s, caching the tower activations of 600 + 60 records 30 s and the eight epochs 59 s, and the cells after the install 176 s in all (66 s of it the snapshot download); in the CPU build record of 2026-10-16 (24-thread Windows workstation, CPython 3.12.10, files pre-staged) scoring the 140 frozen records took 49 s, the tower cache 235 s and the eight epochs 325 s. No hosted CPU run is recorded; on a 2-vCPU hosted CPU runtime expect several times the workstation figures (an estimate). The locked install (PyTorch 2.14.0 with its CUDA libraries) and the 603 MB checkpoint are the large downloads of the run; the row groups are about 43 MB. The activation cache holds about 1.3 GB of half-precision tensors in host memory for 600 records.",
+        "- **Runtime:** a fresh supported runtime (Google Colab, Kaggle or Linux Jupyter — **Linux x86_64 only**; the notebook builds its own isolated Python 3.12.12 environment, and a Windows or macOS kernel is not supported). The default path uses CUDA automatically when present, float32 on every device; a GPU runtime is recommended. Measured, each figure with its environment: on a Kaggle Tesla T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here) scoring the 140 frozen records took 7 s, caching the tower activations of 600 + 60 records 30 s and the eight epochs 59 s, and the cells after the install 176 s in all (66 s of it the snapshot download); in the CPU build record of 2026-10-16 (24-thread Windows workstation, CPython 3.12.10, files pre-staged) scoring the 140 frozen records took 78 s, the tower cache 275 s and the eight epochs 392 s, while other jobs shared the CPU. No hosted CPU run is recorded; on a 2-vCPU hosted CPU runtime expect several times the workstation figures (an estimate). The locked install (PyTorch 2.14.0 with its CUDA libraries) and the 603 MB checkpoint are the large downloads of the run; the row groups are about 43 MB. The activation cache holds about 1.3 GB of half-precision tensors in host memory for 600 records.",
         "- **Knowledge:** basic Python, NumPy and PIL; what a per-pixel sigmoid is and why thresholding it is a decision the caller owns; what intersection-over-union and Dice measure and why 140 records from one draw give no dispersion; why a self-drawn scene is a plumbing check while a held-out split of one labelled set is a measurement of that set only.",
         "- **Data contract:** records are `{id, image, prompt, mask}` — `image` a PIL image (or a file decodable by Pillow) with sides within 16..4,096 px, `prompt` one phrase of at most 64 characters (normalised like a query), `mask` a boolean height × width array or a mask image whose non-zero pixels are the mask, with at least one true pixel. Ids match `[A-Za-z0-9_.:-]{1,64}` and are unique; `validate_dataset` accepts 8..5,000 records per call, and splitting de-duplicates by decoded pixels so no image lands in two splits. **BYOD** accepts one `.zip` or directory (the Colab upload dialog, or `BYOD_PATH` on any runtime) holding a `masks.csv` with the columns `file`, `mask`, `prompt` (optional `id`); its paths are relative to the folder holding `masks.csv`, every file must be named by a row (macOS `__MACOSX/` and `._` files, `.DS_Store` and `Thumbs.db` are ignored), masks must be lossless (PNG; a JPEG mask is refused) and a mask with grey levels is counted and reported (every non-zero pixel is mask). A BYOD set needs **at least 12 distinct images**: the seeded split keeps about 20 % for test and 15 % for validation (at least one each), and training needs 8 records; Section 4 refuses a smaller set before splitting and names the count.",
         "- **Validation is structural, not semantic:** every image and mask is decoded and every phrase checked, but nothing checks that a mask outlines what its phrase names — a mislabelled set is fine-tuned on without complaint.",
@@ -633,7 +597,7 @@ TEMPLATE = {
                 "scores the mask. The cell reloads the pretrained model first if an earlier pass adapted it, refuses to "
                 "report an adapted model as frozen, prints `adapted` with the scores, and keeps the frozen masks of six test "
                 "records for the panels in Section 9. Scoring the 140 records took 7 s on a Kaggle T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here) "
-                "and 49 s on the CPU of the CPU build record of 2026-10-16.\n\n"
+                "and 78 s on the CPU of the CPU build record of 2026-10-16 (a shared CPU).\n\n"
                 "**Predict before running:** order the three — empty mask, full mask, frozen model — from best to worst mean "
                 "IoU. Will the frozen model's pixel precision be higher or lower than its pixel recall (does it draw masks "
                 "that are too small or too large)?"
