@@ -1,4 +1,4 @@
-"""Per-repository template for tools/build_notebook.py (NOTEBOOK_SPEC 2.2 §4 standalone carrier).
+"""Per-repository template for tools/build_notebook.py (NOTEBOOK_SPEC 2.5 §4 standalone carrier).
 
 Only the task-specific prose and stage cells live here. The isolated runtime, the embedded package (three modules,
 carried verbatim in dependency order), and the model pin/stage/verify cells are produced by the generator from
@@ -21,9 +21,27 @@ image-segmentation workshop notebook carries src/ byte for byte, so the BYOD loa
 """
 # ruff: noqa: E501  -- markdown prose and code-cell text are kept on single lines for readable rendering
 
+# A copy of build_notebook.DEFAULT_REWRITES (the template is loaded without the generator); the parity test checks it.
+DEFAULT_REWRITES = (
+    (
+        r"^DEFAULT_WEIGHTS_DIR = Path\(__file__\)[^\n]*$",
+        'DEFAULT_WEIGHTS_DIR = Path.cwd() / "weights" / MODEL_KEY'
+        "  # standalone rewrite (build_notebook.py): working-directory-relative",
+    ),
+)
+
 # The BYOD loader used by Section 4 (CLS-M4, CLS-m5). Plain Python, inserted into the cell with its braces escaped
 # for str.format, so it can be read and tested here as written.
-_BYOD_HELPERS = r'''BYOD_IGNORED_NAMES = ('.DS_Store', 'Thumbs.db', 'desktop.ini')
+_BYOD_HELPERS = r'''class BYODRefusal(ValueError):
+    """A refused upload: shown as this one message, without a traceback (it names the file and the rule)."""
+
+    dimer_refusal = True  # the isolated-environment router prints the message alone
+
+    def _render_traceback_(self):  # the same when the cell runs in the kernel itself
+        return [str(self)]
+
+
+BYOD_IGNORED_NAMES = ('.DS_Store', 'Thumbs.db', 'desktop.ini')
 BYOD_LOSSY_MASK_SUFFIXES = ('.jpg', '.jpeg', '.jfif')
 
 
@@ -153,6 +171,18 @@ TEMPLATE = {
     "notebook_name": "clipseg_segmentation_colab.ipynb",
     "profile": "E2E",
     "mode": "GUIDED",
+    # NOTEBOOK_SPEC 2.5 KND1 and DOC17-DOC21 (review CST-m1, 2026-10-16): the kind and the canonical use notice.
+    "notebook_kind": "TUTORIAL",
+    "use_notice": (
+        "> **⚠️ Notice.** For research, training and evaluation only. Not validated for production,\n"
+        "> clinical, diagnostic or safety-critical use. Running this notebook downloads third-party\n"
+        "> model weights and datasets under their own licenses (see the model card) and uses compute\n"
+        "> on your own Colab or Kaggle account. Data you bring stays in your runtime, and you are\n"
+        "> responsible for having the right to use it. Results here are tutorial evidence, not\n"
+        "> benchmarks. Everything is provided \"as is\", without warranty of any kind. To the maximum\n"
+        "> extent permitted by law, the maintainers and the DIMER platform accept no liability for\n"
+        "> its use."
+    ),
     # GDL11 (NOTEBOOK_SPEC 2.2 §3.5): Sections 1-3 labelled Infrastructure and the carried module source collapsed.
     "infrastructure_labels": True,
     "isolated_runtime": True,
@@ -172,6 +202,35 @@ TEMPLATE = {
     "pipeline_class": "ClipSegSegmentationPipeline",
     "weights_key": "clipseg-rd64-refined",
     "modules": ["pipeline.py", "metrics.py", "samples.py"],
+    # Standalone rewrites of the carried pipeline module (review CST, 2026-10-16). src/ stays byte-identical, because the
+    # image-segmentation workshop notebook carries it byte for byte. Each rule must match exactly once.
+    "rewrites": [
+        list(DEFAULT_REWRITES[0]),
+        # CST-m8: area-averaged (soft) training targets instead of torch "nearest", which samples each cell's top-left
+        # source pixel while predictions are upsampled bilinear with align_corners=False (the centre convention).
+        [
+            r'size=\(LOGIT_SIZE, LOGIT_SIZE\), mode="nearest"\)\[0, 0\] for r in batch\]$',
+            'size=(LOGIT_SIZE, LOGIT_SIZE), mode="area")[0, 0] for r in batch]'
+            "  # standalone rewrite (review CST-m8): area-averaged soft targets, centred like the bilinear upsampling",
+        ],
+        [
+            r"the reference masks resampled to the decoder's logit grid\.\"\"\"$",
+            "the reference masks area-averaged onto the decoder's logit grid (soft targets in [0, 1]).\"\"\"",
+        ],
+        # CST-m7: the cache is float16, so the cached-path logits are close to the full model's, not equal.
+        [
+            r"^        \"\"\"The decoder on cached tower outputs: exactly what `CLIPSegForImageSegmentation.forward` computes after\n"
+            r"        its frozen CLIP steps \(parity with the full forward is asserted by the model-backed tests\)\.\"\"\"$",
+            "        \"\"\"The decoder on cached tower outputs: what `CLIPSegForImageSegmentation.forward` computes after its frozen\n"
+            "        CLIP steps, except that the cached vision activations were rounded to float16 (see `adapt`).\"\"\"",
+        ],
+        [
+            r"so each step runs only the decoder; the\n        logits equal the full model's exactly\. AdamW",
+            "so each step runs only the decoder. The\n"
+            "        vision activations are cached in float16, so the decoder sees them rounded; measured on the default run\n"
+            "        this moves the validation mean IoU by about 1e-5 and does not change the kept epoch. AdamW",
+        ],
+    ],
     "runtime_imports": ["torch", "transformers", "PIL"],
     "title": "CLIPSeg rd64-refined — DIMER E2E text-prompted segmentation adaptation tutorial (standalone)",
     "badges": [
@@ -212,12 +271,14 @@ TEMPLATE = {
         "held-out records and the drawn scene with the adapted model, exports the adapter as safetensors with a manifest, "
         "reloads that artifact into a fresh pipeline to verify mask parity, and ends with a change-one-thing threshold "
         "activity on the validation records. The default path needs no repository clone, no DIMER worker or service, no "
-        "credential, no upload dialog, no restart and no configuration edit (NOTEBOOK_SPEC 2.2 §5). Measured times name "
-        "their environment: on a Kaggle Tesla T4 (2026-09-21, the previous notebook version, which installed the pins "
-        "into the kernel) the cells after the install took 176 s — the snapshot download 66 s, caching the tower "
-        "activations of the 600 + 60 records 30 s, the eight epochs 59 s, scoring the 140 frozen records 7 s. Building the "
-        "isolated environment adds the download and install of the locked packages (PyTorch with its CUDA libraries); "
-        "no hosted run of this version is recorded yet. A CUDA runtime is used automatically when present and is "
+        "credential, no upload dialog, no restart and no configuration edit (NOTEBOOK_SPEC 2.5 §5). Measured times name "
+        "their environment and the notebook version they come from: on a Kaggle Tesla T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here; that "
+        "version installed the pins into the kernel) the cells after the install took 176 s — the snapshot download 66 s, "
+        "caching the tower activations of the 600 + 60 records 30 s, the eight epochs 59 s, scoring the 140 frozen records "
+        "7 s. Building the isolated environment adds the download and install of the locked packages (PyTorch with its CUDA "
+        "libraries). Hosted runs of each version of this notebook, with their dates and timings, are listed in the "
+        "repository's `docs/release-verification.md`; a changed notebook stays a Candidate until a run of that exact "
+        "version is recorded there. A CUDA runtime is used automatically when present and is "
         "recommended; on CPU the same path is practical but slower (see the Prerequisites)."
     ),
     "byod": (
@@ -234,24 +295,36 @@ TEMPLATE = {
         "part of the default path."
     ),
     "intro": (
-        "CLIPSeg is a frozen CLIP ViT-B/16 image encoder and CLIP text encoder joined by a small transformer decoder: the "
+        "CLIPSeg [1], [7] is a frozen CLIP ViT-B/16 image encoder and CLIP text encoder [3] joined by a small transformer decoder: the "
         "decoder reads the image tower's activations at layers 3, 6 and 9, conditions them on the phrase's CLIP embedding "
         "through FiLM, and produces one 352 × 352 logit map per phrase; the carried module passes the logits through a "
         "sigmoid, resamples the probability map to the input size and thresholds it into a mask under a caller-owned "
-        "`threshold` (150,747,746 parameters in all, published under the **Apache-2.0** licence). The output is **an "
+        "`threshold` (150,747,746 parameters in all, published under the **Apache-2.0** licence [5]). The output is **an "
         "uncalibrated per-pixel sigmoid**: the same map can be a tight or a generous mask depending on the threshold, and "
         "**the threshold is a caller-owned request parameter**.\n\n"
         "What this notebook adds to inference is **adaptation of the decoder on labelled (image, phrase, mask) records**. "
-        "The records are food photographs from FoodSeg103, each paired with the name of the ingredient that covers the most "
+        "The records are food photographs from FoodSeg103 [2], [6], each paired with the name of the ingredient that covers the most "
         "pixels (`bread`, `chicken duck`, `steak`, `pie`, …) and that ingredient's pixel mask — a phrase vocabulary and a "
         "boundary convention far from the PhraseCut phrases the decoder was trained on, and on them the frozen model "
-        "already finds the right region roughly: a mean IoU of **0.637** on the 140 held-out records (Kaggle T4 run of "
-        "2026-09-21; the full-mask baseline scores 0.283). So the honest question is narrow: does a bounded "
+        "already finds the right region roughly: a mean IoU of **0.637** on the 140 held-out records (CPU build record of 2026-10-16; the "
+        "full-mask baseline scores 0.283). So the honest question is narrow: does a bounded "
         "fine-tuning of the 1,127,009-parameter decoder on 600 records — the CLIP towers frozen, exactly as the upstream "
         "authors trained it — move the held-out **mean IoU**, **Dice**, **pixel precision** and **pixel recall** on an "
         "image-disjoint test split past the frozen model and two **non-adapted baselines**, and what does it do to the "
         "drawn shapes the same decoder segments? Nothing here is a claim about your images or your phrases: it is one "
         "seeded split of one small labelled set.\n\n"
+        "**Pretraining overlap (not audited).** CLIP's image and text towers were pretrained on about 400 million "
+        "image–text pairs collected from the web [3], and FoodSeg103's photographs were drawn from Recipe1M, a collection "
+        "gathered from recipe websites [2], [4], so that pretraining may include some of these photographs. Nobody has "
+        "checked, the overlap cannot be ruled out, and both the frozen and the adapted scores may therefore be optimistic "
+        "for food photographs CLIP has never seen.\n\n"
+        "**Where the quoted numbers come from.** Unless a sentence names another run, every result quoted in this "
+        "notebook's text — the worked answers in the *Check your reasoning* blocks and the reference answers at the end — "
+        "comes from the **CPU build record of 2026-10-16**: the code cells of this notebook version from the runtime record on, executed in order "
+        "in one Python process on a CPU (a 24-thread Windows workstation, the pinned torch 2.14.0 and transformers 4.57.6, "
+        "float32, the default form fields), with the two kernel cells of Section 1 replaced by an environment that "
+        "already held the pins. It is a maintainer's build check, not a hosted run; the digest of the code it ran is "
+        "recorded in `docs/release-verification.md`, and a GPU run can differ in the third decimal (Troubleshooting).\n\n"
         "**Snapshot note:** the pinned revision ships `model.safetensors` (an 8-file manifest with the tokenizer and processor "
         "files) — no pickle is opened anywhere in this notebook. Section 3 stages and digest-verifies those files before the "
         "processor or the model is constructed. The pipeline runs in **float32 on every device**: the adapter is trained in "
@@ -304,12 +377,12 @@ TEMPLATE = {
     ),
     "prerequisites": [
         "- **Learner:** basic Python and NumPy, and Colab or Jupyter familiarity; no prior experience with segmentation or fine-tuning. The notebook explains the sigmoid and the threshold, IoU, Dice, precision and recall, the two baselines, the decoder, the frozen-tower cache and epoch 0 where they are first used; the Glossary repeats them.",
-        "- **Runtime:** a fresh supported runtime (Google Colab, Kaggle or Linux Jupyter — **Linux x86_64 only**; the notebook builds its own isolated Python 3.12.12 environment, and a Windows or macOS kernel is not supported). The default path uses CUDA automatically when present, float32 on every device; a GPU runtime is recommended. Measured, each figure with its environment: on a Kaggle Tesla T4 (2026-09-21, previous notebook version) scoring the 140 frozen records took 7 s, caching the tower activations of 600 + 60 records 30 s and the eight epochs 59 s, and the cells after the install 176 s in all (66 s of it the snapshot download); in a local CPU run of this version (2026-10-04, 24-thread Windows workstation, CPython 3.12.10, files pre-staged) the tower cache took 132 s and the eight epochs 206 s. No hosted CPU run is recorded; on a 2-vCPU hosted CPU runtime expect several times the workstation figures (an estimate). The locked install (PyTorch 2.14.0 with its CUDA libraries) and the 603 MB checkpoint are the large downloads of the run; the row groups are about 43 MB. The activation cache holds about 1.3 GB of half-precision tensors in host memory for 600 records.",
+        "- **Runtime:** a fresh supported runtime (Google Colab, Kaggle or Linux Jupyter — **Linux x86_64 only**; the notebook builds its own isolated Python 3.12.12 environment, and a Windows or macOS kernel is not supported). The default path uses CUDA automatically when present, float32 on every device; a GPU runtime is recommended. Measured, each figure with its environment: on a Kaggle Tesla T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here) scoring the 140 frozen records took 7 s, caching the tower activations of 600 + 60 records 30 s and the eight epochs 59 s, and the cells after the install 176 s in all (66 s of it the snapshot download); in the CPU build record of 2026-10-16 (24-thread Windows workstation, CPython 3.12.10, files pre-staged) scoring the 140 frozen records took 49 s, the tower cache 235 s and the eight epochs 325 s. No hosted CPU run is recorded; on a 2-vCPU hosted CPU runtime expect several times the workstation figures (an estimate). The locked install (PyTorch 2.14.0 with its CUDA libraries) and the 603 MB checkpoint are the large downloads of the run; the row groups are about 43 MB. The activation cache holds about 1.3 GB of half-precision tensors in host memory for 600 records.",
         "- **Knowledge:** basic Python, NumPy and PIL; what a per-pixel sigmoid is and why thresholding it is a decision the caller owns; what intersection-over-union and Dice measure and why 140 records from one draw give no dispersion; why a self-drawn scene is a plumbing check while a held-out split of one labelled set is a measurement of that set only.",
         "- **Data contract:** records are `{id, image, prompt, mask}` — `image` a PIL image (or a file decodable by Pillow) with sides within 16..4,096 px, `prompt` one phrase of at most 64 characters (normalised like a query), `mask` a boolean height × width array or a mask image whose non-zero pixels are the mask, with at least one true pixel. Ids match `[A-Za-z0-9_.:-]{1,64}` and are unique; `validate_dataset` accepts 8..5,000 records per call, and splitting de-duplicates by decoded pixels so no image lands in two splits. **BYOD** accepts one `.zip` or directory (the Colab upload dialog, or `BYOD_PATH` on any runtime) holding a `masks.csv` with the columns `file`, `mask`, `prompt` (optional `id`); its paths are relative to the folder holding `masks.csv`, every file must be named by a row (macOS `__MACOSX/` and `._` files, `.DS_Store` and `Thumbs.db` are ignored), masks must be lossless (PNG; a JPEG mask is refused) and a mask with grey levels is counted and reported (every non-zero pixel is mask). A BYOD set needs **at least 12 distinct images**: the seeded split keeps about 20 % for test and 15 % for validation (at least one each), and training needs 8 records; Section 4 refuses a smaller set before splitting and names the count.",
         "- **Validation is structural, not semantic:** every image and mask is decoded and every phrase checked, but nothing checks that a mask outlines what its phrase names — a mislabelled set is fine-tuned on without complaint.",
-        "- **Privacy:** Do not upload confidential or restricted data to a hosted runtime unless you are authorized to process it there. The default path uploads nothing.",
-        "- **External access (data):** besides the model snapshot, the default path reads eight row groups of `default/validation/0000.parquet` from `https://huggingface.co/datasets/EduardoPacheco/FoodSeg103/resolve/<revision>/` at the immutable parquet-conversion revision `176acc3e…` with HTTPS range requests (the parquet footer plus about 43 MB of row-group bytes out of a 115 MB shard), each row group pinned by SHA-256 and byte total in the carried `samples.py` and refused on any mismatch. FoodSeg103 is published under the Apache-2.0 licence (LARC-CMU-SMU; Wu et al. 2021); nothing is redistributed by this repository.",
+        "- **Privacy:** Do not upload confidential or restricted data to a hosted runtime unless you are authorized to process it there. The default path uploads nothing. The use notice at the top of the notebook sets out the terms of use.",
+        "- **External access (data):** besides the model snapshot, the default path reads eight row groups of `default/validation/0000.parquet` from `https://huggingface.co/datasets/EduardoPacheco/FoodSeg103/resolve/<revision>/` at the immutable parquet-conversion revision `176acc3e…` with HTTPS range requests (the parquet footer plus about 43 MB of row-group bytes out of a 115 MB shard), each row group pinned by SHA-256 and byte total in the carried `samples.py` and refused on any mismatch. FoodSeg103 is published under the Apache-2.0 licence (LARC-CMU-SMU; Wu et al. [2]); nothing is redistributed by this repository.",
     ],
     "cells": [
         {
@@ -332,7 +405,9 @@ TEMPLATE = {
                 "this cell). Every file is keyed by its path relative to the folder holding `masks.csv`, so `images/0001.png` "
                 "and `masks/0001.png` are two files; a row whose image and mask are the same file, two zip members with the "
                 "same path, a file no row names, a missing file and a JPEG mask are each refused with a message naming the "
-                "path. Before splitting, the cell refuses a set with fewer than 12 distinct images and names your count. The "
+                "path. Before splitting, the cell refuses a set with fewer than 12 distinct images and names your count. Each "
+                "refusal is printed as one message, without a Python traceback, says how to recover, and stops before anything "
+                "is trained on the upload. The "
                 "validation and test splits of a small set may hold only a few records; they are validated with a minimum of "
                 "one, the training split with `MIN_RECORDS`. After changing the fields, select this cell and choose "
                 "**Runtime → Run after**.\n\n"
@@ -357,44 +432,49 @@ TEMPLATE = {
                 + "\n\n"
                 "os.makedirs('outputs', exist_ok=True)\n"
                 "byod_upload = None\n"
-                "if USE_BYOD:\n"
-                "    if BYOD_PATH.strip():\n"
-                "        byod_source = Path(BYOD_PATH.strip()).expanduser()\n"
-                "        if not byod_source.exists():\n"
-                "            raise FileNotFoundError(f'BYOD_PATH {{str(byod_source)!r}} does not exist; set it to a .zip or a directory holding masks.csv')\n"
-                "        file_name = byod_source.name\n"
+                "try:\n"
+                "    if USE_BYOD:\n"
+                "        if BYOD_PATH.strip():\n"
+                "            byod_source = Path(BYOD_PATH.strip()).expanduser()\n"
+                "            if not byod_source.exists():\n"
+                "                raise FileNotFoundError(f'BYOD_PATH {{str(byod_source)!r}} does not exist; set it to a .zip or a directory holding masks.csv')\n"
+                "            file_name = byod_source.name\n"
+                "        else:\n"
+                "            try:\n"
+                "                from google.colab import files\n"
+                "            except ImportError:\n"
+                "                raise RuntimeError('USE_BYOD is True and BYOD_PATH is empty, but this runtime has no Colab upload dialog: set BYOD_PATH to a .zip or a directory holding masks.csv.') from None\n"
+                "            uploaded = files.upload()\n"
+                "            if len(uploaded) != 1:\n"
+                "                raise ValueError(f'Upload exactly one .zip file (received {{len(uploaded)}}): run this cell again and choose the file, or set BYOD_PATH to a .zip or a directory.')\n"
+                "            file_name, payload = next(iter(uploaded.items()))\n"
+                "            byod_source = Path('work') / 'byod.zip'\n"
+                "            byod_source.parent.mkdir(parents=True, exist_ok=True)\n"
+                "            byod_source.write_bytes(payload)\n"
+                "        byod_upload = describe_byod_source(byod_source, file_name)\n"
+                "        records, byod_report = load_byod_records(byod_source)\n"
+                "        distinct_images = len({{image_digest(r['image']) for r in records}})\n"
+                "        if distinct_images < BYOD_MIN_IMAGES:\n"
+                "            raise ValueError(f'Your upload holds {{len(records)}} records ({{distinct_images}} distinct images); BYOD needs at least {{BYOD_MIN_IMAGES}} distinct images: the seeded split keeps about 20 % for test and 15 % for validation, and training needs {{MIN_RECORDS}}. Add images and run this cell again.')\n"
+                "        if byod_report['non_binary_masks']:\n"
+                "            print({{'warning': f\"{{byod_report['non_binary_masks']}} mask(s) have grey levels, e.g. {{byod_report['non_binary_examples']}}: every non-zero pixel counts as mask. Save masks with exactly two values (0 and 255) if that is not what you meant.\"}})\n"
+                "        splits = split_dataset(records, seed=SPLIT_SEED)\n"
+                "        data_source = 'BYOD (' + file_name + ')'\n"
+                "        raw_rows = {{'byod': len(records), 'distinct_images': distinct_images, 'minimum_distinct_images': BYOD_MIN_IMAGES, **byod_report}}\n"
                 "    else:\n"
-                "        try:\n"
-                "            from google.colab import files\n"
-                "        except ImportError:\n"
-                "            raise RuntimeError('USE_BYOD is True and BYOD_PATH is empty, but this runtime has no Colab upload dialog: set BYOD_PATH to a .zip or a directory holding masks.csv.') from None\n"
-                "        uploaded = files.upload()\n"
-                "        if len(uploaded) != 1:\n"
-                "            raise ValueError(f'Upload exactly one .zip file (received {{len(uploaded)}}): run this cell again and choose the file, or set BYOD_PATH to a .zip or a directory.')\n"
-                "        file_name, payload = next(iter(uploaded.items()))\n"
-                "        byod_source = Path('work') / 'byod.zip'\n"
-                "        byod_source.parent.mkdir(parents=True, exist_ok=True)\n"
-                "        byod_source.write_bytes(payload)\n"
-                "    byod_upload = describe_byod_source(byod_source, file_name)\n"
-                "    records, byod_report = load_byod_records(byod_source)\n"
-                "    distinct_images = len({{image_digest(r['image']) for r in records}})\n"
-                "    if distinct_images < BYOD_MIN_IMAGES:\n"
-                "        raise ValueError(f'Your upload holds {{len(records)}} records ({{distinct_images}} distinct images); BYOD needs at least {{BYOD_MIN_IMAGES}} distinct images: the seeded split keeps about 20 % for test and 15 % for validation, and training needs {{MIN_RECORDS}}. Add images and run this cell again.')\n"
-                "    if byod_report['non_binary_masks']:\n"
-                "        print({{'warning': f\"{{byod_report['non_binary_masks']}} mask(s) have grey levels, e.g. {{byod_report['non_binary_examples']}}: every non-zero pixel counts as mask. Save masks with exactly two values (0 and 255) if that is not what you meant.\"}})\n"
-                "    splits = split_dataset(records, seed=SPLIT_SEED)\n"
-                "    data_source = 'BYOD (' + file_name + ')'\n"
-                "    raw_rows = {{'byod': len(records), 'distinct_images': distinct_images, 'minimum_distinct_images': BYOD_MIN_IMAGES, **byod_report}}\n"
-                "else:\n"
-                "    t0 = time.perf_counter()\n"
-                "    corpus_groups = fetch_corpus(cache_dir='weights/foodseg103')\n"
-                "    corpus = read_corpus(corpus_groups)\n"
-                "    splits = build_sample_dataset(corpus, seed=SPLIT_SEED)\n"
-                "    data_source = f'{{CORPUS_NAME}} @ {{CORPUS_REVISION[:12]}} ({{CORPUS_LICENSE}})'\n"
-                "    raw_rows = {{'row_groups': len(corpus_groups), 'images': sum(len(v) for v in corpus_groups.values()), 'records': len(corpus), 'bytes': sum(len(r['image']) + len(r['label']) for v in corpus_groups.values() for r in v), 'seconds': round(time.perf_counter() - t0, 1)}}\n"
-                "dataset_manifests = {{name: validate_dataset(part, min_records=MIN_RECORDS if name == 'train' else 1) for name, part in splits.items()}}\n"
-                "splits = {{name: manifest['records'] for name, manifest in dataset_manifests.items()}}\n"
-                "disjoint = check_split_disjoint(splits)\n"
+                "        t0 = time.perf_counter()\n"
+                "        corpus_groups = fetch_corpus(cache_dir='weights/foodseg103')\n"
+                "        corpus = read_corpus(corpus_groups)\n"
+                "        splits = build_sample_dataset(corpus, seed=SPLIT_SEED)\n"
+                "        data_source = f'{{CORPUS_NAME}} @ {{CORPUS_REVISION[:12]}} ({{CORPUS_LICENSE}})'\n"
+                "        raw_rows = {{'row_groups': len(corpus_groups), 'images': sum(len(v) for v in corpus_groups.values()), 'records': len(corpus), 'bytes': sum(len(r['image']) + len(r['label']) for v in corpus_groups.values() for r in v), 'seconds': round(time.perf_counter() - t0, 1)}}\n"
+                "    dataset_manifests = {{name: validate_dataset(part, min_records=MIN_RECORDS if name == 'train' else 1) for name, part in splits.items()}}\n"
+                "    splits = {{name: manifest['records'] for name, manifest in dataset_manifests.items()}}\n"
+                "    disjoint = check_split_disjoint(splits)\n"
+                "except (TypeError, ValueError, FileNotFoundError) as exc:\n"
+                "    if not USE_BYOD or isinstance(exc, BYODRefusal):\n"
+                "        raise\n"
+                "    raise BYODRefusal(f'BYOD upload refused: {{exc}} Nothing was trained or scored on this upload; files under outputs/ are from an earlier run. Fix the named file or rule, then select this cell and choose Runtime -> Run after.') from None\n"
                 "train_records, val_records, test_records = splits['train'], splits['validation'], splits['test']\n"
                 "write_dataset_csv(train_records, 'outputs/{stem}_train.csv')\n"
                 "print({{'data_source': data_source, 'raw_rows': raw_rows, 'splits': disjoint}})\n"
@@ -431,7 +511,7 @@ TEMPLATE = {
                 "draws, so a photograph listed twice under two ids is kept once and lands in one split; `check_split_disjoint` "
                 "would raise if an image appeared in two splits. A duplicate in training and test would make the test score "
                 "optimistic, because the model would be scored on a picture it was trained on. None of the probes is accepted: "
-                "in the Kaggle T4 run of 2026-09-21 and in a local CPU run of this version (2026-10-04) the duplicate id, the "
+                "in the CPU build record of 2026-10-16 the duplicate id, the "
                 "empty mask, the 8 × 8 mask and the three-record set were each rejected by `validate_dataset` before the model "
                 "ran.</details>\n\n"
                 "## 5. Segment a drawn scene through the inference contract\n\n"
@@ -448,8 +528,7 @@ TEMPLATE = {
                 "measurement in Sections 5–9; an absent phrase still yields a map. `evaluation_report` with the drawn masks is "
                 "`sample-sanity`: one `mask_iou` per drawn phrase and their mean, plumbing evidence for one drawing — a "
                 "segmentation benchmark needs labelled masks, which Section 6 supplies. At the default threshold the frozen "
-                "model scored a mean IoU of **0.947** on the four drawn shapes (Kaggle T4 run of 2026-09-21 and local CPU runs "
-                "alike).\n\n"
+                "model scored a mean IoU of **0.947** on the four drawn shapes (CPU build record of 2026-10-16).\n\n"
                 "**Every pass starts from the pretrained model.** Section 7 changes the model in memory. If this cell, "
                 "Section 6 or Section 7 runs again after Section 7 (a BYOD run or one of the optional experiments), it "
                 "first reloads the pretrained model from the verified snapshot with `reset_to_pretrained()`, so a *frozen* "
@@ -537,7 +616,7 @@ TEMPLATE = {
                 "phrases; `adapted` is `False`.\n\n"
                 "<details><summary>Check your reasoning</summary>Empty: the sigmoid stays below 0.5 everywhere for `a cat` "
                 "and `the sky`, so their masks have no pixel (area fraction 0.000), though each still has a probability map. "
-                "The triangle is hardest — in the Kaggle T4 run of 2026-09-21 the frozen IoUs were `green grass` 0.96, `a red "
+                "The triangle is hardest — in the CPU build record of 2026-10-16 the frozen IoUs were `green grass` 0.96, `a red "
                 "circle` 0.96, `a blue square` 0.96 and `a yellow triangle` 0.91, mean **0.947** — thin corners are where a "
                 "352 × 352 logit grid resampled to 640 × 480 loses pixels. One drawing is plumbing evidence, not a "
                 "measurement.</details>\n\n"
@@ -553,7 +632,8 @@ TEMPLATE = {
                 "record's phrase on its image in batches of `EVAL_BATCH_SIZE`, thresholds the sigmoid at `THRESHOLD` and "
                 "scores the mask. The cell reloads the pretrained model first if an earlier pass adapted it, refuses to "
                 "report an adapted model as frozen, prints `adapted` with the scores, and keeps the frozen masks of six test "
-                "records for the panels in Section 9. Scoring the 140 records took 7 s on a Kaggle T4 (2026-09-21).\n\n"
+                "records for the panels in Section 9. Scoring the 140 records took 7 s on a Kaggle T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here) "
+                "and 49 s on the CPU of the CPU build record of 2026-10-16.\n\n"
                 "**Predict before running:** order the three — empty mask, full mask, frozen model — from best to worst mean "
                 "IoU. Will the frozen model's pixel precision be higher or lower than its pixel recall (does it draw masks "
                 "that are too small or too large)?"
@@ -580,8 +660,8 @@ TEMPLATE = {
             "md": (
                 "**What to notice:** empty 0.000, full about 0.28, frozen about 0.64 mean IoU with `adapted: False`, and "
                 "precision above recall.\n\n"
-                "<details><summary>Check your reasoning</summary>Frozen model, then full mask, then empty mask. In the Kaggle "
-                "T4 run of 2026-09-21 (and identically in local CPU runs) the empty mask scored 0.000 by construction, the "
+                "<details><summary>Check your reasoning</summary>Frozen model, then full mask, then empty mask. In the "
+                "CPU build record of 2026-10-16 the empty mask scored 0.000 by construction, the "
                 "full mask 0.283 — the references cover about 28 % of their photographs — and the frozen model **0.637** "
                 "mean IoU, Dice 0.715. Its pixel precision 0.835 is well above its recall 0.736: when it marks a pixel it is "
                 "usually right, but it marks too few — it under-segments. 63 of the 140 records score above 0.8 IoU, while 24 "
@@ -592,16 +672,20 @@ TEMPLATE = {
                 "the FiLM conditioning, the reduce projections and the transposed convolution: 1,127,009 of 150,747,746 "
                 "parameters — while the CLIP image and text towers stay frozen, exactly the split the upstream authors "
                 "trained with. The loss is the **per-pixel binary cross-entropy** between the 352 × 352 decoder logits and "
-                "the reference mask resampled to that grid — the upstream training objective. Because the towers are "
+                "the reference mask area-averaged onto that grid — each target cell holds the fraction of its pixels that are mask, "
+                "so the target is soft at the boundary and centred like the upsampled prediction — the upstream training "
+                "objective. Because the towers are "
                 "frozen, their outputs — the image activations at layers 3, 6 and 9 and the phrase embedding — are computed "
                 "once per record under no gradient and cached in half precision on the host (the **frozen-tower cache**), "
-                "and each step runs only the decoder on those cached activations: the logits equal the full model's "
-                "exactly, at a fraction of the cost. AdamW without weight decay at a fixed learning rate, gradient clipping "
+                "and each step runs only the decoder on those cached activations, at a fraction of the cost. The cached image "
+                "activations are rounded to half precision, so the decoder's logits are close to the full model's but not "
+                "equal: measured on CPU in the 2026-10-16 review, the rounding moved the validation mean IoU by at most about "
+                "1e-5 at any epoch and did not change the kept epoch. AdamW without weight decay at a fixed learning rate, gradient clipping "
                 "at 1.0, seeded shuffling, no scheduler, no augmentation. Epoch 0 records the frozen model's validation "
                 "rates; every epoch is scored on the 60 validation records at `THRESHOLD`, and the epoch with the **highest "
                 "validation mean IoU** (the earliest on ties) is kept. The cell reloads the pretrained model first if an "
                 "earlier pass adapted it, and refuses to train on top of an adapted decoder, so epoch 0 is always the frozen "
-                "model. On a Kaggle T4 (2026-09-21) the tower cache took 30 s and the eight epochs 59 s.\n\n"
+                "model. On a Kaggle T4 (2026-09-21; revision `2c999ae`, blob `100adc4f`, an earlier version of this notebook; not re-run here) the tower cache took 30 s and the eight epochs 59 s.\n\n"
                 "**Predict before running:** will the validation mean IoU rise at every one of the eight epochs, or peak "
                 "and then flatten? Will the kept epoch be the last one?"
             ),
@@ -629,18 +713,19 @@ TEMPLATE = {
             "md": (
                 "**What to notice:** epoch 0 labelled `frozen model` at about 0.60 validation mean IoU, the loss falling, and "
                 "`best_epoch`.\n\n"
-                "<details><summary>Check your reasoning</summary>It peaks and then flattens. In the Kaggle T4 run of "
-                "2026-09-21 the validation mean IoU rose from 0.603 at epoch 0 to **0.855 at epoch 4** and stayed on a "
-                "plateau of 0.849–0.855 afterwards, while the training loss kept falling from about 0.183 to 0.060; the "
+                "<details><summary>Check your reasoning</summary>It peaks and then flattens. In the CPU build record of 2026-10-16 "
+                "the validation mean IoU rose from 0.603 at epoch 0 to **0.856 at epoch 4** and stayed on a "
+                "plateau of 0.849–0.855 afterwards, while the training loss kept falling from about 0.184 to 0.061; the "
                 "earliest best epoch, 4, was kept, not the last. A falling training loss with a flat validation score is "
-                "the signal that further epochs fit the 600 training records rather than the task. A local CPU run of this "
-                "version (2026-10-04) printed the same curve and kept epoch 4 again (0.603 → 0.855, the same values to three decimals).</details>\n\n"
+                "the signal that further epochs fit the 600 training records rather than the task.</details>\n\n"
                 "## 8. Held-out evaluation\n\n"
                 "The test records were never used for training or epoch selection, and no image appears in two splits. The "
                 "adapted model is scored exactly as the frozen model was in Section 6 and the four systems are put side by "
                 "side. Read it in this order: **mean IoU** first (the measure the epoch was selected on), then **Dice**, then "
                 "pixel **precision** and **recall** together (a gain in one at the cost of the other is a moved threshold, "
-                "not a better segmenter), then the predicted area against the reference area. The cell prints a verdict — "
+                "not a better segmenter), then the predicted area against the reference area. Both models are scored at the one "
+                "threshold `THRESHOLD`, which the adapted decoder was also trained and epoch-selected at; the frozen model gets "
+                "no threshold of its own. The cell prints a verdict — "
                 "whether the adapted model beat the frozen one and both baselines — instead of stopping: on your own data or "
                 "with other settings the honest answer can be *no*, and the export and reload in Section 9 still run. It also "
                 "adds a row to `run_history`, so an optional experiment can be compared with the default run. One hundred and "
@@ -689,21 +774,21 @@ TEMPLATE = {
             "md": (
                 "**What to notice:** the four-system table, the `delta_vs_frozen` row, the predicted area against the "
                 "reference area, and the verdict.\n\n"
-                "<details><summary>Check your reasoning</summary>Near the validation peak, and recall moves most. In the Kaggle "
-                "T4 run of 2026-09-21 the held-out mean IoU went from 0.637 to **0.842** (Dice 0.715 → 0.904), close to the "
-                "0.855 validation peak; precision rose modestly (0.835 → 0.881) while recall jumped (0.736 → 0.927), and the "
+                "<details><summary>Check your reasoning</summary>Near the validation peak, and recall moves most. In the "
+                "CPU build record of 2026-10-16 the held-out mean IoU went from 0.637 to **0.843** (Dice 0.715 → 0.904), close to the "
+                "0.856 validation peak; precision rose modestly (0.835 → 0.881) while recall jumped (0.736 → 0.927), and the "
                 "predicted area moved from 0.25 to 0.29 of the image against the references' 0.28. The records under 0.2 IoU "
                 "fell from 24 to 1 and those above 0.8 rose from 63 to 111. The adapted decoder learned to draw FoodSeg103's "
-                "masks as large as its annotators did. A local CPU run of this version (2026-10-04) printed the same 0.637 → 0.842 mean IoU and 0.715 → 0.904 Dice.</details>\n\n"
+                "masks as large as its annotators did.</details>\n\n"
                 "## 9. Look at the masks, segment the scene again, export the adapter and reload it\n\n"
                 "Six held-out records are written as panels (`outputs/{stem}_examples/`: the photograph with the reference "
                 "mask, the frozen mask and the adapted mask side by side — green, blue and red overlays — the phrase and both "
                 "IoUs beneath) so the numbers can be checked by eye; the frozen masks are the ones Section 6 kept. The drawn "
                 "scene from Section 5 is then segmented again by the adapted model — the decoder that was tuned serves every "
                 "phrase, so this is a small look at what the adaptation did *outside* its phrase vocabulary and its corpus. "
-                "In the Kaggle T4 run of 2026-09-21 the drawn shapes scored `green grass` 0.96, `a red circle` 0.96, `a blue "
-                "square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.947) before adaptation and 0.97, 0.97, 0.96, 0.93 (mean "
-                "IoU 0.958) after, the absent phrases' area fraction 0.000 both times — one drawing of evidence, not a "
+                "In the CPU build record of 2026-10-16 the drawn shapes scored `green grass` 0.96, `a red circle` 0.96, `a blue "
+                "square` 0.96, `a yellow triangle` 0.91 (mean IoU 0.947) before adaptation and 0.97, 0.96, 0.96, 0.93 (mean "
+                "IoU 0.957) after, the absent phrases' area fraction 0.000 both times — one drawing of evidence, not a "
                 "measurement.\n\n"
                 "`pipe.save_artifact` writes the trained tensors — the decoder, about 4.5 MB in float32 — as "
                 "`adapter.safetensors`, with a `manifest.json` recording the artifact format, the base model id and revision, "
@@ -791,8 +876,8 @@ TEMPLATE = {
                 "<details><summary>Check your reasoning</summary>Mostly on whole regions the frozen model left out: the "
                 "frozen masks are too small (recall 0.736), and adaptation mainly grows them to the annotated extent (recall "
                 "0.927), with comparatively small changes at the edges. On the drawing the adapted decoder still leaves `a "
-                "cat` and `the sky` empty and moves the shapes by about a hundredth (0.947 → 0.958 mean IoU in the Kaggle T4 "
-                "run of 2026-09-21): 1.1 M decoder parameters learned FoodSeg103's annotation convention, not new visual "
+                "cat` and `the sky` empty and moves the shapes by about a hundredth (0.947 → 0.957 mean IoU in the "
+                "CPU build record of 2026-10-16): 1.1 M decoder parameters learned FoodSeg103's annotation convention, not new visual "
                 "concepts. The adapter held 64 tensors (4,514,484 bytes) and the reloaded pipeline gave identical masks on "
                 "8 of 8 test records.</details>\n\n"
                 "## 10. Your turn — change one thing: the threshold\n\n"
@@ -828,7 +913,7 @@ TEMPLATE = {
     ],
     "closing": (
         "**What to notice:** two rows, one per threshold; the lower threshold predicts a larger area.\n\n"
-        "<details><summary>Check your reasoning</summary>Precision falls, recall rises, and the mean IoU barely moves. In a local CPU run of this version (2026-10-04, default settings) the adapted model on the 60 validation records scored, at 0.5, mean IoU 0.855, precision 0.903, recall 0.911 and a predicted area of 0.298; at 0.3, 0.851, 0.871, 0.933 and 0.315; at 0.7, 0.844, 0.927, 0.873 and 0.282 — against a reference area of 0.298. The mean IoU moved by less than 0.02 either way, because after adaptation most of each mask lies far from the cut. Lowering the threshold admits every pixel whose "
+        "<details><summary>Check your reasoning</summary>Precision falls, recall rises, and the mean IoU barely moves. In the CPU build record of 2026-10-16 (default settings) the adapted model on the 60 validation records scored, at 0.5, mean IoU 0.856, precision 0.903, recall 0.911 and a predicted area of 0.298; at 0.3, 0.851, 0.871, 0.933 and 0.315; at 0.7, 0.844, 0.927, 0.872 and 0.282 — against a reference area of 0.298. The mean IoU moved by less than 0.02 either way, because after adaptation most of each mask lies far from the cut. Lowering the threshold admits every pixel whose "
         "sigmoid lies between the two cuts, so the masks grow: more of the reference is covered (recall up) and more "
         "background is marked too (precision down). Choosing the threshold on the test records would make the reported "
         "test score optimistic, because the test split would then have been used to tune the model; the validation "
@@ -839,23 +924,30 @@ TEMPLATE = {
         "<details><summary>Reference answer from the recorded runs</summary>A phrase-conditioned segmenter trained on "
         "PhraseCut already finds the largest ingredient in a food photograph roughly when asked by name: the frozen model "
         "scored a mean IoU of 0.637 on the FoodSeg103 test records. A bounded fine-tuning of its decoder on 600 records "
-        "moved that to 0.842 mean IoU and 0.904 Dice in the Kaggle T4 run of 2026-09-21, which reproduced a CPU sweep "
-        "exactly (0.842 / 0.904 at epoch 4, plateau 0.849–0.855 after), with a 4.5 MB adapter that reloads "
+        "moved that to 0.843 mean IoU and 0.904 Dice in the CPU build record of 2026-10-16 (epoch 4 kept, validation plateau "
+        "0.849–0.855 after it), with a 4.5 MB adapter that reloads "
         "mask-for-mask. The gain is almost all recall (0.736 → 0.927 at precision 0.835 → 0.881), the records under 0.2 "
         "IoU fall from 24 to 1 and those above 0.8 rise from 63 to 111, one record (`garlic`) stays at 0.0, and the drawn "
-        "scene outside the vocabulary moved by about a hundredth (0.947 → 0.958 mean IoU, the two absent phrases still "
+        "scene outside the vocabulary moved by about a hundredth (0.947 → 0.957 mean IoU, the two absent phrases still "
         "empty): a decoder of 1.1 M parameters learned FoodSeg103's annotation convention, not new visual concepts. On "
         "BYOD data or with other settings your numbers will differ, and the verdict can be *not improved*.</details>\n\n"
         "That is the claim: the adaptation contract works end to end on a text-prompted segmenter with a real labelled "
         "set, and the numbers it produces are read as mean and micro IoU, Dice, precision and recall at one stated "
         "threshold, against two non-adapted baselines and the frozen model, with the predicted area beside them rather "
         "than in isolation. The row has no sibling on this corpus — CLIPSeg is the fleet's only text-prompted segmenter — "
-        "so the comparison is the frozen decoder against the tuned one on the same 140 records.\n\n"
+        "so the comparison is the frozen decoder against the tuned one on the same 140 records. It isolates the decoder's "
+        "training (same towers, inputs, split and metric) at **one fixed threshold** for both models: the adapted decoder "
+        "was trained and epoch-selected at that threshold, while no validation-tuned threshold was tried for the frozen model, "
+        "so part of the recall gain might be reachable by lowering the frozen model's threshold alone. Precision rose too "
+        "(0.835 → 0.881), so the gain is not only a moved cut, but this comparison shows that adaptation beats the frozen "
+        "model at 0.5, not that it beats the best the frozen model could do.\n\n"
         "The test split is 140 records from one seeded draw of one 800-record sample, the validation split that picks the "
         "epoch is 60, and every rate in Sections 5–9 is at the one threshold `THRESHOLD` — not a benchmark, not a "
         "threshold sweep, not a measure of phrases the sample never asks (one phrase per image, the largest ingredient "
         "only). So a result here says the contract works on food photographs' largest ingredients, not that the adapted "
-        "model handles other phrases, other image families or your masks. The decoder that was tuned serves every phrase: "
+        "model handles other phrases, other image families or your masks. CLIP's web-scale pretraining may include some of "
+        "the Recipe1M photographs FoodSeg103 was drawn from (not audited; see the introduction), so both scores may be "
+        "optimistic. The decoder that was tuned serves every phrase: "
         "the drawn scene re-segmented in Section 9 is one drawing of evidence about what the tuning did outside its "
         "vocabulary, not a measurement, and a deployment that segments other phrases must measure them after adapting. The "
         "towers were not adapted: what the image encoder cannot see stays unsegmented, and **the probabilities remain an "
@@ -865,6 +957,8 @@ TEMPLATE = {
         "gain in mean IoU that comes with a collapse of one of them is a moved threshold, and the threshold is yours to "
         "set on a validation split, not the test split. **Leakage:** keep every image in one split (the contract "
         "de-duplicates by decoded pixels) and split by source, session or scene when your images come from few sources.\n\n"
+        "The package, its contract and the weight provenance are documented in the repository README [8], model card [9] "
+        "and weight notes [10]; this notebook follows the DIMER Notebook Specification 2.5 [11].\n\n"
         "Successful execution proves that the recorded repository revision's package, carried in this standalone notebook, "
         "can acquire and digest-verify the pinned model snapshot, fetch and digest-verify a real labelled mask set, validate "
         "the demonstrated dataset contract without leakage, execute the inference contract for a drawn scene and a bounded "
@@ -878,7 +972,7 @@ TEMPLATE = {
         "default run.\n\n"
         "- **More epochs:** set `EPOCHS = 16` in Section 7 and **Run after** from Section 7. Does validation keep a later "
         "epoch? <details><summary>Reference answer</summary>Inferred from the default run's plateau (0.849–0.855 after "
-        "epoch 4 on the Kaggle T4): the earliest best epoch stays near 4 unless a later epoch edges above 0.855, and the "
+        "epoch 4 in the CPU build record of 2026-10-16): the earliest best epoch stays near 4 unless a later epoch edges above 0.856, and the "
         "held-out gain barely changes; not re-measured at 16 epochs.</details>\n"
         "- **Learning rate:** set `LEARNING_RATE = 3e-5` or `3e-3` in Section 7 and **Run after** from Section 7. Read the "
         "epoch-0 row (it must equal the frozen 0.603 again) and the curve.\n"
@@ -908,7 +1002,7 @@ TEMPLATE = {
         "incomplete or altered — delete it from `weights/clipseg-rd64-refined/` and run Section 3 again.\n"
         "- **A `sha256` `ValueError` naming a parquet row group in Section 4.** A cached "
         "`weights/foodseg103/validation-rg*.parquet` is incomplete — delete it and run Section 4 again.\n"
-        "- **BYOD is refused in Section 4.** The message names what to fix: fewer than 12 distinct images, a missing "
+        "- **BYOD is refused in Section 4.** The refusal is one message, without a traceback, and it names what to fix: fewer than 12 distinct images, a missing "
         "`masks.csv` or column, a path `masks.csv` names that is not in the upload (paths are relative to the folder "
         "holding `masks.csv`), an image and mask that are the same file, two zip members with the same path, a file no "
         "row names, a JPEG mask, a mask of the wrong size or with no pixel, a phrase over 64 characters or a duplicate id. "
@@ -918,7 +1012,8 @@ TEMPLATE = {
         "read the epoch history (did validation keep epoch 0?) and the per-record rows in the evaluation report.\n"
         "- **Reload parity fails in Section 9.** The saved adapter does not reproduce the evaluated model. Re-run from "
         "Section 7 (it reloads the pretrained model first), or restart the session and choose **Run all**.\n"
-        "- **Numbers differ slightly from the recorded runs.** GPU arithmetic is not bit-for-bit the CPU's; a difference "
+        "- **Numbers differ slightly from the quoted ones.** The quoted numbers come from a CPU build record (see the "
+        "introduction), and GPU arithmetic is not bit-for-bit the CPU's; a difference "
         "in the third decimal between a T4 and a CPU run is expected. Larger differences at the default settings mean a "
         "form field was changed.\n\n"
         "## Glossary\n\n"
@@ -953,13 +1048,16 @@ TEMPLATE = {
         "because ___.\n"
         "- Before trusting an adapted segmenter on my own images I would measure ___ on ___.\n\n"
         "## References\n\n"
-        "- Repository README: https://github.com/kurtvalcorza/clipseg-segmentation-pipeline/blob/main/README.md\n"
-        "- Repository model card: https://github.com/kurtvalcorza/clipseg-segmentation-pipeline/blob/main/MODEL_CARD.md\n"
-        "- Weight provenance: https://github.com/kurtvalcorza/clipseg-segmentation-pipeline/blob/main/docs/WEIGHTS.md\n"
-        "- Upstream model: https://huggingface.co/{MODEL_ID}\n"
-        "- Upstream code: https://github.com/timojl/clipseg\n"
-        "- Image Segmentation Using Text and Image Prompts (Lüddecke and Ecker, CVPR 2022): https://arxiv.org/abs/2112.10003\n"
-        "- FoodSeg103 (Apache-2.0): https://huggingface.co/datasets/EduardoPacheco/FoodSeg103 — Wu, Fu, Liu, Lim, Hoi, Sun. A Large-Scale Benchmark for Food Image Segmentation (ACM MM 2021): https://arxiv.org/abs/2105.05409\n"
-        "- DIMER Notebook Specification 2.2 and Model Card Specification 1.1 (fleet specs in the ml-worker repository)"
+        "[1] T. Lüddecke and A. Ecker, \u201cImage segmentation using text and image prompts,\u201d in *Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)*, 2022. [Online]. Available: https://arxiv.org/abs/2112.10003\n\n"
+        "[2] X. Wu, X. Fu, Y. Liu, E.-P. Lim, S. C. H. Hoi, and Q. Sun, \u201cA large-scale benchmark for food image segmentation,\u201d in *Proc. 29th ACM Int. Conf. Multimedia (MM)*, 2021. [Online]. Available: https://arxiv.org/abs/2105.05409\n\n"
+        "[3] A. Radford *et al.*, \u201cLearning transferable visual models from natural language supervision,\u201d in *Proc. 38th Int. Conf. Machine Learning (ICML)*, 2021. [Online]. Available: https://arxiv.org/abs/2103.00020\n\n"
+        "[4] A. Salvador *et al.*, \u201cLearning cross-modal embeddings for cooking recipes and food images,\u201d in *Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR)*, 2017. [Online]. Available: https://openaccess.thecvf.com/content_cvpr_2017/html/Salvador_Learning_Cross-Modal_Embeddings_CVPR_2017_paper.html\n\n"
+        "[5] CIDAS, \u201cclipseg-rd64-refined,\u201d Hugging Face model card, revision `{MODEL_REVISION}`. [Online]. Available: https://huggingface.co/{MODEL_ID}/blob/{MODEL_REVISION}/README.md\n\n"
+        "[6] EduardoPacheco, \u201cFoodSeg103,\u201d Hugging Face dataset card (Apache-2.0). [Online]. Available: https://huggingface.co/datasets/EduardoPacheco/FoodSeg103\n\n"
+        "[7] T. Lüddecke, \u201cclipseg,\u201d GitHub repository. [Online]. Available: https://github.com/timojl/clipseg\n\n"
+        "[8] K. Valcorza, \u201cclipseg-segmentation-pipeline: README,\u201d GitHub repository. [Online]. Available: https://github.com/kurtvalcorza/clipseg-segmentation-pipeline/blob/main/README.md\n\n"
+        "[9] K. Valcorza, \u201cclipseg-segmentation-pipeline: model card,\u201d GitHub repository. [Online]. Available: https://github.com/kurtvalcorza/clipseg-segmentation-pipeline/blob/main/MODEL_CARD.md\n\n"
+        "[10] K. Valcorza, \u201cclipseg-segmentation-pipeline: weight provenance,\u201d GitHub repository. [Online]. Available: https://github.com/kurtvalcorza/clipseg-segmentation-pipeline/blob/main/docs/WEIGHTS.md\n\n"
+        "[11] DIMER, \u201cDIMER Notebook Specification 2.5,\u201d `integrations/dimer/fleet-specs/NOTEBOOK_SPEC.md`, ml-worker repository, revision `bfe4150`."
     ),
 }

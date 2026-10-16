@@ -131,7 +131,7 @@ def test_isolated_runtime_no_in_kernel_install(notebook):
     install = next(s for s in kernel if "LOCK_TEXT = r" in s)
     for needed in ('"--managed-python"', '"--require-hashes"', '"--only-binary"', '":all:"', "UV_SHA256", "LOCK_SHA256"):
         assert needed in install
-    assert notebook["metadata"]["dimer"]["notebook_spec"] == "2.2"
+    assert notebook["metadata"]["dimer"]["notebook_spec"] == "2.5"  # 2.2 until the 2026-10-16 review (CST-m1)
     assert notebook["metadata"]["dimer"]["generated_from"]["generator"] == "build_notebook.py/2.1"
     # The only remaining pip line is the guarded fallback in the runtime-record cell, skipped by the isolated worker.
     pip_cells = [s for s in sources if "'-m', 'pip', 'install'" in s]
