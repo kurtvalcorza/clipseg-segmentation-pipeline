@@ -1,0 +1,243 @@
+[colab] Parsing notebook '/home/kurt/colab-runs/clipseg-segmentation-pipeline-e788d26-5fd435/DIMER_MultiModel_Image_Segmentation_Workshop_e788d26_colab-cli-t4.ipynb'...
+[colab] Executing cell 1/12 - Infrastructure: check the runtime and create this run's folder...
+Tesla T4
+[colab] Executing cell 2/12 - code-03...
+Separate CLIPSeg, SAM and SAM 2 source namespaces materialized and verified.
+[colab] Executing cell 3/12 - Infrastructure: isolated environment, stage runner and display helpers...
+Creating the isolated Python 3.12.12 environment and installing the hash-locked packages; this can take a few minutes on a fresh runtime.
+Python 3.12.12 (main, Feb 12 2026, 00:42:14) [Clang 21.1.4 ]
+torch 2.14.0+cu130 built for CUDA 13.0
+transformers 4.57.6
+Dependencies installed and verified in the isolated environment.
+[colab] Executing cell 4/12 - code-06...
+Running prepare — one model per process; log: /content/outputs/image_segmentation/efa805b2bc07/prepare.log
+Verifying and loading pinned FoodSeg103 row groups (attempt 1/3)
+Frozen roles: {'train': 120, 'validation': 40, 'test': 40, 'activity': 12}
+role       | images | distinct classes | classes also in train
+train      |    120 |               40 |                    40
+validation |     40 |               21 |                    16
+test       |     40 |               18 |                    13
+activity   |     12 |                7 |                     7
+reference_disconnected.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpfagyqy0i.png]
+reference_first.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpfe8n8vgu.png]
+[colab] Executing cell 5/12 - code-08...
+{'TP': 2, 'FP': 2, 'FN': 2, 'IoU': 0.3333333333333333, 'Dice': 0.5}
+[colab] Executing cell 6/12 - code-10...
+Running clipseg — one model per process; log: /content/outputs/image_segmentation/efa805b2bc07/clipseg.log
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+/content/outputs/image_segmentation/efa805b2bc07/env/lib/python3.12/site-packages/transformers/image_processing_utils.py:51: UserWarning: The following named arguments are not valid for `ViTImageProcessor.preprocess` and were ignored: 'padding'
+  return self.preprocess(images, **kwargs)
+{"epoch": 0, "train_loss": null, "val": {"miou": 0.6175104891490334, "iou_micro": 0.5301417627664249, "dice": 0.6842971755053668, "pixel_precision": 0.8970535509743857, "pixel_recall": 0.5644846796284194, "n": 40}, "note": "frozen model"}
+{"epoch": 1, "train_loss": 0.20019, "val": {"miou": 0.733377871527982, "iou_micro": 0.7068045016909391, "dice": 0.8132894438343913, "pixel_precision": 0.8099377962502564, "pixel_recall": 0.8473458470757548, "n": 40}}
+{"epoch": 2, "train_loss": 0.12672, "val": {"miou": 0.7733390074321151, "iou_micro": 0.7525901348301479, "dice": 0.8433322241670635, "pixel_precision": 0.8513643379094739, "pixel_recall": 0.866431568435316, "n": 40}}
+{"epoch": 3, "train_loss": 0.09754, "val": {"miou": 0.7799251419755784, "iou_micro": 0.7645029432020569, "dice": 0.8519527185437544, "pixel_precision": 0.8472944849115505, "pixel_recall": 0.8866724168467952, "n": 40}}
+{"epoch": 4, "train_loss": 0.08332, "val": {"miou": 0.7929468405893337, "iou_micro": 0.7982118357821115, "dice": 0.8638271564964626, "pixel_precision": 0.8595809462058223, "pixel_recall": 0.9179005036632613, "n": 40}}
+epoch | train loss | validation mean IoU | max decoder change
+    0 |          - |             0.6175 | 0.00e+00
+    1 |     0.2002 |             0.7334 | 9.16e-03
+    2 |     0.1267 |             0.7733 | 1.99e-02
+    3 |     0.0975 |             0.7799 | 2.57e-02
+    4 |     0.0833 |             0.7929 | 3.17e-02
+Selected epoch: 4; optimizer steps: 120; trainable decoder parameters: 1127009 of 150747746
+
+                                                                                
+                                     Mean                                       
+           Prompt         Test     target                             Predicted 
+ Model     protocol     images        IoU    Dice  Precisi…  Recall        area 
+ ────────────────────────────────────────────────────────────────────────────── 
+ empty     unassist…        40     0.0000  0.0000       n/a  0.0000      0.0000 
+ clipseg…  text             40     0.6173  0.6988    0.8664  0.7245      0.2556 
+ clipseg…  text             40     0.8206  0.8853    0.8698  0.9129      0.2969 
+                                                                                
+
+*Per-image means. Precision is averaged over images with any predicted          
+foreground; an empty prediction has no precision (n/a). Predicted area is the   
+fraction of the image predicted as target.                                      
+clipseg_first.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpt4swqra0.png]
+[colab] Executing cell 7/12 - code-12...
+Running reload — one model per process; log: /content/outputs/image_segmentation/efa805b2bc07/reload.log
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+/content/outputs/image_segmentation/efa805b2bc07/env/lib/python3.12/site-packages/transformers/image_processing_utils.py:51: UserWarning: The following named arguments are not valid for `ViTImageProcessor.preprocess` and were ignored: 'padding'
+  return self.preprocess(images, **kwargs)
+Fresh reload passed: 92 records scored by a new process (PID 2125); maximum probability difference 0.00e+00 (tolerance 1e-05); identical masks on every record: True; metric parity: True. Per-record parity: outputs/image_segmentation/efa805b2bc07/outputs/reload_parity.json
+[colab] Executing cell 8/12 - code-14...
+Running sam — one model per process; log: /content/outputs/image_segmentation/efa805b2bc07/sam.log
+Running sam2 — one model per process; log: /content/outputs/image_segmentation/efa805b2bc07/sam2.log
+You are using a model of type sam2_video to instantiate a model of type sam2. This is not supported for all configurations of models and can yield errors.
+
+                                                                                
+                                     Mean                                       
+           Prompt         Test     target                             Predicted 
+ Model     protocol     images        IoU    Dice  Precisi…  Recall        area 
+ ────────────────────────────────────────────────────────────────────────────── 
+ oracle_…  oracle_b…        40     0.5467  0.6942    0.5467  1.0000      0.5356 
+ sam       point            40     0.5062  0.5982    0.9234  0.5790      0.1941 
+ sam       box              40     0.7594  0.8379    0.7914  0.9302      0.3659 
+ sam2      point            40     0.5293  0.6292    0.9353  0.5901      0.1966 
+ sam2      box              40     0.7418  0.8122    0.8294  0.8299      0.2725 
+                                                                                
+
+*Per-image means. Precision is averaged over images with any predicted          
+foreground; an empty prediction has no precision (n/a). Predicted area is the   
+fraction of the image predicted as target.                                      
+sam2_first.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpuz9gb0ri.png]
+sam_first.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmp_yrr0cfb.png]
+[colab] Executing cell 9/12 - code-16...
+
+                                                                                
+                                                       Clipped by               
+   Expansion                                             an image   Whole-image 
+    per side  Images  Improved  Unchanged  Worsened          edge           box 
+ ────────────────────────────────────────────────────────────────────────────── 
+         10%      12         3          0         9            10             0 
+         25%      12         1          0        11            11             3 
+                                                                                
+
+                                                                                
+                     Boxes clipped by an edge:                                  
+                     improved / unchanged /       Boxes not clipped: improved / 
+ Expansion per side  worsened                     unchanged / worsened          
+ ────────────────────────────────────────────────────────────────────────────── 
+                10%  2 / 0 / 8 (of 10)            1 / 0 / 1 (of 2)              
+                25%  1 / 0 / 10 (of 11)           0 / 0 / 1 (of 1)              
+                                                                                
+
+The clipped / not-clipped split is descriptive: the groups also differ in       
+ingredient, target size and surroundings, so it cannot establish that clipping  
+caused a change.                                                                
+
+                                                                                
+                                              Clipped                Clipped    
+                             IoU,             sides,                 sides,     
+ Image      Phrase      tight box  IoU, +10%  +10%        IoU, +25%  +25%       
+ ────────────────────────────────────────────────────────────────────────────── 
+ foodseg1…  corn            0.978      0.000  left,           0.000  left, top, 
+                                              right,                 right,     
+                                              bottom                 bottom     
+                                                                     (whole     
+                                                                     image)     
+ foodseg1…  strawberry      0.614      0.445  left, top,      0.022  left, top, 
+                                              bottom                 bottom     
+ foodseg1…  potato          0.958      0.005  left,           0.000  left,      
+                                              bottom                 right,     
+                                                                     bottom     
+ foodseg1…  corn            0.976      0.977  left,           0.978  left,      
+                                              right,                 right,     
+                                              bottom                 bottom     
+ foodseg1…  biscuit         0.953      0.002  none            0.003  none       
+ foodseg1…  pie             0.934      0.001  left,           0.003  left,      
+                                              bottom                 right,     
+                                                                     bottom     
+ foodseg1…  pie             0.964      0.001  right,          0.003  left, top, 
+                                              bottom                 right,     
+                                                                     bottom     
+                                                                     (whole     
+                                                                     image)     
+ foodseg1…  chicken         0.980      0.983  right,          0.003  right,     
+            duck                              bottom                 bottom     
+ foodseg1…  chicken         0.906      0.279  left, top       0.000  left, top, 
+            duck                                                     right,     
+                                                                     bottom     
+                                                                     (whole     
+                                                                     image)     
+ foodseg1…  pork            0.714      0.000  left, top,      0.000  left, top, 
+                                              bottom                 bottom     
+ foodseg1…  chicken         0.931      0.338  top             0.001  top,       
+            duck                                                     bottom     
+ foodseg1…  chicken         0.958      0.969  none            0.000  left,      
+            duck                                                     right,     
+                                                                     bottom     
+                                                                                
+activity_expansion.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpg40vvd6m.png]
+[colab] Executing cell 10/12 - code-18...
+Running report — one model per process; log: /content/outputs/image_segmentation/efa805b2bc07/report.log
+                              Segmentation results                              
+
+Small-sample evidence; compare within equal prompt protocols.                   
+
+CLIPSeg: identical text prompts                                                 
+
+                                                           
+ Model             Protocol     n  Mean target IoU    Dice 
+ ───────────────────────────────────────────────────────── 
+ clipseg_frozen    text        40           0.6173  0.6988 
+ clipseg_reloaded  text        40           0.8206  0.8853 
+ empty             unassisted  40           0.0000  0.0000 
+                                                           
+
+SAM models: reference-derived geometric prompts                                 
+
+                                                            
+ Model              Protocol     n  Mean target IoU    Dice 
+ ────────────────────────────────────────────────────────── 
+ oracle_filled_box  oracle_box  40           0.5467  0.6942 
+ sam                box         40           0.7594  0.8379 
+ sam                point       40           0.5062  0.5982 
+ sam2               box         40           0.7418  0.8122 
+ sam2               point       40           0.5293  0.6292 
+                                                            
+
+Epoch selected on validation: 4                                                 
+
+Fresh reload: passed on 92 records in a new process (maximum probability        
+difference 0.0, tolerance 1e-05; identical masks: True; metric parity: True).   
+
+CLIPSeg test images, frozen to adapted (reloaded) IoU: 31 improved, 1 unchanged,
+8 worsened (of 40).                                                             
+
+SAM 2 box-precision activity (activity images)                                  
+
+                                                                                
+                                                       Clipped by               
+   Expansion                                             an image   Whole-image 
+    per side  Images  Improved  Unchanged  Worsened          edge           box 
+ ────────────────────────────────────────────────────────────────────────────── 
+         10%      12         3          0         9            10             0 
+         25%      12         1          0        11            11             3 
+                                                                                
+
+A reference-derived box is localization assistance, not autonomous recognition. 
+Personal learning notes are optional; no submission is required.                
+foodseg103-val-322.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmp7zweamfa.png]
+foodseg103-val-441.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmplidyb4dj.png]
+foodseg103-val-580.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpyyo251v8.png]
+foodseg103-val-694.png
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmp0j1m5l14.png]
+Results bundle: outputs/image_segmentation/efa805b2bc07/outputs/segmentation_results.zip
+In Colab: open the Files sidebar (folder icon), browse to that path, then choose Download.
+outputs/image_segmentation/efa805b2bc07/outputs/segmentation_results.zip        
+385.415071055 seconds since setup began
+[colab] Executing cell 11/12 - code-20...
+Optional BYOD disabled; default workflow complete.
+[colab] Executing cell 12/12 - code-22...
+Optional unlabelled inference disabled.
+[colab] Saving notebook with outputs to '/home/kurt/colab-runs/clipseg-segmentation-pipeline-e788d26-5fd435/DIMER_MultiModel_Image_Segmentation_Workshop_e788d26_colab-cli-t4_output.ipynb'...
