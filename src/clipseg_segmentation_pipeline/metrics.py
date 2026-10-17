@@ -3,7 +3,10 @@ their means (macro), the pixel-pooled IoU (micro), pixel precision and recall, a
 (empty mask, full-image mask).
 
 Every rate is computed over the supplied records at the supplied threshold; the sigmoid is uncalibrated and no
-dispersion is estimated (one seeded split of one sample gives one number)."""
+uncertainty estimate is reported (one seeded split of one sample gives one number per rate). A record whose
+prediction and reference are both empty scores IoU 0 and Dice 0 by convention; `validate_dataset` requires a
+non-empty reference, so corpus scores cover positive phrase-image pairs only, and absent-phrase behaviour has
+to be measured separately (for example as a false-positive area)."""
 # ruff: noqa: E501  -- adaptation-contract lines are kept at the fleet width
 
 from __future__ import annotations
@@ -14,9 +17,9 @@ from typing import Any
 import numpy as np
 
 METRIC_DEFINITIONS = {
-    "miou": "mean over records of the intersection-over-union between the thresholded mask and the reference mask (macro IoU; an empty prediction against a non-empty reference scores 0)",
+    "miou": "mean over records of the intersection-over-union between the thresholded mask and the reference mask (macro IoU; an empty prediction against a non-empty reference scores 0, and so, by convention, does a record whose prediction and reference are both empty; the evaluated records all have non-empty references, so these are positive phrase-image pairs only)",
     "iou_micro": "total intersection pixels over total union pixels across all records (micro IoU; large masks weigh more)",
-    "dice": "mean over records of 2·|A∩B| / (|A| + |B|)",
+    "dice": "mean over records of 2·|A∩B| / (|A| + |B|) (0 when both masks are empty, by convention)",
     "pixel_precision": "total true-positive pixels over total predicted pixels",
     "pixel_recall": "total true-positive pixels over total reference pixels",
     "baselines": "empty = no pixel predicted (IoU 0 by construction); full = every pixel predicted (IoU = the reference's area fraction)",
