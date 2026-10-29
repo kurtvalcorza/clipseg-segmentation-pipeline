@@ -26,12 +26,12 @@ workshop carry one implementation.
 # The BYOD loader used by Section 4 (CLS-M4, CLS-m5). Plain Python, inserted into the cell with its braces escaped
 # for str.format, so it can be read and tested here as written.
 _BYOD_HELPERS = r'''class BYODRefusal(ValueError):
-    """A refused upload: shown as this one message, without a traceback (it names the file and the rule)."""
+    """A refused upload, ``<file>: <reason>``: shown as the one line ``Refused: <file>: <reason>``, without a traceback."""
 
-    dimer_refusal = True  # the isolated-environment router prints the message alone
+    dimer_refusal = True  # the isolated-environment router shows the same one line
 
     def _render_traceback_(self):  # the same when the cell runs in the kernel itself
-        return [str(self)]
+        return [f"Refused: {self}"]
 
 
 BYOD_IGNORED_NAMES = ('.DS_Store', 'Thumbs.db', 'desktop.ini')
@@ -396,6 +396,7 @@ TEMPLATE = {
                 + "\n\n"
                 "os.makedirs('outputs', exist_ok=True)\n"
                 "byod_upload = None\n"
+                "byod_label = (Path(BYOD_PATH.strip()).expanduser().name or BYOD_PATH.strip()) if BYOD_PATH.strip() else '(no file)'\n"
                 "try:\n"
                 "    if USE_BYOD:\n"
                 "        if BYOD_PATH.strip():\n"
@@ -407,11 +408,12 @@ TEMPLATE = {
                 "            try:\n"
                 "                from google.colab import files\n"
                 "            except ImportError:\n"
-                "                raise RuntimeError('USE_BYOD is True and BYOD_PATH is empty, but this runtime has no Colab upload dialog: set BYOD_PATH to a .zip or a directory holding masks.csv.') from None\n"
+                "                raise ValueError('USE_BYOD is True and BYOD_PATH is empty, but this runtime has no Colab upload dialog: set BYOD_PATH to a .zip or a directory holding masks.csv.') from None\n"
                 "            uploaded = files.upload()\n"
                 "            if len(uploaded) != 1:\n"
                 "                raise ValueError(f'Upload exactly one .zip file (received {{len(uploaded)}}): run this cell again and choose the file, or set BYOD_PATH to a .zip or a directory.')\n"
                 "            file_name, payload = next(iter(uploaded.items()))\n"
+                "            byod_label = file_name\n"
                 "            byod_source = Path('work') / 'byod.zip'\n"
                 "            byod_source.parent.mkdir(parents=True, exist_ok=True)\n"
                 "            byod_source.write_bytes(payload)\n"
@@ -438,7 +440,10 @@ TEMPLATE = {
                 "except (TypeError, ValueError, FileNotFoundError) as exc:\n"
                 "    if not USE_BYOD or isinstance(exc, BYODRefusal):\n"
                 "        raise\n"
-                "    raise BYODRefusal(f'BYOD upload refused: {{exc}} Nothing was trained or scored on this upload; files under outputs/ are from an earlier run. Fix the named file or rule, then select this cell and choose Runtime -> Run after.') from None\n"
+                "    # Results of an earlier input must not survive as results of this one (DAT20).\n"
+                "    for _stale in ('records', 'splits', 'dataset_manifests', 'disjoint', 'data_source', 'raw_rows', 'train_records', 'val_records', 'test_records'):\n"
+                "        globals().pop(_stale, None)\n"
+                "    raise BYODRefusal(f'{{byod_label}}: {{exc}} Nothing was trained or scored on this upload; files under outputs/ are from an earlier run. Fix the named file or rule, then select this cell and choose Runtime -> Run after.') from None\n"
                 "train_records, val_records, test_records = splits['train'], splits['validation'], splits['test']\n"
                 "write_dataset_csv(train_records, 'outputs/{stem}_train.csv')\n"
                 "print({{'data_source': data_source, 'raw_rows': raw_rows, 'splits': disjoint}})\n"

@@ -298,7 +298,7 @@ def test_byod_refusal_wraps_contract_errors_but_not_the_default_path(notebook, c
     with pytest.raises(ValueError) as caught:
         _section4(notebook, carried, str(archive))
     assert type(caught.value).__name__ == "BYODRefusal"
-    assert caught.value._render_traceback_()[0].startswith("BYOD upload refused: ")
+    assert caught.value._render_traceback_()[0].startswith("Refused: bad.zip: ")
 
 
 def test_workshop_carries_the_fixed_src_byte_for_byte():
