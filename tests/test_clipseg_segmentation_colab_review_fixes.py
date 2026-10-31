@@ -132,7 +132,7 @@ def test_isolated_runtime_no_in_kernel_install(notebook):
     for needed in ('"--managed-python"', '"--require-hashes"', '"--only-binary"', '":all:"', "UV_SHA256", "LOCK_SHA256"):
         assert needed in install
     assert notebook["metadata"]["dimer"]["notebook_spec"] == "2.5"  # 2.2 until the 2026-10-16 review (CST-m1)
-    assert notebook["metadata"]["dimer"]["generated_from"]["generator"] == "build_notebook.py/2.1"
+    assert notebook["metadata"]["dimer"]["generated_from"]["generator"] == "build_notebook.py/2.2"
     # The only remaining pip line is the guarded fallback in the runtime-record cell, skipped by the isolated worker.
     pip_cells = [s for s in sources if "'-m', 'pip', 'install'" in s]
     assert len(pip_cells) == 1 and "SKIP_INSTALL = os.environ.get('DIMER_NOTEBOOK_CI_PREINSTALLED') == '1'" in pip_cells[0]
@@ -306,8 +306,9 @@ def test_byod_path_directory_needs_no_colab(notebook, carried, tmp_path, monkeyp
             target.write_bytes(archive.read(info))
     ns = _section4(notebook, carried, str(folder / "set"))
     assert ns["byod_upload"]["kind"] == "directory" and ns["byod_upload"]["files"] == 25
-    with pytest.raises(RuntimeError, match="set BYOD_PATH to a .zip or a directory holding masks.csv"):
+    with pytest.raises(ValueError, match="set BYOD_PATH to a .zip or a directory holding masks.csv") as caught:
         _section4(notebook, carried, "")
+    assert caught.value._render_traceback_()[0].startswith("Refused: (no file): USE_BYOD is True and BYOD_PATH is empty")
 
 
 def test_empty_upload_is_refused_with_an_instruction(notebook, carried, monkeypatch):
