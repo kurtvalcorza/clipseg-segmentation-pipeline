@@ -1,0 +1,72 @@
+{
+  "repo": "clipseg-segmentation-pipeline",
+  "sha": "b863efac37be1a49c0a1591e22dd2c31df725bac",
+  "notebook": "tutorials/clipseg_segmentation_colab.ipynb",
+  "blob": "7182dbade1611b8c5d162f0e5b170bb5a7a11c79",
+  "gpu": "T4",
+  "session": "suite-clipseg-b863efa-315d",
+  "started_utc": "2026-10-29T15:55:55+00:00",
+  "runner": "Colab CLI `colab exec -f` on a fresh session (not a browser Run all)",
+  "overrides": [
+    {
+      "name": "USE_BYOD",
+      "from": "False",
+      "to": "True"
+    },
+    {
+      "name": "BYOD_PATH",
+      "from": "''",
+      "to": "'/etc/hostname'"
+    }
+  ],
+  "run_copy_blob": "ce7e77772a20adb39f53377dfc61c2e89d5aa492",
+  "run_copy_sha256": "50aa222a1a1e10f17d40a3ae2e36ba9a854774dd8f38a37a81640a09f568bee7",
+  "run_copy_note": "refusal run: the run copy is the committed notebook with the listed assignment overrides, cut immediately after the refusal cell and re-serialised (nbformat layout); input_unchanged compares against that copy",
+  "truncated_after_cell": "clipseg_segmentation-17",
+  "refusal_cell_ref": "clipseg_segmentation-17",
+  "refusal_cell_index": 8,
+  "cells_dropped": 13,
+  "code_cells_dropped": 6,
+  "original_sha256": "41152b7ee72ae5a4b36a2ef91f6bf96030bfe5ecc6f1b3a3c7fe578fd7f3de69",
+  "status": "[suite-clipseg-b863efa-315d] gpu-t4-s-usw4a1-358000640idwg | Hardware: T4 | Shape: Standard | Variant: GPU | Status: IDLE",
+  "exec_exit_code": 0,
+  "stopped": true,
+  "stop_verified": true,
+  "wall_s": 93.1,
+  "input_unchanged": true,
+  "executed_file": "clipseg_segmentation_colab_b863efa_colab-cli-t4_output.ipynb",
+  "log_cells": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "log_total": 8,
+  "code_cells": 8,
+  "executed_cells": 5,
+  "errors": [
+    {
+      "cell": "clipseg_segmentation-17",
+      "ename": "IsolatedCellRefusal",
+      "evalue": "hostname: /etc/hostname is neither a .zip file nor a directory Nothing was trained or scored on this upload; files under outputs/ are from an earlier run. Fix the named file or rule, then select this cell and choose Runtime -> Run after."
+    }
+  ],
+  "execution_counts": [],
+  "sequential": null,
+  "executed_sha256": "fe1f2b13396b454a5f67a8fdce8e5359a6e224dbcf5e5903626d5203988adf97",
+  "log_sequential_complete": true,
+  "mode": "expect_refusal",
+  "refusal_line": "Refused: hostname: /etc/hostname is neither a .zip file nor a directory Nothing was trained or scored on this upload; files under outputs/ are from an earlier run. Fix the named file or rule, then select this cell and choose Runtime -> Run after.",
+  "halting_cell_index": 8,
+  "halting_cell_id": "clipseg_segmentation-17",
+  "error_cells": [
+    8
+  ],
+  "refusal_fail_reasons": [],
+  "refusal_ok": true,
+  "verdict": "PASS"
+}
